@@ -33,7 +33,15 @@ const routers = [
             meta: {
                 title: 'Inventory Log'
             },
-            component: (resolve) => require(['./views/inventory-log.vue'], resolve)
+            component: (resolve) => require(['./views/inventory-cogs.vue'], resolve)
+        },{
+            path: '/inventory/cogs',
+            title: 'Inventory COGS',
+            name: 'InventoryCOGS',
+            meta: {
+                title: 'Inventory COGS'
+            },
+            component: (resolve) => require(['./views/inventory-cogs.vue'], resolve)
         }, {
             path: '/inventory/one/:inventoryID',
             title: 'Inventory Info',

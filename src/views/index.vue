@@ -43,6 +43,7 @@
                     </template>
                     <MenuItem name="3-1" :to="{ name: 'Inventory' }">List</MenuItem>
                     <MenuItem name="3-2" :to="{ name: 'InventoryLog' }">Log</MenuItem>
+                    <MenuItem name="3-3" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
                 </Submenu>
 
                 <MenuItem class="menuItem" name="4"  :to="{ name: 'Shipment' }">
