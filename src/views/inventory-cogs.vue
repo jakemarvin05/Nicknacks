@@ -6,73 +6,104 @@
             <BreadcrumbItem>COGS</BreadcrumbItem>
         </Breadcrumb>
 
-        <el-table :data="inventories" show-summary>
-            <el-table-column
-                fixed
-                min-width="135"
-                prop="name"
-                label="Name"
-                sortable
-                :filters="categoryFilters"
-                :filter-method="categoryFilterHandler"
-            ></el-table-column>
-            <el-table-column
-                min-width="135"
-                prop="sku"
-                label="SKU"
-                sortable
-            ></el-table-column>
+        <Tabs type="card" value="cogsTab">
 
-            <el-table-column min-width="105" label="Stock">
-                <template slot-scope="scope">
+            <TabPane label="Full Inventory List" name="fullInventoryList">
 
-                    <span style="font-size:11px; line-height: 12px;" v-for="location in scope.row.stock">
+                <el-table :data="inventories" show-summary>
+                    <el-table-column
+                        fixed
+                        min-width="135"
+                        prop="name"
+                        label="Name"
+                        sortable
+                        :filters="categoryFilters"
+                        :filter-method="categoryFilterHandler"
+                    ></el-table-column>
+                    <el-table-column
+                        min-width="135"
+                        prop="sku"
+                        label="SKU"
+                        sortable
+                    ></el-table-column>
 
-                        <span v-if="location.name.toLowerCase() === 'sold' && location.quantity > 0">
-                            <a href="javascript:void(0);" @click="showSoldDetails(scope.row)">
-                                <p>{{ location.name }}: {{ location.quantity }}</p>
-                            </a>
-                        </span>
-                        <span v-else-if="location.name.toLowerCase() === 'transit' && location.quantity > 0">
-                            <a href="javascript:void(0);" @click="showTransitDetails(scope.row)">
-                                <p>{{ location.name }}: {{ location.quantity }}</p>
-                            </a>
-                        </span>
-                        <span v-else><p>{{ location.name }}: {{ location.quantity }}</p></span>
+                    <el-table-column min-width="105" label="Stock">
+                        <template slot-scope="scope">
 
-                    </span>
-                </template>
-            </el-table-column>
+                            <span style="font-size:11px; line-height: 12px;" v-for="location in scope.row.stock">
 
-            <el-table-column
-                min-width="84"
-                prop="cogs"
-                label="COGS"
-                sortable
-            ></el-table-column>
+                                <span v-if="location.name.toLowerCase() === 'sold' && location.quantity > 0">
+                                    <a href="javascript:void(0);" @click="showSoldDetails(scope.row)">
+                                        <p>{{ location.name }}: {{ location.quantity }}</p>
+                                    </a>
+                                </span>
+                                <span v-else-if="location.name.toLowerCase() === 'transit' && location.quantity > 0">
+                                    <a href="javascript:void(0);" @click="showTransitDetails(scope.row)">
+                                        <p>{{ location.name }}: {{ location.quantity }}</p>
+                                    </a>
+                                </span>
+                                <span v-else><p>{{ location.name }}: {{ location.quantity }}</p></span>
 
-            <el-table-column
-                prop="holding"
-                label="Holding"
-                sortable
-            ></el-table-column>
-            <el-table-column
-                prop="holdingValue"
-                label="Holding Value"
-                sortable
-            ></el-table-column>
-            <el-table-column
-                prop="transit"
-                label="Transit"
-                sortable
-            ></el-table-column>
-            <el-table-column
-                prop="transitValue"
-                label="Transit Value"
-                sortable
-            ></el-table-column>
+                            </span>
+                        </template>
+                    </el-table-column>
 
-        </el-table>
+                    <el-table-column
+                        min-width="84"
+                        prop="cogs"
+                        label="COGS"
+                        sortable
+                    ></el-table-column>
+
+                    <el-table-column
+                        prop="holding"
+                        label="Holding"
+                        sortable
+                    ></el-table-column>
+                    <el-table-column
+                        prop="holdingValue"
+                        label="Holding Value"
+                        sortable
+                    ></el-table-column>
+                    <el-table-column
+                        prop="transit"
+                        label="Transit"
+                        sortable
+                    ></el-table-column>
+                    <el-table-column
+                        prop="transitValue"
+                        label="Transit Value"
+                        sortable
+                    ></el-table-column>
+
+                </el-table>
+
+            </TabPane>
+            <TabPane label="By Categories" name="byCategories">
+                <el-table :data="categoryCOGS" show-summary>
+                    <el-table-column
+                        fixed
+                        min-width="135"
+                        prop="categoryName"
+                        label="Categories"
+                        sortable
+                    ></el-table-column>
+
+                    <el-table-column
+                        prop="totalHoldingValue"
+                        label="Holding Value"
+                        sortable
+                    ></el-table-column>
+
+                    <el-table-column
+                        prop="totalTransitValue"
+                        label="Transit Value"
+                        sortable
+                    ></el-table-column>
+                </el-table>
+            </TabPane>
+
+        </Tabs>
 
         <Modal
             v-model="transitModal.show"
@@ -136,7 +167,11 @@ export default {
             soldModal: {
                 show: false,
                 inventory: ''
-            }
+            },
+
+            totalHoldingValue: 0,
+            totalTransitValue: 0,
+            categoryCOGS: []
 
         }
 
@@ -144,7 +179,7 @@ export default {
     methods: {
 
         categoryFilterHandler (value, row) {
-            return row.sku.indexOf(value.toLowerCase()) === 0
+            return row.sku.toLowerCase().indexOf(value.toLowerCase()) === 0
         },
 
         showTransitDetails (inventory) {
@@ -174,18 +209,15 @@ export default {
             this.inventories = response.data.data
 
             let categoryArray = []
+            let categoryCOGS = []
+
+            let totalHoldingValue = 0
+            let totalTransitValue = 0
 
             // split up the skus and get the broad categories
             // as well as get inventory value
             for(let i=0; i<this.inventories.length; i++) {
                 let inv = this.inventories[i]
-
-
-                // category filters
-                let sku = inv.sku
-                let categoryName = sku.split('-')[0].toLowerCase()
-
-                if (categoryArray.indexOf(categoryName) === -1) categoryArray.push(categoryName)
 
                 // adding up the inventory inventory value
                 let stock = inv.stock
@@ -214,11 +246,50 @@ export default {
                 }
 
                 inv.holding = singleInventoryQuantity
-                inv.holdingValue= Math.round(singleInventoryValue * 100) / 100
-                inv.transit= singleTransitQuantity
-                inv.transitValue= Math.round(singleTransitValue * 100) / 100
+
+                inv.holdingValue = Math.round(singleInventoryValue * 100) / 100
+                totalHoldingValue += inv.holdingValue
+
+                inv.transit = singleTransitQuantity
+
+                inv.transitValue = Math.round(singleTransitValue * 100) / 100
+                totalTransitValue += inv.transitValue
+
+
+
+                // category filters and cogs by SKU
+                let sku = inv.sku
+                let categoryName = sku.split('-')[0].toLowerCase()
+
+                // if cannot find the category
+                if (categoryArray.indexOf(categoryName) === -1) {
+                    // populate it
+                    categoryArray.push(categoryName)
+                    categoryCOGS.push({
+                        categoryName: categoryName,
+                        totalHoldingValue: Math.round(singleInventoryValue * 100) / 100,
+                        totalTransitValue: Math.round(singleTransitValue * 100) / 100
+                    })
+                } else {
+                    //add to the values
+                    let index = _.findIndex(categoryCOGS, {
+                        categoryName: categoryName
+                    })
+
+                    categoryCOGS[index].totalHoldingValue += singleInventoryValue
+                    categoryCOGS[index].totalTransitValue += totalTransitValue
+
+                    categoryCOGS[index].totalHoldingValue = Math.round(categoryCOGS[index].totalHoldingValue * 100) / 100
+                    categoryCOGS[index].totalTransitValue = Math.round(categoryCOGS[index].totalTransitValue * 100) / 100
+
+                }
 
             }
+            console.log(categoryCOGS)
+            this.categoryCOGS = categoryCOGS
+
+            this.totalHoldingValue = Math.round(totalHoldingValue * 100) / 100
+            this.totalTransitValue = Math.round(totalTransitValue * 100) / 100
 
             _.sortBy(categoryArray)
 
