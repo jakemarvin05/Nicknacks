@@ -277,7 +277,7 @@ export default {
                     })
 
                     categoryCOGS[index].totalHoldingValue += singleInventoryValue
-                    categoryCOGS[index].totalTransitValue += totalTransitValue
+                    categoryCOGS[index].totalTransitValue += singleTransitValue
 
                     categoryCOGS[index].totalHoldingValue = Math.round(categoryCOGS[index].totalHoldingValue * 100) / 100
                     categoryCOGS[index].totalTransitValue = Math.round(categoryCOGS[index].totalTransitValue * 100) / 100
