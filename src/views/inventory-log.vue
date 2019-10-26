@@ -137,7 +137,7 @@ export default {
     },
     methods: {
         categoryFilterHandler (value, row) {
-            return row.source.indexOf(value.toLowerCase()) === 0
+            return row.source.toLowerCase().indexOf(value.toLowerCase()) === 0
         }
     },
     created () {
