@@ -100,12 +100,21 @@
             <Form ref="addInventoryForm" :model="addInventoryModal.form" :rules="addInventoryModal.formRules">
                 <FormItem prop="inventoryIndex">
                     <Select placeholder="Select product" v-model="addInventoryModal.form.inventoryIndex" filterable @on-change="triggerStorageSelection()">
-                        <Option v-for="(inventory, index) in addInventoryModal.inventories" :value="index" :key="index">{{ inventory.name }} <br> <i>{{ inventory.sku }}</i></Option>
+                        <Option v-for="(inventory, index) in addInventoryModal.inventories" :value="index" :key="index" :label="inventory.name">
+                            <span>{{ inventory.name }}</span>
+                            <span style="display:block;"><i>{{ inventory.sku }}</i></span>
+                        </Option>
                     </Select>
+
                 </FormItem>
                 <FormItem prop="storageLocationID">
                     <Select ref="addInventoryFormStorage" placeholder="Select location" v-model="addInventoryModal.form.storageLocationID" filterable>
-                        <Option v-for="(stockItem, index) in addInventoryModal.selectedInventory.stock" :value="stockItem.StorageLocationID || -1" :key="index" :disabled="!stockItem.StorageLocationID">{{ stockItem.name }} (Qty: {{ stockItem.quantity }})</Option>
+                        <Option
+                            v-for="(stockItem, index) in addInventoryModal.selectedInventory.stock"
+                            :value="stockItem.StorageLocationID || -1"
+                            :key="index" :disabled="!stockItem.StorageLocationID" :label="stockItem.name + ' (Qty: ' + stockItem.quantity + ')'">
+                            <span>{{ stockItem.name }} (Qty: {{ stockItem.quantity }})</span>
+                        </Option>
                     </Select>
                 </FormItem>
                 <FormItem label="Quantity" prop="quantity">
