@@ -43,7 +43,7 @@
                     </template>
                     <MenuItem name="3-1" :to="{ name: 'Inventory' }">List</MenuItem>
                     <MenuItem name="3-2" :to="{ name: 'InventoryLog' }">Log</MenuItem>
-                    <MenuItem name="3-3" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
+                    <MenuItem v-if="$store.state.user.rightsLevel > 2"  name="3-3" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
                 </Submenu>
 
                 <MenuItem class="menuItem" name="4"  :to="{ name: 'Shipment' }">
@@ -54,7 +54,6 @@
             </Menu>
 
             <p>Logged in as: {{$store.state.user.name}} <a href="javascript:void(0);" @click="logout()">logout</a></p>
-
             <router-view></router-view>
         </div>
         <div v-else-if="$route.name === 'ForgetPasswordReset'">

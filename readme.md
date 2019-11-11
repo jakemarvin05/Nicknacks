@@ -4,9 +4,9 @@
 
 Access rights:
 
-1 ("Read only"): Read only for everything
-2 ("Basic"): Able to do edit products and tag products
-3: Nothing special
+1: ("Read only"): Read only for everything
+2: ("Basic"): Able to do edit products and tag products
+3: ("Basic+"): Able to see COGS
 4: Nothing special
 5: Nothing special
 6 ("Advanced"): Can edit product
