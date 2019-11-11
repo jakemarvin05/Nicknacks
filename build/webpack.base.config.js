@@ -84,11 +84,10 @@ module.exports = {
     ]
   },
   plugins: [
-    //copy the old public folder to webpack dist folder
-    //28Oct19: No longer required. was previously used to copy old JS to support old views
-    // new CopyWebpackPlugin([
-    //     { from: 'public' }
-    // ]),
+    //copy the public folder to webpack dist folder
+    new CopyWebpackPlugin([
+        { from: 'public' }
+    ]),
     new Dotenv()
   ],
   resolve: {
