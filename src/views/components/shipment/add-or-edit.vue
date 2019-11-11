@@ -28,7 +28,10 @@
                     <Col span="16">
                         <FormItem prop="products">
                             <Select placeholder="Select product" v-model="product.InventoryID" filterable>
-                                <Option v-for="(inventory, index) in inventories" :value="inventory.InventoryID" :key="index">{{ inventory.name }} <br> <i>{{ inventory.sku }}</i></Option>
+                                <Option v-for="(inventory, index) in inventories" :value="inventory.InventoryID" :key="index" :label="inventory.name">
+                                    <span>{{ inventory.name }}</span>
+                                    <span style="display:block;"><i>{{ inventory.sku }}</i></span>
+                                </Option>
                             </Select>
                         </FormItem>
                     </Col>

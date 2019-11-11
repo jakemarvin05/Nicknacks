@@ -1,11 +1,11 @@
 import Vue from 'vue'
-import iView from 'iview/dist/iview.min'
+import ViewUI from 'view-design'
 import VueRouter from 'vue-router'
 import Routers from './router'
 import Util from './libs/util'
 import App from './app.vue'
-import 'iview/dist/styles/iview.css'
-import locale from 'iview/dist/locale/en-US'
+import 'view-design/dist/styles/iview.css'
+import locale from 'view-design/dist/locale/en-US'
 import D from 'dottie'
 import moment from 'moment-timezone'
 import Element from 'element-ui'
@@ -18,8 +18,8 @@ axios.defaults.withCredentials = true
 axios.defaults.crossDomain = true
 
 Vue.use(VueRouter)
-Vue.use(iView, { locale })
-Vue.use(Element, { El_locale })
+Vue.use(ViewUI, { locale })
+Vue.use(Element, { locale: El_locale })
 Vue.use(VueJsonPretty)
 Vue.use(Vuex)
 
@@ -70,13 +70,13 @@ const router = new VueRouter(RouterConfig)
 
 
 router.beforeEach((to, from, next) => {
-    iView.LoadingBar.start()
+    ViewUI.LoadingBar.start()
     Util.title(to.meta.title)
     next();
 })
 
 router.afterEach((to, from, next) => {
-    iView.LoadingBar.finish()
+    ViewUI.LoadingBar.finish()
     window.scrollTo(0, 0)
 })
 

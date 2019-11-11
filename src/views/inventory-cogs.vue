@@ -6,9 +6,9 @@
             <BreadcrumbItem>COGS</BreadcrumbItem>
         </Breadcrumb>
 
-        <Tabs type="card" value="cogsTab">
+        <el-tabs type="card">
 
-            <TabPane label="Full Inventory List" name="fullInventoryList">
+            <el-tab-pane label="Full Inventory List">
 
                 <el-table :data="inventories" show-summary>
                     <el-table-column
@@ -78,8 +78,8 @@
 
                 </el-table>
 
-            </TabPane>
-            <TabPane label="By Categories" name="byCategories">
+            </el-tab-pane>
+            <el-tab-pane label="By Categories">
                 <el-table :data="categoryCOGS" show-summary>
                     <el-table-column
                         fixed
@@ -101,9 +101,9 @@
                         sortable
                     ></el-table-column>
                 </el-table>
-            </TabPane>
+            </el-tab-pane>
 
-        </Tabs>
+        </el-tabs>
 
         <Modal
             v-model="transitModal.show"

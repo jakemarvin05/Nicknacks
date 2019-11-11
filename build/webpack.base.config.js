@@ -84,7 +84,7 @@ module.exports = {
     ]
   },
   plugins: [
-    //copy the old public folder to webpack dist folder
+    //copy the public folder to webpack dist folder
     new CopyWebpackPlugin([
         { from: 'public' }
     ]),
