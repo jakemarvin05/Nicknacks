@@ -78,8 +78,8 @@
                                 ></inventory-status>
                                 <p><b>SKU:</b> {{ soldInventory.sku }}</p>
                                 <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
-                                <p><b>COGS/item:</b> {{ soldInventory.perItemCOGS }} </p>
-                                <p><b>Total COGS: {{ soldInventory.totalCOGS }}</b></p>
+                                <p v-if="$store.state.user.rightsLevel > 2"><b>COGS/item:</b> {{ soldInventory.perItemCOGS }} </p>
+                                <p v-if="$store.state.user.rightsLevel > 2"><b>Total COGS: {{ soldInventory.totalCOGS }}</b></p>
                             </Card>
 
                             <Button icon="md-add" type="primary" @click="addInventory(salesReceipt)">Add</Button>
