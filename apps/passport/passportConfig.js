@@ -39,7 +39,13 @@ function Passport(passport) {
         debug('Deserialising user.');
         DB.User.findById(id).then(function (user) {
             done(null, user.get({role: 'self'}))
-            return null
+
+            user.lastLogin = (new Date())
+            return user.save().catch((error) => {
+                console.error('CRITICAL: Error saving user last login for ' + user.name + '.')
+                console.error(error)
+            })
+
         }).catch(function (err) {
             done(err, null)
             return null
