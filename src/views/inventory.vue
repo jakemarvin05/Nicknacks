@@ -8,7 +8,18 @@
 
         <Button style="width:400;" type="primary" @click="addProduct()">Add product</Button>
 
-        <el-table :data="inventories">
+        <el-table
+            :data="inventories.filter(
+                inventory => !search || (
+                    inventory.name.toLowerCase().includes(
+                        search.toLowerCase()
+                    ) || inventory.sku.toLowerCase().includes(
+                        search.toLowerCase()
+                    )
+                )
+            )"
+            :row-class-name="tableRowClassName"
+        >
             <el-table-column
                 min-width="135"
                 prop="name"
@@ -51,6 +62,7 @@
                                 <p>{{ location.name }}: {{ location.quantity }}</p>
                             </a>
                         </span>
+                        <span v-else-if="location.quantity < 0 "><p class="stock-negative-text">{{ location.name }}: {{ location.quantity }}</p></span>
                         <span v-else><p>{{ location.name }}: {{ location.quantity }}</p></span>
 
                     </span>
@@ -67,8 +79,15 @@
 
             <el-table-column
                 min-width="62"
-                label="Action"
             >
+            <template slot="header" slot-scope="scope">
+                <el-input
+                    v-model="search"
+                    size="mini"
+                    placeholder="Type to search"
+                />
+            </template>
+
                 <template slot-scope="scope">
                     <Button type="primary" size="small" @click="editInventory(scope.row)">
                         <Icon type="ios-create" /><span class="inventoryActionText">Edit</span>
@@ -138,8 +157,32 @@
             </span>
         </Modal>
 
+        <Modal
+            v-model="stockErrorModal"
+            scrollable
+            title="Stock Errors! - Please rectify">
+            <span v-for="inventory in inventories" :key="inventory.InventoryID">
+                <span v-for="stock in inventory.stock">
+                    <p v-if="stock.quantity < 0 " style="padding-bottom: 10px">
+                        {{inventory.name}} ( <i>sku: {{inventory.sku}}</i> ) has qty <span class="stock-negative-text">{{stock.quantity}}</span> in {{stock.name}}
+                    </p>
+                </span>
+            </span>
+        </Modal>
+
     </div>
 </template>
+
+<style>
+.el-table .stock-negative-row {
+    background: #f56c6c;
+}
+.stock-negative-text {
+    color: red;
+    font-weight: bold;
+}
+</style>
+
 <script>
 
 import D from 'dottie'
@@ -227,7 +270,9 @@ export default {
             }, {
                 text: 'Bad timeline',
                 value: 'badTimeline'
-            }]
+            }],
+            search: '',
+            stockErrorModal: false
         }
 
     },
@@ -328,6 +373,17 @@ export default {
 
         addProduct() {
             this.addInventoryModal.show = true
+        },
+
+        tableRowClassName({row, rowIndex}) {
+            // loop through each of the stock info to find erroneous negative stock
+            for (let i=0; i<row.stock.length; i++) {
+                if (parseInt(row.stock[i].quantity) < 0) {
+                    this.stockErrorModal = true
+                    return 'stock-negative-row';
+                }
+            }
+            return '';
         }
     },
     created () {
