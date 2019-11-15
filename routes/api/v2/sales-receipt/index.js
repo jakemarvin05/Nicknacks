@@ -5,7 +5,7 @@ const debug = require('debug')('nn:api:sales-receipt')
 debug.log = console.log.bind(console)
 
 router.get('/pending/all', permit('/pending/all', 1), (req, res, next) => {
-    
+
     let options = {
         where: {
             status: 'pending'
@@ -397,7 +397,10 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
 router.post('/deliver', permit('/deliver', 8), (req, res, next) => {
 
     DB.Transaction.findOne({
-        where: { TransactionID: req.body.TransactionID },
+        where: {
+            TransactionID: req.body.TransactionID,
+            status: 'completed',
+        },
         include: [{
             model: DB.Inventory_Storage,
             through: {
