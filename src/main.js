@@ -44,7 +44,7 @@ Vue.filter('unixToDate', value => {
 })
 //filters
 Vue.filter('timestampToDate', value => {
-    return moment(value).tz('Asia/Singapore').format('DD MMM YYYY hh:mm')
+    return moment(value).tz('Asia/Singapore').format('DD MMM YYYY HH:mm')
 })
 Vue.mixin({
     data: function() {
