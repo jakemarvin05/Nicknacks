@@ -397,10 +397,7 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
 router.post('/deliver', permit('/deliver', 8), (req, res, next) => {
 
     DB.Transaction.findOne({
-        where: {
-            TransactionID: req.body.TransactionID,
-            status: 'completed',
-        },
+        where: { TransactionID: req.body.TransactionID },
         include: [{
             model: DB.Inventory_Storage,
             through: {
@@ -423,6 +420,15 @@ router.post('/deliver', permit('/deliver', 8), (req, res, next) => {
 
         if(!transaction) {
             let error = new Error('Unable to find the transaction.')
+            throw error
+        }
+
+        if(transaction.status !== 'completed') {
+            if(transaction.status === 'delivered') {
+                let error = new Error('Transaction inventory deduction already done.')
+                throw error
+            }
+            let error = new Error('Transaction status is incorrect. Please refresh data.')
             throw error
         }
 
