@@ -7,7 +7,7 @@ const routers = [
             title: 'Sales',
             name: 'Sales',
             meta: {
-                title: 'Sales'
+                title: 'Nicknacks - Sales'
             },
             component: (resolve) => require(['./views/sales.vue'], resolve)
         }, {
@@ -15,7 +15,7 @@ const routers = [
             title: 'Delivery',
             name: 'Delivery',
             meta: {
-                title: 'Delivery'
+                title: 'Nicknacks - Delivery'
             },
             component: (resolve) => require(['./views/delivery.vue'], resolve)
         }, {
@@ -23,7 +23,7 @@ const routers = [
             title: 'Inventory',
             name: 'Inventory',
             meta: {
-                title: 'Inventory'
+                title: 'Nicknacks - Inventory'
             },
             component: (resolve) => require(['./views/inventory.vue'], resolve)
         }, {
@@ -31,7 +31,7 @@ const routers = [
             title: 'Inventory Log',
             name: 'InventoryLog',
             meta: {
-                title: 'Inventory Log'
+                title: 'Nicknacks - Inventory Log'
             },
             component: (resolve) => require(['./views/inventory-cogs.vue'], resolve)
         },{
@@ -39,7 +39,7 @@ const routers = [
             title: 'Inventory COGS',
             name: 'InventoryCOGS',
             meta: {
-                title: 'Inventory COGS'
+                title: 'Nicknacks - Inventory COGS'
             },
             component: (resolve) => require(['./views/inventory-cogs.vue'], resolve)
         }, {
@@ -47,7 +47,7 @@ const routers = [
             title: 'Inventory Info',
             name: 'InventoryInfo',
             meta: {
-                title: 'Inventory Info'
+                title: 'Nicknacks - Inventory Info'
             },
             component: (resolve) => require(['./views/inventory-info.vue'], resolve)
         }, {
@@ -55,7 +55,7 @@ const routers = [
             title: 'Shipment',
             name: 'Shipment',
             meta: {
-                title: 'Shipment'
+                title: 'Nicknacks - Shipment'
             },
             component: (resolve) => require(['./views/shipment.vue'], resolve)
         }, {
@@ -63,7 +63,7 @@ const routers = [
             title: 'Forget Password Reset',
             name: 'ForgetPasswordReset',
             meta: {
-                title: 'Forget Password Reset'
+                title: 'Nicknacks - Forget Password Reset'
             },
             component: (resolve) => require(['./views/forget-password-reset.vue'], resolve)
         }]

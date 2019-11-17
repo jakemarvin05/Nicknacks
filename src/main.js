@@ -81,6 +81,10 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from, next) => {
     ViewUI.LoadingBar.finish()
     window.scrollTo(0, 0)
+
+    Vue.nextTick( () => {
+        document.title = to.meta.title ? to.meta.title : 'Nicknacks'
+    })
 })
 
 const store = new Vuex.Store({
