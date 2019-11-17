@@ -26,13 +26,13 @@
     <div class="layout">
         <div v-if="$store.state.isAuthenticated">
 
-            <Menu mode="horizontal" theme="light" active-name="1">
+            <Menu mode="horizontal" theme="light" :active-name="$route.name">
 
-                <MenuItem class="menuItem" name="1" :to="{name: 'Sales'}">
+                <MenuItem class="menuItem" name="Sales" :to="{name: 'Sales'}">
                     <Icon class="menuIcon" type="ios-cart"/>
                     Sales
                 </MenuItem>
-                <MenuItem class="menuItem" name="2" :to="{name: 'Delivery'}">
+                <MenuItem class="menuItem" name="Delivery" :to="{name: 'Delivery'}">
                     <Icon class="menuIcon" type="ios-briefcase" />
                     Delivery
                 </MenuItem>
@@ -41,9 +41,9 @@
                         <Icon class="menuIcon" type="ios-cube" />
                         Inventory
                     </template>
-                    <MenuItem name="3-1" :to="{ name: 'Inventory' }">List</MenuItem>
-                    <MenuItem name="3-2" :to="{ name: 'InventoryLog' }">Log</MenuItem>
-                    <MenuItem v-if="$store.state.user.rightsLevel > 2"  name="3-3" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
+                    <MenuItem name="Inventory" :to="{ name: 'Inventory' }">List</MenuItem>
+                    <MenuItem name="InventoryLog" :to="{ name: 'InventoryLog' }">Log</MenuItem>
+                    <MenuItem name="InventoryCOGS" v-if="$store.state.user.rightsLevel > 2" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
                 </Submenu>
 
                 <MenuItem class="menuItem" name="4"  :to="{ name: 'Shipment' }">
