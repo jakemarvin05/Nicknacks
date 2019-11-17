@@ -46,7 +46,7 @@
                     <MenuItem name="InventoryCOGS" v-if="$store.state.user.rightsLevel > 2" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
                 </Submenu>
 
-                <MenuItem class="menuItem" name="4"  :to="{ name: 'Shipment' }">
+                <MenuItem class="menuItem" name="Shipment"  :to="{ name: 'Shipment' }">
                     <Icon class="menuIcon" type="ios-boat" />
                     Shipment
                 </MenuItem>
