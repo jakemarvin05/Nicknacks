@@ -95,13 +95,6 @@ app.use(passport.session()); // persistent login sessions
 
 app.use('/', require('./routes/index'));
 app.use('/qbo', require('./routes/qbo'));
-app.use('/panel', require('./routes/panel'));
-app.use('/panel/inventory', require('./routes/panel/inventory'));
-app.use('/panel/shipment', require('./routes/panel/shipment'));
-app.use('/panel/inventory', require('./routes/panel/inventory'));
-
-// api V1
-app.use('/api/v1', require('./routes/api/v1'));
 
 // api V2
 app.use('/api/v2', require('./routes/api/v2'));
