@@ -73,6 +73,10 @@ function Transaction(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             default: false
+        },
+        comments: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
     }, {
         timestamps: true,

@@ -366,6 +366,7 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
 
         //then finally update the entry as completed.
         _TRANSACTION.status = 'completed';
+        _TRANSACTION.comments = req.body.comments
         if (_CREATED_SALES_RECEIPT && D.get(_CREATED_SALES_RECEIPT, "Id")) _TRANSACTION.qboSalesReceiptId =_CREATED_SALES_RECEIPT.Id
         if (_CREATED_EXPENSE && D.get(_CREATED_EXPENSE, "Id")) _TRANSACTION.qboStripeExpenseId = _CREATED_EXPENSE.Id
         if (_CREATED_JOURNAL && D.get(_CREATED_JOURNAL, "Id")) _TRANSACTION.qboCOGSJournalId = _CREATED_JOURNAL.Id

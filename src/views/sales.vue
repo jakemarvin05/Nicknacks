@@ -173,10 +173,10 @@ export default {
                 data: {
                     items: []
                 },
+                comments: '',
 
                 // view properties
                 totalCOGS: '',
-                comments: '',
                 submitLoading: false
             }],
 
