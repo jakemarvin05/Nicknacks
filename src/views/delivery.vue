@@ -33,13 +33,18 @@
                             <Icon type="ios-card" /> {{ salesReceipt.paymentMethod }}<br>
                             <Icon type="ios-calendar-outline" /> {{ salesReceipt.details.transactionDateTime }}<br>
                             <Icon type="logo-usd" /> {{ salesReceipt.details.totalAmount }} <br>
-                            <Icon type="ios-open" />
+
+                            <Icon type="md-car" />
                             <span v-if="salesReceipt.deliveryDate">
                                 {{ salesReceipt.deliveryDate | unixToDate }}
                                 <Tag v-if="(  parseInt(salesReceipt.deliveryDate) < ( new Date() ).getTime()  )" color="error">Past due</Tag>
                             </span>
                             <span v-else><Tag color="warning">Not scheduled</Tag></span>
-                            <span v-if="salesReceipt.deliveryConfirmed"><Tag color="success">Confirmed</Tag></span>
+                            <span v-if="salesReceipt.deliveryConfirmed"><Tag color="success">Confirmed</Tag></span> <br>
+
+                            <Icon type="ios-create" />
+                            <span v-if="salesReceipt.comments" >{{ salesReceipt.comments }}</span>
+                            <span v-else>Nil</span>
                         </p>
                     </Panel>
                     <Panel v-if="salesReceipt.data.items" name="productsSold">
