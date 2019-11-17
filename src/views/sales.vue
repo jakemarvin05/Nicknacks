@@ -12,6 +12,7 @@
         </span>
 
         <span v-else>
+            <p>Total sales on this view: {{ totalSalesAmountOnView | toTwoDecimals }}</p>
             <Card v-for="salesReceipt in salesReceipts" :key="salesReceipt.TransactionID" class="salesReceiptCard">
                 <p slot="title">
                     <Icon type="ios-cart" />
@@ -32,7 +33,7 @@
                             <Icon type="ios-phone-portrait" /> {{ salesReceipt.details.customerPhone }}<br>
                             <Icon type="ios-card" /> {{ salesReceipt.paymentMethod }}<br>
                             <Icon type="ios-calendar-outline" /> {{ salesReceipt.details.transactionDateTime }}<br>
-                            <Icon type="logo-usd" /> {{ salesReceipt.details.totalAmount }} <br>
+                            <Icon type="logo-usd" /> {{ salesReceipt.details.totalAmount | toTwoDecimals }} <br>
                             <Icon type="md-car" />
                             <span v-if="salesReceipt.deliveryDate">
                                 {{ salesReceipt.deliveryDate | unixToDate }}
@@ -179,6 +180,9 @@ export default {
                 totalCOGS: '',
                 submitLoading: false
             }],
+
+            //view properties
+            //totalSalesAmountOnView: 0, // default value here to 0, but is computed before
 
             inventories: [{
                 timeline: {
@@ -421,11 +425,12 @@ export default {
 
             console.log(response.data.data)
 
-            // compute the totalCOGS
+            // compute the totalCOGS and total sales amount
             for(let i=0; i<response.data.data.length; i++) {
                 let salesReceipt = response.data.data[i]
 
                 salesReceipt.totalCOGS = 0
+                this.totalSalesAmountOnView += parseInt(salesReceipt.details.totalAmount)
 
                 for(let i=0; i<salesReceipt.soldInventories.length; i++) {
                     let soldInventory = salesReceipt.soldInventories[i]
@@ -452,6 +457,21 @@ export default {
             this.inventories = response.data.data
 
         }).catch(CATCH_ERR_HANDLER)
+    },
+
+    computed: {
+        totalSalesAmountOnView: {
+            get() {
+                let amt = 0
+                for(let i=0; i<this.salesReceipts.length; i++) {
+                    let salesReceipt = this.salesReceipts[i]
+                    amt += parseFloat(salesReceipt.details.totalAmount)
+                }
+                return isNaN(amt) ? 0 : amt
+            },
+            set() {}
+
+        }
     }
 }
 </script>

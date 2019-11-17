@@ -46,6 +46,9 @@ Vue.filter('unixToDate', value => {
 Vue.filter('timestampToDate', value => {
     return moment(value).tz('Asia/Singapore').format('DD MMM YYYY HH:mm')
 })
+Vue.filter('toTwoDecimals', value => {
+    return (Math.round(value*100)/100).toFixed(2)
+})
 Vue.mixin({
     data: function() {
         return {
