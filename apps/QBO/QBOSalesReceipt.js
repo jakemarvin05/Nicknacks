@@ -90,7 +90,8 @@ var QBOSalesReceiptModel = (transaction, customer) => {
     // total amount
     defaults.TotalAmt = transaction.details.totalAmount
 
-    if (transaction.paymentMethod.toLowerCase() === 'stripe') {
+    // there is stripe and stripe (mw), conduct loose check and apply same rules to both.
+    if (transaction.paymentMethod.toLowerCase().indexOf('stripe') === 0) {
 
         // now that stripe object is separately stored, cannot retrieve.
         //defaults.PaymentRefNum = transaction.transactionReferenceCode
@@ -109,7 +110,7 @@ var QBOSalesReceiptModel = (transaction, customer) => {
         return defaults
     }
 
-
+    // there is mobile payment and mobile payment (mw), conduct loose check and apply same rules to both.
     if (transaction.paymentMethod.toLowerCase().indexOf('mobile payment') === 0) {
 
         defaults.PaymentMethodRef.value = 4
@@ -125,6 +126,9 @@ var QBOSalesReceiptModel = (transaction, customer) => {
 
         defaults.PaymentMethodRef.value = 4
         defaults.PaymentMethodRef.name = "Bank Transfer"
+
+        defaults.DepositToAccountRef.value = "64"
+        defaults.DepositToAccountRef.name = "DBS Current"
 
         return defaults
     }
