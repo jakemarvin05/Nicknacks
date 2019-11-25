@@ -277,7 +277,11 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
         /* STRIPE COMMISSION / EXPENSE */
 
         // if paymentMethod is stripe, create expense - expense is called `purchase` by QuickBooks
-        if (_TRANSACTION.paymentMethod.toLowerCase().indexOf('stripe') === 0) {
+        let paymentMethodIsCreditCard = (
+            _TRANSACTION.paymentMethod.toLowerCase().indexOf('credit') === 0 ||
+            _TRANSACTION.paymentMethod.toLowerCase().indexOf('stripe') === 0 ) // BACKWARD COMPATIBILITY SUPPORT (21 Nov 2019): 'stripe' was renamed to 'credit card'
+
+        if (paymentMethodIsCreditCard) {
 
             let getStripeCharge = require(__appsDir + '/stripe/getStripeCharge')
 

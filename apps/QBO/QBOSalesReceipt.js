@@ -90,6 +90,16 @@ var QBOSalesReceiptModel = (transaction, customer) => {
     // total amount
     defaults.TotalAmt = transaction.details.totalAmount
 
+    // there is credit card and credit card (mw), conduct loose check and apply same rules to both.
+    if (transaction.paymentMethod.toLowerCase().indexOf('credit card') === 0) {
+
+        // now that stripe object is separately stored, cannot retrieve.
+        //defaults.PaymentRefNum = transaction.transactionReferenceCode
+
+        return defaults
+    }
+
+    // BACKWARD COMPATIBILITY SUPPORT (21 Nov 2019): 'stripe' was renamed to 'credit card'
     // there is stripe and stripe (mw), conduct loose check and apply same rules to both.
     if (transaction.paymentMethod.toLowerCase().indexOf('stripe') === 0) {
 
