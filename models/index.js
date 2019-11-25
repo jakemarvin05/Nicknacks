@@ -27,7 +27,10 @@ Sequelize.addHook('afterInit', function (sequelize) {
 
 require('sequelize-isunique-validator')(Sequelize);
 
-var sequelize = new Sequelize(databaseUrl, {logging: logging});
+var sequelize = new Sequelize(databaseUrl, {
+    logging: logging,
+    databaseVersion: '9.3.24'
+})
 
 // Test and log connection to the database
 sequelize
