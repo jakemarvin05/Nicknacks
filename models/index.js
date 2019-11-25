@@ -9,6 +9,22 @@ var cls = require('continuation-local-storage');
 const namespace = cls.createNamespace('sequelizeTransactionNameSpace')
 Sequelize.cls = namespace
 
+// possible fix for database timeout error by disabling pooling
+// https://github.com/sequelize/sequelize/issues/8468#issuecomment-430821770
+Sequelize.addHook('afterInit', function (sequelize) {
+  sequelize.options.handleDisconnects = false;
+
+  // Disable pool completely
+  sequelize.connectionManager.pool.destroyAllNow();
+  sequelize.connectionManager.pool = null;
+  sequelize.connectionManager.getConnection = function getConnection() {
+    return this.connect(sequelize.config);
+  };
+  sequelize.connectionManager.releaseConnection = function releaseConnection(connection) {
+    return this.disconnect(connection);
+  };
+})
+
 require('sequelize-isunique-validator')(Sequelize);
 
 var sequelize = new Sequelize(databaseUrl, {logging: logging});
