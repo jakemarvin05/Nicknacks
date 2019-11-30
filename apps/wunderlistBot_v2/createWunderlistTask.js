@@ -119,7 +119,7 @@ function createWunderlistTask(fromMagento, options) {
 
         let icons = ' '
 
-        if (obj.paymentMethod.toLowerCase() === 'bank transfer') icons += '💵'
+        if (obj.paymentMethod.toLowerCase().indexOf('bank transfer') === 0) icons += '💵'
 
         // for sofa, add logo
         let sofa = _.find(fromMagento.items, (item) => {
@@ -216,7 +216,7 @@ function createWunderlistTask(fromMagento, options) {
 
 
             // create subtasks for bank transfer
-            if (obj.paymentMethod.toLowerCase() === 'bank transfer') {
+            if (obj.paymentMethod.toLowerCase().indexOf('bank transfer') === 0) {
                 debug('Bank transfer detected. Creating subtask...')
                 let verifySubtask = createSubtask({
                     'task_id': taskData.id,
