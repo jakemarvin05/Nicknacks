@@ -29,18 +29,18 @@ function calculateStripeCommissionAmount(charge) {
     if (isNaN(amount)) throw new Error('`totalAmount` is NaN')
 
     // declare the credit card charges.
-    let stripeChargesAMEX = parseFloat(process.env.STRIPE_CHARGES_AMEX)
-    if (isNaN(stripeChargesAMEX)) throw new Error('Environment variables `STRIPE_CHARGES_AMEX` not defined.')
+    let stripeChargesAMEXOrNonDomestic = parseFloat(process.env.STRIPE_CHARGES_AMEX_OR_NON_DOMESTIC)
+    if (isNaN(stripeChargesAMEXOrNonDomestic)) throw new Error('Environment variables `STRIPE_CHARGES_AMEX_OR_NON_DOMESTIC` not defined.')
 
-    let stripeChargesMasterOrVisa = parseFloat(process.env.STRIPE_CHARGES_AMEX_MASTER_VISA)
-    if (isNaN(stripeChargesMasterOrVisa)) throw new Error('Environment variables `STRIPE_CHARGES_AMEX_MASTER_VISA` not defined.')
+    let stripeChargesDomesticMasterOrVisa = parseFloat(process.env.STRIPE_CHARGES_DOMESTIC_MASTER_VISA)
+    if (isNaN(stripeChargesMasterOrVisa)) throw new Error('Environment variables `STRIPE_CHARGES_DOMESTIC_MASTER_VISA` not defined.')
 
     var stripeCommission
 
     if (object.creditCardIsAMEXorIsNotSG) {
-        stripeCommission = Math.round(amount * 100 * parseFloat(stripeChargesAMEX))/100;
+        stripeCommission = Math.round(amount * 100 * parseFloat(stripeChargesAMEXOrNonDomestic))/100;
     } else {
-        stripeCommission = Math.round(amount * 100 * parseFloat(stripeChargesMasterOrVisa))/100;
+        stripeCommission = Math.round(amount * 100 * parseFloat(stripeChargesDomesticMasterOrVisa))/100;
     }
 
     // add the 50 cent

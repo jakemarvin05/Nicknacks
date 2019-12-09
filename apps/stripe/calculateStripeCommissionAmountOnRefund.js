@@ -1,11 +1,11 @@
 function calculateStripeCommissionAmountOnRefund(stripeObject) {
 
     // declare the credit card charges.
-    let stripeChargesAMEX = parseFloat(process.env.STRIPE_CHARGES_AMEX)
-    if (isNaN(stripeChargesAMEX)) throw new Error('Environment variables `STRIPE_CHARGES_AMEX` not defined.')
+    let stripeChargesAMEXOrNonDomestic = parseFloat(process.env.STRIPE_CHARGES_AMEX_OR_NON_DOMESTIC)
+    if (isNaN(stripeChargesAMEXOrNonDomestic)) throw new Error('Environment variables `STRIPE_CHARGES_AMEX_OR_NON_DOMESTIC` not defined.')
 
-    let stripeChargesMasterOrVisa = parseFloat(process.env.STRIPE_CHARGES_AMEX_MASTER_VISA)
-    if (isNaN(stripeChargesMasterOrVisa)) throw new Error('Environment variables `STRIPE_CHARGES_AMEX_MASTER_VISA` not defined.')
+    let stripeChargesDomesticMasterOrVisa = parseFloat(process.env.STRIPE_CHARGES_DOMESTIC_MASTER_VISA)
+    if (isNaN(stripeChargesDomesticMasterOrVisa)) throw new Error('Environment variables `STRIPE_CHARGES_DOMESTIC_MASTER_VISA` not defined.')
 
     var total = parseInt(D.get(stripeObject, 'data.object.amount'));
     var amountRefunded = parseInt(D.get(stripeObject, 'data.object.amount_refunded'));
@@ -27,13 +27,13 @@ function calculateStripeCommissionAmountOnRefund(stripeObject) {
     // calucate the commission which strip will refund us
     if (countryOfOrigin !== 'SG' || cardBrand === 'American Express') {
 
-        // international charges or AMEX, so 3.4% of the amount refunded
-        stripeCommissionAmount = Math.round(amountRefunded * stripeChargesAMEX)/100;
+        // international charges or AMEX, so 3.2% of the amount refunded
+        stripeCommissionAmount = Math.round(amountRefunded * stripeChargesAMEXOrNonDomestic)/100;
 
     } else {
 
-        // 2.9% of the amount refunded
-        stripeCommissionAmount = Math.round(amountRefunded * stripeChargesMasterOrVisa)/100;
+        // 2.7% of the amount refunded
+        stripeCommissionAmount = Math.round(amountRefunded * stripeChargesDomesticMasterOrVisa)/100;
 
     }
 
