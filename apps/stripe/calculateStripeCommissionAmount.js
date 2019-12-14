@@ -8,13 +8,10 @@ function calculateStripeCommissionAmount(charge) {
     debug('calculateStripeCommissionAmount:')
     debug(charge)
 
-    let object = {}
+    let creditCardOriginCountry = D.get(charge, 'data.data.object.source.country')
+    let creditCardIsAMEXorIsNotSG = (D.get(charge, 'data.data.object.source.country') !== 'SG' || D.get(charge, 'data.data.object.source.brand') === 'American Express')
 
-    object.creditCardOriginCountry = D.get(charge, 'data.data.object.source.country')
-    object.creditCardOriginCountryIsSG = (D.get(charge, 'data.data.object.source.country') === 'SG')
-    object.creditCardIsAMEXorIsNotSG = (D.get(charge, 'data.data.object.source.country') !== 'SG' || D.get(charge, 'data.data.object.source.brand') === 'American Express')
-
-    object.totalAmount = (function(charge) {
+    var amount = (function(charge) {
         if (typeof charge.data.data.object.amount === "undefined") {
             let error = new Error('CRITICAL: Stripe charge missing `amount`.')
             throw error
@@ -24,7 +21,7 @@ function calculateStripeCommissionAmount(charge) {
         return parseInt(charge.data.data.object.amount)/100;
     })(charge)
 
-    let amount = parseFloat(object.totalAmount)
+    amount = parseFloat(amount)
 
     if (isNaN(amount)) throw new Error('`totalAmount` is NaN')
 
@@ -37,7 +34,12 @@ function calculateStripeCommissionAmount(charge) {
 
     var stripeCommission
 
-    if (object.creditCardIsAMEXorIsNotSG) {
+    if(creditCardOriginCountry === null) {
+        // this is a weird case where credit card country seem to be null
+        // stripe seems to default to the lower charge
+        stripeCommission = Math.round(amount * 100 * parseFloat(stripeChargesDomesticMasterOrVisa))/100;
+
+    } else if (creditCardIsAMEXorIsNotSG) {
         stripeCommission = Math.round(amount * 100 * parseFloat(stripeChargesAMEXOrNonDomestic))/100;
     } else {
         stripeCommission = Math.round(amount * 100 * parseFloat(stripeChargesDomesticMasterOrVisa))/100;
