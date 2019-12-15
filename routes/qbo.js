@@ -188,7 +188,8 @@ router.get('/callback', function (req, res) {
                 TokenID: 1
             },
             limit: 1
-        }).then(function(response){
+        })
+    }).then(function(response){
 
             // initialise QBO
             QBO = new QuickBooks(
