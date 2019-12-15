@@ -211,11 +211,9 @@ router.get('/callback', function (req, res) {
 
         })
         .then(function(response){
-          /**
-           * // save the access token somewhere on behalf of the logged in user
-           * @type {QuickBooks}
-           */
-          QBO = new QuickBooks(oauthClient.clientId,
+
+          QBO = new QuickBooks(
+            oauthClient.clientId,
             oauthClient.clientSecret,
             accessToken.access_token, /* oAuth access token */
             false, /* no token secret for oAuth 2.0 */
@@ -226,31 +224,20 @@ router.get('/callback', function (req, res) {
             '2.0', /* oauth version */
             accessToken.refresh_token /* refresh token */);
 
-          QBO.findAccounts(function (_, accounts) {
-            accounts.QueryResponse.Account.forEach(function (account) {
-              console.log(account.Name);
-            });
-          });
-        })
-        .catch(function(e) {
+          return QBO.findAccounts()
+          
+      }).then(accounts => {
+
+          accounts.QueryResponse.Account.forEach(function (account) {
+            console.log(account.Name)
+          })
+
+          res.send('Successful!')
+
+      }).catch(function(e) {
           console.error(e);
         });
 
-
-
-
-    res.send('<!DOCTYPE html><html lang="en"><head></head><body><script>window.opener.location.reload(); window.close();</script></body></html>');
-});
-
-router.get('/accounts', function(req, res, next) {
-
-    QBO.findAccounts(function(_, accounts) {
-      accounts.QueryResponse.Account.forEach(function(account) {
-        console.log(account.Name)
-      })
-    });
-
-    res.send();
 });
 
 module.exports = router;
