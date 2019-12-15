@@ -1,51 +1,43 @@
 const QuickBooks = require('node-quickbooks')
 const rp = require('request-promise')
 const parseString = require('xml2js').parseString
+const debug = require('debug')('nn:apps:qbotoken')
 
 function retrieveTokenAndRefresh() {
     // get the token
     DB.Token.findById(1).then(function (token) {
 
         // check validity of token data.
-        if (!token || !token.data || !token.data.oauth_token || !token.data.oauth_token_secret) {
+        if (!token || !token.data || !token.data.access_token || !token.data.refresh_token) {
             throw new Error('CRITICAL: Obtaining token from database failed.')
         }
 
-        // save token to global variables
-        global.QBO_ACCESS_TOKEN = token.data.oauth_token;
-        global.QBO_ACCESS_TOKEN_SECRET = token.data.oauth_token_secret;
+        let accessToken = token.data
+
+        // NOTE: OAuth2 Access token `access_token` will expire 1 hour from the point it is created.
+        //       The refresh token `refresh_token` will expire in 100 days if not used.
+        //       Before every hour (expiry limit of Access Token), the tokens are refreshed.
+        //       The new tokens are then stored and QBO is re-initialised with the new tokens.
 
 
-        // send request to attempt to refresh token
-
-        // NOTE: Oauth Access tokens expire 180 days from the date they were created.
-        //       Oauth token Reconnect API can be called between 151 days and 179 days
-        //       (after 5 months and before expiry).
-
-        var ageOfToken = MOMENT() - MOMENT(token.updatedAt);
-
-        // ageOfToken > 160 days. (using 160 days to be safe.)
-        if (ageOfToken > 1.382e+10) {
-            return refreshQBOToken();
-        } else {
-            return false;
-        }
-
-    }).then(function() {
-
-        console.log('QBO successfully initialised.')
-
-        // initialise quickbooks
-        global.QBO = new QuickBooks(
+        // initialise QBO
+        // access_token may be outdated, it is not a problem.
+        QBO = new QuickBooks(
             process.env.qbo_consumerKey,
             process.env.qbo_consumerSecret,
-            global.QBO_ACCESS_TOKEN,
-            global.QBO_ACCESS_TOKEN_SECRET,
+            accessToken.access_token, /* oAuth access token */
+            false, /* no token secret for oAuth 2.0 */
             process.env.qbo_realmID,
-            false, // use the Sandbox
-            true // turn debugging on
+            (process.env.environment === 'production' ? false : true), /* use a sandbox account */
+            false, /* turn debugging on */
+            34, /* minor version */
+            '2.0', /* oauth version */
+            accessToken.refresh_token /* refresh token */
         )
-        global.QBO = PROMISE.promisifyAll(global.QBO);
+
+        global.QBO = PROMISE.promisifyAll(global.QBO)
+
+        return refreshQBOToken()
 
     }).catch(function (err) {
         // log the error
@@ -55,87 +47,47 @@ function retrieveTokenAndRefresh() {
 
 
 
+
     // connect to quickbooks to refresh token. returns a promise
     function refreshQBOToken() {
+        console.log('running refresh.')
+        return QBO.refreshAccessTokenAsync().then(function(authReponse) {
+            console.log(authResponse)
 
-        if (!global.QBO_ACCESS_TOKEN || !global.QBO_ACCESS_TOKEN_SECRET) throw new Error('CRITICAL: Failed to initalise tokens to the global namespace.');
+            accessToken = authResponse.getJson();
+            var companyId = authResponse.token.realmId;
 
-        // send the request to quickbooks
-        // this promise is returned to #retrieveTokenAndRefresh
-        return rp({
+            // re-initialise QBO
+            QBO = new QuickBooks(
+                process.env.qbo_consumerKey,
+                process.env.qbo_consumerSecret,
+                accessToken.access_token, /* oAuth access token */
+                false, /* no token secret for oAuth 2.0 */
+                process.env.qbo_realmID,
+                (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
+                false, /* turn debugging on */
+                34, /* minor version */
+                '2.0', /* oauth version */
+                accessToken.refresh_token /* refresh token */
+            )
 
-            method: 'GET',
-            uri: QuickBooks.APP_CENTER_BASE + '/api/v1/connection/reconnect',
-            oauth: {
-                consumer_key: process.env.qbo_consumerKey,
-                consumer_secret: process.env.qbo_consumerSecret,
-                token_secret: global.QBO_ACCESS_TOKEN_SECRET,
-                token: global.QBO_ACCESS_TOKEN
-            },
-            json: true
+            // update the token
+            return DB.Token.update({
+                data: accessToken
+            }, {
+                where: {
+                    TokenID: 1
+                }
+            })
 
-        }).then(function (response) {
-
-            // set the responseParsed store
-            var responseParsed = {};
-
-            // check if the response is not an Object
-            if (typeof response === 'string') {
-                parseString(response, function (err, result) {
-                    if (err) {
-                        throw new Error('Unable to parse valid XML response.')
-                    }
-                    // assign the parsedResponse
-                    responseParsed = result.ReconnectResponse ? result.ReconnectResponse : result.PlatformResponse;
-                });
-            }
-
-            // check if there is an error
-            var errorCode = parseInt(responseParsed.ErrorCode[0]);
-
-            if (errorCode === 212) {
-
-                // token is not refreshed, return nothing, life goes on...
-                console.log('CRITICAL: Token refresh is attempted and failed due to current token still valid.');
-
-                // SEND EMAIL!!!!
-                return false;
-
-            } else if (errorCode === 0) {
-
-                // token is refreshed. need update the globals and save to DB
-
-                var token = {
-                    "oauth_token_secret": responseParsed.OAuthTokenSecret[0],
-                    "oauth_token": responseParsed.OAuthToken[0]
-                };
-
-                // set globals to the newly retrieved tokens
-                global.QBO_ACCESS_TOKEN = responseParsed.OAuthToken[0];
-                global.QBO_ACCESS_TOKEN_SECRET = responseParsed.OAuthTokenSecret[0];
-
-                // refreshed token is updated to DB
-                return DB.Token.update({
-                    data: token
-                }, {
-                    where: {
-                        TokenID: 1
-                    }
-                });
-
-            } else {
-
-                // SEND EMAIL!!!!
-
-                // any other errorCode, print out the error.
-                throw new Error('Error code: ' + responseParsed.ErrorCode[0] + ' Message: ' + responseParsed.ErrorMessage[0])
-
-            }
+        }).then(function() {
+            console.log('QBO token successfully updated.')
         })
+
     }
 
 
-    // attempt refresh every 1 week
-    setInterval(retrieveTokenAndRefresh, 6.048e+8);
+    // attempt refresh every 50 min
+    setInterval(retrieveTokenAndRefresh, 3e+6);
 }
 module.exports = retrieveTokenAndRefresh

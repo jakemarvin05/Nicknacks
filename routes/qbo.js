@@ -11,15 +11,13 @@ var csrf = new Tokens();
 var OAuthClient = require('intuit-oauth');
 
 var config = {
-
     clientId: process.env.qbo_consumerKey,
     clientSecret: process.env.qbo_consumerSecret,
     environment: process.env.qbo_environment,
     redirectUri: process.env.DOMAIN + '/qbo/callback'
-
 }
 
-var oauthClient,companyId
+var oauthClient, companyId
 
 
 router.all('*', function(req, res, next) {
@@ -177,7 +175,7 @@ router.get('/callback', function (req, res) {
     var accessToken;
 
     oauthClient.createToken(req.url).then(function(authResponse) {
-        _ACCESS_TOKEN = accessToken = authResponse.getJson();
+        accessToken = authResponse.getJson();
         companyId = authResponse.token.realmId;
 
         // update the token
@@ -186,10 +184,9 @@ router.get('/callback', function (req, res) {
         }, {
             where: {
                 TokenID: 1
-            },
-            limit: 1
+            }
         })
-    }).then(function(response){
+    }).then(function(){
 
             // initialise QBO
             QBO = new QuickBooks(
@@ -199,7 +196,7 @@ router.get('/callback', function (req, res) {
                 false, /* no token secret for oAuth 2.0 */
                 companyId,
                 (config.environment === 'production' ? false : true), /* use a sandbox account */
-                true, /* turn debugging on */
+                false, /* turn debugging on */
                 34, /* minor version */
                 '2.0', /* oauth version */
                 accessToken.refresh_token /* refresh token */
