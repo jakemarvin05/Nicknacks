@@ -17,7 +17,9 @@ var config = {
     redirectUri: process.env.DOMAIN + '/qbo/callback'
 }
 
-var oauthClient, companyId
+//var oauthClient, companyId
+
+var companyId
 
 
 router.all('*', function(req, res, next) {
@@ -221,6 +223,11 @@ router.get('/callback', function (req, res) {
 router.get('/accounts', function(req, res, next) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
+
+    console.log(9999)
+    console.log(QBO.refreshToken)
+    console.log(QBO.token)
+    console.log(55555)
 
 
     QBO.findAccounts(function (err, accounts) {

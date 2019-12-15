@@ -112,6 +112,17 @@ function retrieveTokenAndRefresh() {
             console.log('QBO token successfully updated.')
         })
 
+
+        //
+        // oauthClient.refresh()
+        //  .then(function(authResponse) {
+        //      console.log('Tokens refreshed : ' + JSON.stringify(authResponse.json()));
+        //  })
+        //  .catch(function(e) {
+        //      console.error("The error message is :"+e.originalMessage);
+        //      console.error(e.intuit_tid);
+        //  });
+
     }
 
 

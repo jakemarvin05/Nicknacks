@@ -51,7 +51,7 @@ var session = require('express-session');
 var pgSession = require('connect-pg-simple')(session);
 
 
-var QBO;
+var QBO, oauthClient;
 
 var app = express();
 
