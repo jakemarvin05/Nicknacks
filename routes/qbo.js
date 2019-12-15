@@ -8,8 +8,18 @@ var qs = require('querystring');
 var Tokens = require('csrf');
 var csrf = new Tokens();
 
-var consumerKey = process.env.qbo_consumerKey
-var consumerSecret = process.env.qbo_consumerSecret
+var OAuthClient = require('intuit-oauth');
+
+var config = {
+
+    clientId: process.env.qbo_consumerKey,
+    clientSecret: process.env.qbo_consumerSecret,
+    environment: process.env.qbo_environment,
+    redirectUri: process.env.DOMAIN + '/qbo/callback/'
+
+}
+
+var oauthClient,companyId
 
 
 router.all('*', function(req, res, next) {
@@ -17,26 +27,22 @@ router.all('*', function(req, res, next) {
     next();
 });
 
-// OAUTH 2 makes use of redirect requests
-function generateAntiForgery (session) {
-    session.secret = csrf.secretSync()
-    return csrf.create(session.secret)
-}
 
 router.get('/requestToken', function (req, res) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
 
-    var redirecturl = QuickBooks.AUTHORIZATION_URL +
-        '?client_id=' + consumerKey +
-        '&redirect_uri=' + encodeURIComponent(process.env.DOMAIN + '/qbo/callback/') +  //Make sure this path matches entry in application dashboard
-        '&scope=com.intuit.quickbooks.accounting' +
-        '&response_type=code' +
-        '&state=' + generateAntiForgery(req.session);
+    oauthClient = new OAuthClient({
+      clientId: config.clientId,
+      clientSecret: config.clientSecret,
+      environment: config.environment,
+      redirectUri: config.redirectUri
+    });
 
-    console.log(redirecturl)
+    var authUri = oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting],state:'nicknacks'});
 
-    res.redirect(redirecturl);
+    res.redirect(authUri);
+
 })
 
 // deprecated OAuth 1.0
@@ -168,77 +174,68 @@ router.get('/callback', function (req, res) {
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
 
 
-    var auth = (new Buffer(consumerKey + ':' + consumerSecret).toString('base64'));
+    var accessToken;
 
-    var postBody = {
-        url: 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: 'Basic ' + auth,
-        },
-        form: {
-            grant_type: 'authorization_code',
-            code: req.query.code,
-            redirect_uri: process.env.DOMAIN + '/qbo/callback/'  //Make sure this path matches entry in application dashboard
-        }
-    }
+      oauthClient.createToken(req.url)
+        .then(function(authResponse) {
+          accessToken = authResponse.getJson();
+          companyId = authResponse.token.realmId;
 
 
-    rp.post(postBody, function (e, r, data) {
 
-        var accessToken = JSON.parse(r.body);
 
-        // save the access token somewhere on behalf of the logged in user
-        QBO = new QuickBooks(
-            consumerKey,
-            consumerSecret,
+
+                  console.log(accessToken)
+                  //
+                  // global.QBO_ACCESS_TOKEN = _ACCESS_TOKEN.oauth_token;
+                  // global.QBO_ACCESS_TOKEN_SECRET = _ACCESS_TOKEN.oauth_token_secret;
+                  //
+                  // // save the token
+                  // return DB.Token.findOrCreate({
+                  //
+                  //     where: { TokenID: 1 },
+                  //
+                  //     defaults: { data: _ACCESS_TOKEN }
+                  //
+                  // });
+
+                  // // if not created, update the current token
+                  // if (!created) {
+                  //
+                  //     return token.update({ data: _ACCESS_TOKEN });
+                  //
+                  // } else { return false; }
+
+
+        })
+        .then(function(response){
+          /**
+           * // save the access token somewhere on behalf of the logged in user
+           * @type {QuickBooks}
+           */
+          QBO = new QuickBooks(oauthClient.clientId,
+            oauthClient.clientSecret,
             accessToken.access_token, /* oAuth access token */
             false, /* no token secret for oAuth 2.0 */
-            req.query.realmId,
-            false, /* use a sandbox account */
+            companyId,
+            true, /* use a sandbox account */
             true, /* turn debugging on */
-            4, /* minor version */
+            34, /* minor version */
             '2.0', /* oauth version */
-            accessToken.refresh_token /* refresh token */
-        )
+            accessToken.refresh_token /* refresh token */);
 
-        QBO.findAccounts(function (_, accounts) {
+          QBO.findAccounts(function (_, accounts) {
             accounts.QueryResponse.Account.forEach(function (account) {
-                console.log(account.Name);
-            })
+              console.log(account.Name);
+            });
+          });
         })
+        .catch(function(e) {
+          console.error(e);
+        });
 
-    }).then(function (response) {
 
-        //_ACCESS_TOKEN = qs.parse(response);
 
-        _ACCESS_TOKEN = accessToken.access_token
-
-        console.log(accessToken)
-        //
-        // global.QBO_ACCESS_TOKEN = _ACCESS_TOKEN.oauth_token;
-        // global.QBO_ACCESS_TOKEN_SECRET = _ACCESS_TOKEN.oauth_token_secret;
-        //
-        // // save the token
-        // return DB.Token.findOrCreate({
-        //
-        //     where: { TokenID: 1 },
-        //
-        //     defaults: { data: _ACCESS_TOKEN }
-        //
-        // });
-
-    }).spread(function(token, created) {
-
-        // // if not created, update the current token
-        // if (!created) {
-        //
-        //     return token.update({ data: _ACCESS_TOKEN });
-        //
-        // } else { return false; }
-
-    })
 
     res.send('<!DOCTYPE html><html lang="en"><head></head><body><script>window.opener.location.reload(); window.close();</script></body></html>');
 });
