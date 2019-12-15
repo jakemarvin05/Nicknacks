@@ -8,15 +8,6 @@ var qs = require('querystring');
 var Tokens = require('csrf');
 var csrf = new Tokens();
 
-var OAuthClient = require('intuit-oauth');
-
-var config = {
-    clientId: process.env.qbo_consumerKey,
-    clientSecret: process.env.qbo_consumerSecret,
-    environment: process.env.qbo_environment,
-    redirectUri: process.env.DOMAIN + '/qbo/callback'
-}
-
 //var oauthClient, companyId
 var companyId
 
@@ -29,13 +20,6 @@ router.all('*', function(req, res, next) {
 router.get('/requestToken', function (req, res) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
-
-    global.oauthClient = new OAuthClient({
-      clientId: config.clientId,
-      clientSecret: config.clientSecret,
-      environment: config.environment,
-      redirectUri: config.redirectUri
-    });
 
     var authUri = global.oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting,OAuthClient.scopes.OpenId],state:'nicknacks'});
 
@@ -195,7 +179,7 @@ router.get('/callback', function (req, res) {
                 accessToken.access_token, /* oAuth access token */
                 false, /* no token secret for oAuth 2.0 */
                 companyId,
-                (config.environment === 'production' ? false : true), /* use a sandbox account */
+                (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
                 false, /* turn debugging on */
                 34, /* minor version */
                 '2.0', /* oauth version */
@@ -210,7 +194,7 @@ router.get('/callback', function (req, res) {
             });
 
             res.send('Successfully obtained token!')
-            // 
+            //
             // const QBOToken = require('../apps/QBO/QBOToken')
             // QBOToken()
 

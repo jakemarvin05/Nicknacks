@@ -52,7 +52,14 @@ var pgSession = require('connect-pg-simple')(session);
 
 
 global.QBO = ''
-global.oauthClient = ''
+
+var OAuthClient = require('intuit-oauth')
+global.oauthClient = new OAuthClient({
+    clientId: process.env.qbo_consumerKey,
+    clientSecret: process.env.qbo_consumerSecret,
+    environment: process.env.qbo_environment,
+    redirectUri: process.env.DOMAIN + '/qbo/callback'
+})
 
 var app = express();
 

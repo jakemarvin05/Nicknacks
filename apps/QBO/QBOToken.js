@@ -37,7 +37,7 @@ function retrieveTokenAndRefresh() {
 
         global.QBO = PROMISE.promisifyAll(global.QBO)
 
-        return refreshQBOToken()
+        return refreshQBOToken(accessToken)
 
     }).catch(function (err) {
         console.log(err)
@@ -50,7 +50,7 @@ function retrieveTokenAndRefresh() {
 
 
     // connect to quickbooks to refresh token. returns a promise
-    function refreshQBOToken() {
+    function refreshQBOToken(accessToken) {
         console.log('running QBO token refresh.')
 
         // somehow the node-quickbooks literature is not updated, or promisify changed the
@@ -114,7 +114,7 @@ function retrieveTokenAndRefresh() {
     //
     // }
 
-        oauthClient.refresh().then(function(authResponse) {
+        oauthClient.refreshUsingToken(accessToken.refresh_token).then(function(authResponse) {
             console.log(authResponse)
              console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
 
