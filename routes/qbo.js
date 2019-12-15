@@ -182,7 +182,9 @@ router.get('/callback', function (req, res) {
           companyId = authResponse.token.realmId;
 
 
-
+          console.log(111111)
+          console.log(companyId)
+          console.log(2222)
 
 
                   console.log(accessToken)
@@ -217,8 +219,8 @@ router.get('/callback', function (req, res) {
             oauthClient.clientSecret,
             accessToken.access_token, /* oAuth access token */
             false, /* no token secret for oAuth 2.0 */
-            companyId,
-            true, /* use a sandbox account */
+            proces,
+            (config.environment === 'production' ? false : true), /* use a sandbox account */
             true, /* turn debugging on */
             34, /* minor version */
             '2.0', /* oauth version */
