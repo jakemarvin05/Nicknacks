@@ -63,6 +63,8 @@ router.get('/callback', function (req, res) {
                 accessToken.refresh_token /* refresh token */
             )
 
+            global.QBO = PROMISE.promisifyAll(global.QBO)
+
             // run a query to ensure it is working.
             global.QBO.findAccounts(function (_, accounts) {
                 accounts.QueryResponse.Account.forEach(function (account) {

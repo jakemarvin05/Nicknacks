@@ -134,6 +134,7 @@ function retrieveTokenAndRefresh() {
                 '2.0', /* oauth version */
                 accessToken.refresh_token /* refresh token */
             )
+            global.QBO = PROMISE.promisifyAll(global.QBO)
 
             global.QBOIsWorking = true
 
