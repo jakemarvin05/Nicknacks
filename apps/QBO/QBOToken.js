@@ -41,7 +41,7 @@ function retrieveTokenAndRefresh() {
 
     }).catch(function (err) {
         global.QBOIsWorking = false
-        console.log(err)
+        debug(err)
         // log the error
         API_ERROR_HANDLER(err)
 
@@ -52,8 +52,8 @@ function retrieveTokenAndRefresh() {
 
     // connect to quickbooks to refresh token. returns a promise
     function refreshQBOToken(accessToken) {
-        console.log(accessToken)
-        console.log('running QBO token refresh.')
+        debug(accessToken)
+        debug('running QBO token refresh.')
 
         // somehow the node-quickbooks literature is not updated, or promisify changed the
         // behaviour of #refreshAccessTokenAsync, by allowing only a single argument in callback.
@@ -116,8 +116,8 @@ function retrieveTokenAndRefresh() {
         // })
 
         return global.oauthClient.refresh().then(function(authResponse) {
-            console.log(authResponse)
-            console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
+            debug(authResponse)
+            debug('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
 
             var accessToken = authResponse.getJson();
             var companyId = authResponse.token.realmId;

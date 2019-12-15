@@ -8,6 +8,7 @@ var qs = require('querystring');
 // var Tokens = require('csrf');
 // var csrf = new Tokens();
 var OAuthClient = require('intuit-oauth')
+const debug = require('debug')('nn:api:qbo')
 
 //var oauthClient, companyId
 var companyId
@@ -65,7 +66,7 @@ router.get('/callback', function (req, res) {
             // run a query to ensure it is working.
             global.QBO.findAccounts(function (_, accounts) {
                 accounts.QueryResponse.Account.forEach(function (account) {
-                    console.log(account.Name);
+                    debug(account.Name);
                 });
             });
 
