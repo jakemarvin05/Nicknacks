@@ -116,7 +116,7 @@ function retrieveTokenAndRefresh() {
 
         oauthClient.refresh().then(function(authResponse) {
             console.log(authResponse)
-             console.log('Tokens refreshed : ' + JSON.stringify(authResponse.json()));
+             console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
 
              var accessToken = authResponse.getJson();
              var companyId = authResponse.token.realmId;
