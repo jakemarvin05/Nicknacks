@@ -52,6 +52,7 @@ var pgSession = require('connect-pg-simple')(session);
 
 
 global.QBO = ''
+global.QBOIsWorking = false
 
 var OAuthClient = require('intuit-oauth')
 global.oauthClient = new OAuthClient({

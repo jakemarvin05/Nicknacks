@@ -195,13 +195,23 @@ router.get('/callback', function (req, res) {
 
             res.send('Successfully obtained token!')
 
+            global.QBOIsWorking = true
+
             // run the looping refresh token function
             const QBOToken = require('../apps/QBO/QBOToken')
-            QBOToken()
+            setTimeoout(function() {
+                QBOToken()
+            }, 3e+6)
 
         }).catch(function(e) {
-            console.error(e);
-            res.send(e)
+            global.QBOIsWorking = false
+
+            let error = new Error('QBO requestToken error')
+            error.status = 500
+            error.level = 'high'
+
+            API_ERROR_HANDLER(error, req, res)
+
         })
 
 });

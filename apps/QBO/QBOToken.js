@@ -40,6 +40,7 @@ function retrieveTokenAndRefresh() {
         return refreshQBOToken(accessToken)
 
     }).catch(function (err) {
+        global.QBOIsWorking = false
         console.log(err)
         // log the error
         API_ERROR_HANDLER(err)
@@ -134,6 +135,8 @@ function retrieveTokenAndRefresh() {
                 accessToken.refresh_token /* refresh token */
             )
 
+            global.QBOIsWorking = true
+
              // update the token
              return DB.Token.update({
                  data: accessToken
@@ -148,7 +151,6 @@ function retrieveTokenAndRefresh() {
 
 
     // attempt refresh every 50 min
-    setInterval(retrieveTokenAndRefresh, 5000);
-    //setInterval(retrieveTokenAndRefresh, 3e+6);
+    setInterval(retrieveTokenAndRefresh, 3e+6);
 }
 module.exports = retrieveTokenAndRefresh

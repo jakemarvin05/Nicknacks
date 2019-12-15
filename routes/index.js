@@ -9,7 +9,11 @@ router.get('/', (req, res) => {
 
 /* GET home page. */
 router.get('/admin_' + process.env.ADMIN_URL_SUFFIX + '*', (req, res) => {
-    res.render('admin')
+    if(!global.QBOIsWorking) {
+        res.send('QBO is not working. Please initialise QBO token.')
+    } else {
+        res.render('admin')
+    }
 })
 
 module.exports = router;
