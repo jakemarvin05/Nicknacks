@@ -210,7 +210,7 @@ router.get('/callback', function (req, res) {
 
             res.send('Successfully obtained token!')
 
-            const QBOToken = require('../../apps/QBO/QBOToken')
+            const QBOToken = require('../apps/QBO/QBOToken')
             QBOToken()
 
         }).catch(function(e) {
