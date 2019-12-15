@@ -222,16 +222,24 @@ router.get('/accounts', function(req, res, next) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
 
-    // to check if token is able to access.
-    QBO.findAccountsAsync(function(accounts) {
-        accounts.QueryResponse.Account.forEach(function(account) {
-            console.log(account.Name)
-        })
-    }).catch(function (err) {
-        API_ERROR_HANDLER(err)
+
+    QBO.findAccounts(function (err, accounts) {
+        if (err) {
+
+            let error = new Error('Error in testing QBO.')
+            error.debug = JSON.stringify(err)
+            API_ERROR_HANDLER(error)
+
+        } else {
+            accounts.QueryResponse.Account.forEach(function (account) {
+                console.log(account.Name);
+            });
+
+            res.send('success!')
+        }
+
     });
 
-    res.send();
 });
 
 module.exports = router;
