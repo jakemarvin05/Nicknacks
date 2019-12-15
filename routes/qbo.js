@@ -5,8 +5,9 @@ var rp = require('request-promise');
 var QuickBooks = require('node-quickbooks');
 QuickBooks.setOauthVersion('2.0');
 var qs = require('querystring');
-var Tokens = require('csrf');
-var csrf = new Tokens();
+// var Tokens = require('csrf');
+// var csrf = new Tokens();
+var OAuthClient = require('intuit-oauth')
 
 //var oauthClient, companyId
 var companyId
