@@ -114,43 +114,43 @@ function retrieveTokenAndRefresh() {
         })
 
     }
-        // global.oauthClient.setToken(accessToken)
-        // global.oauthClient.refresh().then(function(authResponse) {
-        //     console.log(authResponse)
-        //      console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
-        //
-        //      var accessToken = authResponse.getJson();
-        //      var companyId = authResponse.token.realmId;
-        //
-        //      QBO = new QuickBooks(
-        //          process.env.qbo_consumerKey,
-        //          process.env.qbo_consumerSecret,
-        //          accessToken.access_token, /* oAuth access token */
-        //          false, /* no token secret for oAuth 2.0 */
-        //          companyId,
-        //          (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
-        //          false, /* turn debugging on */
-        //          34, /* minor version */
-        //          '2.0', /* oauth version */
-        //          accessToken.refresh_token /* refresh token */
-        //      )
-        //
-        //      // update the token
-        //      return DB.Token.update({
-        //          data: accessToken
-        //      }, {
-        //          where: {
-        //              TokenID: 1
-        //          }
-        //      })
-        //
-        //  }).catch(function(e) {
-        //      console.log(999999)
-        //      console.log(e)
-        //      console.error("The error message is :"+e.originalMessage);
-        //      console.error(e.intuit_tid);
-        //  });
-    }
+    //     global.oauthClient.setToken(accessToken)
+    //     global.oauthClient.refresh().then(function(authResponse) {
+    //         console.log(authResponse)
+    //          console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
+    //
+    //          var accessToken = authResponse.getJson();
+    //          var companyId = authResponse.token.realmId;
+    //
+    //          QBO = new QuickBooks(
+    //              process.env.qbo_consumerKey,
+    //              process.env.qbo_consumerSecret,
+    //              accessToken.access_token, /* oAuth access token */
+    //              false, /* no token secret for oAuth 2.0 */
+    //              companyId,
+    //              (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
+    //              false, /* turn debugging on */
+    //              34, /* minor version */
+    //              '2.0', /* oauth version */
+    //              accessToken.refresh_token /* refresh token */
+    //          )
+    //
+    //          // update the token
+    //          return DB.Token.update({
+    //              data: accessToken
+    //          }, {
+    //              where: {
+    //                  TokenID: 1
+    //              }
+    //          })
+    //
+    //      }).catch(function(e) {
+    //          console.log(999999)
+    //          console.log(e)
+    //          console.error("The error message is :"+e.originalMessage);
+    //          console.error(e.intuit_tid);
+    //      });
+    // }
 
 
     // attempt refresh every 50 min
