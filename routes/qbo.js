@@ -220,6 +220,8 @@ router.get('/callback', function (req, res) {
 
 router.get('/accounts', function(req, res, next) {
 
+    if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
+
     // to check if token is able to access.
     QBO.findAccounts(function(_, accounts) {
         accounts.QueryResponse.Account.forEach(function(account) {

@@ -7,14 +7,14 @@ function apiErrorHandler(err, req, res, next, config) {
 
     let status = (D.get(err, 'status') || D.get(config, 'status')) || 500
 
-    if(status === 404 && !res.headersSent) {
+    if(res && status === 404 && !res.headersSent) {
         return res.status(404).send({
             success: false,
             message: 'Not found.'
         })
     }
 
-    res.status(status)
+    if(res) res.status(status)
 
     // use simple timestamps to mark 500 errors.
     let timestamp = (new Date()).getTime()
@@ -121,7 +121,7 @@ function apiErrorHandler(err, req, res, next, config) {
     }
 
     // pass the timestamp to the frontend.
-    if (!res.headersSent) res.send(responseObject)
+    if (res && !res.headersSent) res.send(responseObject)
     return
 }
 module.exports = apiErrorHandler
