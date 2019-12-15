@@ -224,8 +224,10 @@ router.get('/callback', function (req, res) {
             '2.0', /* oauth version */
             accessToken.refresh_token /* refresh token */);
 
+            global.QBO = PROMISE.promisifyAll(global.QBO);
+
           return QBO.findAccounts()
-          
+
       }).then(accounts => {
 
           accounts.QueryResponse.Account.forEach(function (account) {
@@ -236,6 +238,7 @@ router.get('/callback', function (req, res) {
 
       }).catch(function(e) {
           console.error(e);
+          res.send(e)
         });
 
 });
