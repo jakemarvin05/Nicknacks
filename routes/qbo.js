@@ -176,74 +176,63 @@ router.get('/callback', function (req, res) {
 
     var accessToken;
 
-      oauthClient.createToken(req.url)
-        .then(function(authResponse) {
-          accessToken = authResponse.getJson();
-          companyId = authResponse.token.realmId;
+    oauthClient.createToken(req.url).then(function(authResponse) {
+        _ACCESS_TOKEN = accessToken = authResponse.getJson();
+        companyId = authResponse.token.realmId;
 
+        return DB.Token.findOrCreate({
 
-          console.log(111111)
-          console.log(companyId)
-          console.log(2222)
+            where: { TokenID: 1 },
+            defaults: { data: accessToken }
 
+        }).spread(function(token, created) {
 
-                  console.log(accessToken)
-                  //
-                  // global.QBO_ACCESS_TOKEN = _ACCESS_TOKEN.oauth_token;
-                  // global.QBO_ACCESS_TOKEN_SECRET = _ACCESS_TOKEN.oauth_token_secret;
-                  //
-                  // // save the token
-                  // return DB.Token.findOrCreate({
-                  //
-                  //     where: { TokenID: 1 },
-                  //
-                  //     defaults: { data: _ACCESS_TOKEN }
-                  //
-                  // });
+            // if not created, update the current token
+            if (!created) {
 
-                  // // if not created, update the current token
-                  // if (!created) {
-                  //
-                  //     return token.update({ data: _ACCESS_TOKEN });
-                  //
-                  // } else { return false; }
+                return token.update({ data: _ACCESS_TOKEN });
 
+            } else { return false; }
 
-        })
-        .then(function(response){
+        }).then(function(response){
 
-          QBO = new QuickBooks(
-            oauthClient.clientId,
-            oauthClient.clientSecret,
-            accessToken.access_token, /* oAuth access token */
-            false, /* no token secret for oAuth 2.0 */
-            companyId,
-            (config.environment === 'production' ? false : true), /* use a sandbox account */
-            true, /* turn debugging on */
-            34, /* minor version */
-            '2.0', /* oauth version */
-            accessToken.refresh_token /* refresh token */);
+            // initialise QBO
+            QBO = new QuickBooks(
+                oauthClient.clientId,
+                oauthClient.clientSecret,
+                accessToken.access_token, /* oAuth access token */
+                false, /* no token secret for oAuth 2.0 */
+                companyId,
+                (config.environment === 'production' ? false : true), /* use a sandbox account */
+                true, /* turn debugging on */
+                34, /* minor version */
+                '2.0', /* oauth version */
+                accessToken.refresh_token /* refresh token */
+            )
 
-          QBO.findAccounts(function (_, accounts) {
-            accounts.QueryResponse.Account.forEach(function (account) {
-              console.log(account.Name);
+            // run a query to ensure it is working.
+            QBO.findAccounts(function (_, accounts) {
+                accounts.QueryResponse.Account.forEach(function (account) {
+                    console.log(account.Name);
+                });
             });
-          });
-          res.send('Successfully obtained token!')
+
+            res.send('Successfully obtained token!')
+
+        }).catch(function(e) {
+            console.error(e);
+            res.send(e)
         })
-        .catch(function(e) {
-          console.error(e);
-          res.send(e)
-        });
 
 });
 
 router.get('/accounts', function(req, res, next) {
 
+    // to check if token is able to access.
     QBO.findAccounts(function(_, accounts) {
-      accounts.QueryResponse.Account.forEach(function(account) {
-        console.log(account.Name)
-      })
+        accounts.QueryResponse.Account.forEach(function(account) {
+            console.log(account.Name)
+        })
     });
 
     res.send();
