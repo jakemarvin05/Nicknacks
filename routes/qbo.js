@@ -224,23 +224,29 @@ router.get('/callback', function (req, res) {
             '2.0', /* oauth version */
             accessToken.refresh_token /* refresh token */);
 
-            global.QBO = PROMISE.promisifyAll(global.QBO);
-
-          return QBO.findAccounts()
-
-      }).then(accounts => {
-
-          accounts.QueryResponse.Account.forEach(function (account) {
-            console.log(account.Name)
-          })
-
-          res.send('Successful!')
-
-      }).catch(function(e) {
+          QBO.findAccounts(function (_, accounts) {
+            accounts.QueryResponse.Account.forEach(function (account) {
+              console.log(account.Name);
+            });
+          });
+          res.send('Successfully obtained token!')
+        })
+        .catch(function(e) {
           console.error(e);
           res.send(e)
         });
 
+});
+
+router.get('/accounts', function(req, res, next) {
+
+    QBO.findAccounts(function(_, accounts) {
+      accounts.QueryResponse.Account.forEach(function(account) {
+        console.log(account.Name)
+      })
+    });
+
+    res.send();
 });
 
 module.exports = router;
