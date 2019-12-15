@@ -142,8 +142,9 @@ function retrieveTokenAndRefresh() {
                  }
              })
 
-
          }).catch(function(e) {
+             console.log(999999)
+             console.log(e)
              console.error("The error message is :"+e.originalMessage);
              console.error(e.intuit_tid);
          });
