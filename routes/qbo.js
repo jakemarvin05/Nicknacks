@@ -180,20 +180,14 @@ router.get('/callback', function (req, res) {
         _ACCESS_TOKEN = accessToken = authResponse.getJson();
         companyId = authResponse.token.realmId;
 
-        return DB.Token.findOrCreate({
-
-            where: { TokenID: 1 },
-            defaults: { data: accessToken }
-
-        }).spread(function(token, created) {
-
-            // if not created, update the current token
-            if (!created) {
-
-                return token.update({ data: _ACCESS_TOKEN });
-
-            } else { return false; }
-
+        // update the token
+        return DB.Token.update({
+            data: accessToken
+        }, {
+            where: {
+                TokenID: 1
+            },
+            limit: 1
         }).then(function(response){
 
             // initialise QBO
