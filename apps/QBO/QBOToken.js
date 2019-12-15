@@ -113,8 +113,8 @@ function retrieveTokenAndRefresh() {
     //     })
     //
     // }
-
-        oauthClient.refreshUsingToken(accessToken.refresh_token).then(function(authResponse) {
+        global.oauthClient.setToken(accessToken.access_token)
+        global.oauthClient.refreshUsingToken(accessToken.refresh_token).then(function(authResponse) {
             console.log(authResponse)
              console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
 
