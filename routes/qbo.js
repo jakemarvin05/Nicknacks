@@ -219,7 +219,7 @@ router.get('/callback', function (req, res) {
             oauthClient.clientSecret,
             accessToken.access_token, /* oAuth access token */
             false, /* no token secret for oAuth 2.0 */
-            proces,
+            companyId,
             (config.environment === 'production' ? false : true), /* use a sandbox account */
             true, /* turn debugging on */
             34, /* minor version */
