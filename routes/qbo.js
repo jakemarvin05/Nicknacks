@@ -156,14 +156,13 @@ router.get('/callback', function (req, res) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
 
-
     var accessToken;
 
     global.oauthClient.createToken(req.url).then(function(authResponse) {
         accessToken = authResponse.getJson();
         companyId = authResponse.token.realmId;
 
-        // update the token
+        // update the token in DB
         return DB.Token.update({
             data: accessToken
         }, {
@@ -195,9 +194,10 @@ router.get('/callback', function (req, res) {
             });
 
             res.send('Successfully obtained token!')
-            // 
-            // const QBOToken = require('../apps/QBO/QBOToken')
-            // QBOToken()
+
+            // run the looping refresh token function
+            const QBOToken = require('../apps/QBO/QBOToken')
+            QBOToken()
 
         }).catch(function(e) {
             console.error(e);
@@ -209,12 +209,6 @@ router.get('/callback', function (req, res) {
 router.get('/accounts', function(req, res, next) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
-
-    console.log(9999)
-    console.log(QBO.refreshToken)
-    console.log(QBO.token)
-    console.log(55555)
-
 
     QBO.findAccounts(function (err, accounts) {
         if (err) {

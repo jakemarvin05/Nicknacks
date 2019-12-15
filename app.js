@@ -129,8 +129,9 @@ app.all('*', function (req, res, next) {
 });
 
 // attempt refresh on server start
-const QBOToken = require('./apps/QBO/QBOToken')
-QBOToken()
+// no longer works at the moment. need to trigger nicknacks.greyandsanders.com/qbo/requestToken on every server restart.
+// const QBOToken = require('./apps/QBO/QBOToken')
+// QBOToken()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
