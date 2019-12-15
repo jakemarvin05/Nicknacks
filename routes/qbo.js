@@ -8,6 +8,10 @@ var qs = require('querystring');
 var Tokens = require('csrf');
 var csrf = new Tokens();
 
+var consumerKey = process.env.qbo_consumerKey
+var consumerSecret = process.env.qbo_consumerSecret
+
+
 router.all('*', function(req, res, next) {
     if (process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(403).send();
     next();
@@ -15,11 +19,12 @@ router.all('*', function(req, res, next) {
 
 // OAUTH 2 makes use of redirect requests
 function generateAntiForgery (session) {
-  session.secret = csrf.secretSync();
-  return csrf.create(session.secret);
-};
+    session.secret = csrf.secretSync()
+    return csrf.create(session.secret)
+}
 
 router.get('/requestToken', function (req, res) {
+
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
 
     var redirecturl = QuickBooks.AUTHORIZATION_URL +
@@ -30,7 +35,7 @@ router.get('/requestToken', function (req, res) {
         '&state=' + generateAntiForgery(req.session);
 
     res.redirect(redirecturl);
-});
+})
 
 // deprecated OAuth 1.0
 // router.get('/requestToken', function(req, res) {
@@ -156,9 +161,6 @@ router.get('/requestToken', function (req, res) {
 //
 // });
 
-var consumerKey = process.env.qbo_consumerKey
-var consumerSecret = process.env.qbo_consumerSecret
-
 router.get('/callback', function (req, res) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
@@ -166,72 +168,77 @@ router.get('/callback', function (req, res) {
 
     var auth = (new Buffer(consumerKey + ':' + consumerSecret).toString('base64'));
 
-  var postBody = {
-    url: 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic ' + auth,
-    },
-    form: {
-      grant_type: 'authorization_code',
-      code: req.query.code,
-      redirect_uri: process.env.DOMAIN + 'qbo/callback/'  //Make sure this path matches entry in application dashboard
+    var postBody = {
+        url: 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: 'Basic ' + auth,
+        },
+        form: {
+        grant_type: 'authorization_code',
+        code: req.query.code,
+        redirect_uri: process.env.DOMAIN + 'qbo/callback/'  //Make sure this path matches entry in application dashboard
+        }
     }
-  };
 
 
-  rp.post(postBody, function (e, r, data) {
-    var accessToken = JSON.parse(r.body);
+    rp.post(postBody, function (e, r, data) {
 
-    // save the access token somewhere on behalf of the logged in user
-    QBO = new QuickBooks(consumerKey,
-                             consumerSecret,
-                             accessToken.access_token, /* oAuth access token */
-                             false, /* no token secret for oAuth 2.0 */
-                             req.query.realmId,
-                             true, /* use a sandbox account */
-                             true, /* turn debugging on */
-                             4, /* minor version */
-                             '2.0', /* oauth version */
-                            accessToken.refresh_token /* refresh token */)
+        var accessToken = JSON.parse(r.body);
 
-    QBO.findAccounts(function (_, accounts) {
-      accounts.QueryResponse.Account.forEach(function (account) {
-        console.log(account.Name);
-      });
-    });
+        // save the access token somewhere on behalf of the logged in user
+        QBO = new QuickBooks(
+            consumerKey,
+            consumerSecret,
+            accessToken.access_token, /* oAuth access token */
+            false, /* no token secret for oAuth 2.0 */
+            req.query.realmId,
+            false, /* use a sandbox account */
+            true, /* turn debugging on */
+            4, /* minor version */
+            '2.0', /* oauth version */
+            accessToken.refresh_token /* refresh token */
+        )
 
-}).then(function (response) {
+        QBO.findAccounts(function (_, accounts) {
+            accounts.QueryResponse.Account.forEach(function (account) {
+                console.log(account.Name);
+            })
+        })
 
-    _ACCESS_TOKEN = qs.parse(response);
+    }).then(function (response) {
 
-    console.log(_ACCESS_TOKEN)
-    //
-    // global.QBO_ACCESS_TOKEN = _ACCESS_TOKEN.oauth_token;
-    // global.QBO_ACCESS_TOKEN_SECRET = _ACCESS_TOKEN.oauth_token_secret;
-    //
-    // // save the token
-    // return DB.Token.findOrCreate({
-    //
-    //     where: { TokenID: 1 },
-    //
-    //     defaults: { data: _ACCESS_TOKEN }
-    //
-    // });
+        //_ACCESS_TOKEN = qs.parse(response);
 
-}).spread(function(token, created) {
+        _ACCESS_TOKEN = accessToken.access_token
 
-    // // if not created, update the current token
-    // if (!created) {
-    //
-    //     return token.update({ data: _ACCESS_TOKEN });
-    //
-    // } else { return false; }
+        console.log(accessToken)
+        //
+        // global.QBO_ACCESS_TOKEN = _ACCESS_TOKEN.oauth_token;
+        // global.QBO_ACCESS_TOKEN_SECRET = _ACCESS_TOKEN.oauth_token_secret;
+        //
+        // // save the token
+        // return DB.Token.findOrCreate({
+        //
+        //     where: { TokenID: 1 },
+        //
+        //     defaults: { data: _ACCESS_TOKEN }
+        //
+        // });
 
-})
+    }).spread(function(token, created) {
 
-  res.send('<!DOCTYPE html><html lang="en"><head></head><body><script>window.opener.location.reload(); window.close();</script></body></html>');
+        // // if not created, update the current token
+        // if (!created) {
+        //
+        //     return token.update({ data: _ACCESS_TOKEN });
+        //
+        // } else { return false; }
+
+    })
+
+    res.send('<!DOCTYPE html><html lang="en"><head></head><body><script>window.opener.location.reload(); window.close();</script></body></html>');
 });
 
 router.get('/accounts', function(req, res, next) {

@@ -121,8 +121,8 @@ app.all('*', function (req, res, next) {
 });
 
 // attempt refresh on server start
-const QBOToken = require('./apps/QBO/QBOToken')
-QBOToken()
+// const QBOToken = require('./apps/QBO/QBOToken')
+// QBOToken()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
