@@ -57,99 +57,99 @@ function retrieveTokenAndRefresh() {
         // somehow the node-quickbooks literature is not updated, or promisify changed the
         // behaviour of #refreshAccessTokenAsync, by allowing only a single argument in callback.
         // hence this response is checked for errors.
-    //     return QBO.refreshAccessTokenAsync().then(function(response) {
-    //         if(D.get(response, 'error')) {
-    //             let error = new Error('Error in request for refreshing QBO token.')
-    //             error.debug = response
-    //             error.status = 500
-    //             error.level = 'high'
-    //             error.noLogging = false
-    //
-    //             throw error
-    //         }
-    //         if(!response || !response.refresh_token || !response.access_token) {
-    //             let error = new Error('Unexpected response in refreshing token.')
-    //             error.debug = response
-    //             error.status = 500
-    //             error.level = 'high'
-    //             error.noLogging = false
-    //             throw error
-    //         }
-    //         console.log(response)
-    //         //
-    //         // accessToken = authResponse.getJson();
-    //         // var companyId = authResponse.token.realmId;
-    //         //
-    //         // // re-initialise QBO
-    //         // QBO = new QuickBooks(
-    //         //     process.env.qbo_consumerKey,
-    //         //     process.env.qbo_consumerSecret,
-    //         //     accessToken.access_token, /* oAuth access token */
-    //         //     false, /* no token secret for oAuth 2.0 */
-    //         //     process.env.qbo_realmID,
-    //         //     (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
-    //         //     false, /* turn debugging on */
-    //         //     34, /* minor version */
-    //         //     '2.0', /* oauth version */
-    //         //     accessToken.refresh_token /* refresh token */
-    //         // )
-    //
-    //
-    //         console.log(11111)
-    //         console.log(QBO.refreshToken)
-    //         console.log(QBO.token)
-    //         console.log(2222)
-    //
-    //         //update the token
-    //         return DB.Token.update({
-    //             data: response
-    //         }, {
-    //             where: {
-    //                 TokenID: 1
-    //             }
-    //         })
-    //
-    //     }).then(function() {
-    //         console.log('QBO token successfully updated.')
-    //     })
-    //
-    // }
-        global.oauthClient.setToken(accessToken)
-        global.oauthClient.refresh().then(function(authResponse) {
-            console.log(authResponse)
-             console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
+        return global.QBO.refreshAccessTokenAsync().then(function(response) {
+            if(D.get(response, 'error')) {
+                let error = new Error('Error in request for refreshing QBO token.')
+                error.debug = response
+                error.status = 500
+                error.level = 'high'
+                error.noLogging = false
 
-             var accessToken = authResponse.getJson();
-             var companyId = authResponse.token.realmId;
+                throw error
+            }
+            if(!response || !response.refresh_token || !response.access_token) {
+                let error = new Error('Unexpected response in refreshing token.')
+                error.debug = response
+                error.status = 500
+                error.level = 'high'
+                error.noLogging = false
+                throw error
+            }
+            console.log(response)
+            //
+            // accessToken = authResponse.getJson();
+            // var companyId = authResponse.token.realmId;
+            //
+            // // re-initialise QBO
+            // QBO = new QuickBooks(
+            //     process.env.qbo_consumerKey,
+            //     process.env.qbo_consumerSecret,
+            //     accessToken.access_token, /* oAuth access token */
+            //     false, /* no token secret for oAuth 2.0 */
+            //     process.env.qbo_realmID,
+            //     (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
+            //     false, /* turn debugging on */
+            //     34, /* minor version */
+            //     '2.0', /* oauth version */
+            //     accessToken.refresh_token /* refresh token */
+            // )
 
-             QBO = new QuickBooks(
-                 process.env.qbo_consumerKey,
-                 process.env.qbo_consumerSecret,
-                 accessToken.access_token, /* oAuth access token */
-                 false, /* no token secret for oAuth 2.0 */
-                 companyId,
-                 (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
-                 false, /* turn debugging on */
-                 34, /* minor version */
-                 '2.0', /* oauth version */
-                 accessToken.refresh_token /* refresh token */
-             )
 
-             // update the token
-             return DB.Token.update({
-                 data: accessToken
-             }, {
-                 where: {
-                     TokenID: 1
-                 }
-             })
+            console.log(11111)
+            console.log(QBO.refreshToken)
+            console.log(QBO.token)
+            console.log(2222)
 
-         }).catch(function(e) {
-             console.log(999999)
-             console.log(e)
-             console.error("The error message is :"+e.originalMessage);
-             console.error(e.intuit_tid);
-         });
+            //update the token
+            return DB.Token.update({
+                data: response
+            }, {
+                where: {
+                    TokenID: 1
+                }
+            })
+
+        }).then(function() {
+            console.log('QBO token successfully updated.')
+        })
+
+    }
+        // global.oauthClient.setToken(accessToken)
+        // global.oauthClient.refresh().then(function(authResponse) {
+        //     console.log(authResponse)
+        //      console.log('Tokens refreshed : ' + JSON.stringify(authResponse.getJson()));
+        //
+        //      var accessToken = authResponse.getJson();
+        //      var companyId = authResponse.token.realmId;
+        //
+        //      QBO = new QuickBooks(
+        //          process.env.qbo_consumerKey,
+        //          process.env.qbo_consumerSecret,
+        //          accessToken.access_token, /* oAuth access token */
+        //          false, /* no token secret for oAuth 2.0 */
+        //          companyId,
+        //          (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
+        //          false, /* turn debugging on */
+        //          34, /* minor version */
+        //          '2.0', /* oauth version */
+        //          accessToken.refresh_token /* refresh token */
+        //      )
+        //
+        //      // update the token
+        //      return DB.Token.update({
+        //          data: accessToken
+        //      }, {
+        //          where: {
+        //              TokenID: 1
+        //          }
+        //      })
+        //
+        //  }).catch(function(e) {
+        //      console.log(999999)
+        //      console.log(e)
+        //      console.error("The error message is :"+e.originalMessage);
+        //      console.error(e.intuit_tid);
+        //  });
     }
 
 
