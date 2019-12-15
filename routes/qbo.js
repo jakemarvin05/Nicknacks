@@ -34,6 +34,8 @@ router.get('/requestToken', function (req, res) {
         '&response_type=code' +
         '&state=' + generateAntiForgery(req.session);
 
+    console.log(redirecturl)
+
     res.redirect(redirecturl);
 })
 
@@ -176,9 +178,9 @@ router.get('/callback', function (req, res) {
             Authorization: 'Basic ' + auth,
         },
         form: {
-        grant_type: 'authorization_code',
-        code: req.query.code,
-        redirect_uri: process.env.DOMAIN + '/qbo/callback/'  //Make sure this path matches entry in application dashboard
+            grant_type: 'authorization_code',
+            code: req.query.code,
+            redirect_uri: process.env.DOMAIN + '/qbo/callback/'  //Make sure this path matches entry in application dashboard
         }
     }
 
