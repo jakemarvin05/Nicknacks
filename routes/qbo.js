@@ -17,7 +17,8 @@ var config = {
     redirectUri: process.env.DOMAIN + '/qbo/callback'
 }
 
-var oauthClient, companyId
+//var oauthClient, companyId
+var companyId
 
 router.all('*', function(req, res, next) {
     if (process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(403).send();
