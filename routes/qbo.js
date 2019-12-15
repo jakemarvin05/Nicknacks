@@ -15,7 +15,7 @@ var config = {
     clientId: process.env.qbo_consumerKey,
     clientSecret: process.env.qbo_consumerSecret,
     environment: process.env.qbo_environment,
-    redirectUri: process.env.DOMAIN + '/qbo/callback/'
+    redirectUri: process.env.DOMAIN + '/qbo/callback'
 
 }
 
@@ -39,7 +39,7 @@ router.get('/requestToken', function (req, res) {
       redirectUri: config.redirectUri
     });
 
-    var authUri = oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting],state:'nicknacks'});
+    var authUri = oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting,OAuthClient.scopes.OpenId],state:'nicknacks'});
 
     res.redirect(authUri);
 
