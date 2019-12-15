@@ -228,7 +228,7 @@ router.get('/accounts', function(req, res, next) {
 
             let error = new Error('Error in testing QBO.')
             error.debug = JSON.stringify(err)
-            API_ERROR_HANDLER(error)
+            API_ERROR_HANDLER(error, null, res)
 
         } else {
             accounts.QueryResponse.Account.forEach(function (account) {

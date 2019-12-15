@@ -21,18 +21,20 @@ function apiErrorHandler(err, req, res, next, config) {
 
     // send email to wake the administrator from his sleep.
     if(D.get(err, 'sendEmail') || status === 500) {
-        SGMAIL.send({
-          to:       ['calvin@greyandsanders.com', 'sayhi@greyandsanders.com'],
-          from:     'calvin@greyandsanders.com',
-          fromname: 'Calvin Wilton Tan',
-          subject:  '[Server Error] ' + D.get(err, 'message') + ' (' + timestamp + ')',
-          html:     JSON.stringify(err)
-        }, function(err, json){
-          if (err) {
-              console.error('Error in sending out server error email.')
-              console.error(err.stack);
-          }
-        })
+        if(process.env.SEND_EMAIL_ON_ERROR!==false) {
+            SGMAIL.send({
+              to:       ['calvin@greyandsanders.com', 'sayhi@greyandsanders.com'],
+              from:     'calvin@greyandsanders.com',
+              fromname: 'Calvin Wilton Tan',
+              subject:  '[Server Error] ' + D.get(err, 'message') + ' (' + timestamp + ')',
+              html:     JSON.stringify(err)
+            }, function(err, json){
+              if (err) {
+                  console.error('Error in sending out server error email.')
+                  console.error(err.stack);
+              }
+            })
+        }
     }
 
     // severity

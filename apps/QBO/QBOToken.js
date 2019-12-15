@@ -93,6 +93,12 @@ function retrieveTokenAndRefresh() {
             //     accessToken.refresh_token /* refresh token */
             // )
 
+
+            console.log(11111)
+            console.log(QBO.refreshToken)
+            console.log(QBO.token)
+            console.log(2222)
+
             //update the token
             return DB.Token.update({
                 data: response
