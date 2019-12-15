@@ -75,7 +75,7 @@ router.get('/callback', function (req, res) {
 
             // run the looping refresh token function
             const QBOToken = require('../apps/QBO/QBOToken')
-            setTimeoout(function() {
+            setTimeout(function() {
                 QBOToken()
             }, 3e+6)
 
