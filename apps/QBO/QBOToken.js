@@ -57,7 +57,7 @@ function retrieveTokenAndRefresh() {
         // behaviour of #refreshAccessTokenAsync, by allowing only a single argument in callback.
         // hence this response is checked for errors.
         return QBO.refreshAccessTokenAsync().then(function(response) {
-            if(D.get(response, 'err')) {
+            if(D.get(response, 'error')) {
                 let error = new Error('Error in request for refreshing QBO token.')
                 error.debug = response
                 error.status = 500
