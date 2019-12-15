@@ -30,14 +30,14 @@ router.get('/requestToken', function (req, res) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
 
-    oauthClient = new OAuthClient({
+    global.oauthClient = new OAuthClient({
       clientId: config.clientId,
       clientSecret: config.clientSecret,
       environment: config.environment,
       redirectUri: config.redirectUri
     });
 
-    var authUri = oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting,OAuthClient.scopes.OpenId],state:'nicknacks'});
+    var authUri = global.oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting,OAuthClient.scopes.OpenId],state:'nicknacks'});
 
     res.redirect(authUri);
 
@@ -174,7 +174,7 @@ router.get('/callback', function (req, res) {
 
     var accessToken;
 
-    oauthClient.createToken(req.url).then(function(authResponse) {
+    global.oauthClient.createToken(req.url).then(function(authResponse) {
         accessToken = authResponse.getJson();
         companyId = authResponse.token.realmId;
 
@@ -189,7 +189,7 @@ router.get('/callback', function (req, res) {
     }).then(function(){
 
             // initialise QBO
-            QBO = new QuickBooks(
+            global.QBO = new QuickBooks(
                 oauthClient.clientId,
                 oauthClient.clientSecret,
                 accessToken.access_token, /* oAuth access token */
@@ -203,7 +203,7 @@ router.get('/callback', function (req, res) {
             )
 
             // run a query to ensure it is working.
-            QBO.findAccounts(function (_, accounts) {
+            global.QBO.findAccounts(function (_, accounts) {
                 accounts.QueryResponse.Account.forEach(function (account) {
                     console.log(account.Name);
                 });

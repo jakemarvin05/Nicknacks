@@ -22,7 +22,7 @@ function retrieveTokenAndRefresh() {
 
         // initialise QBO
         // access_token may be outdated, it is not a problem.
-        QBO = new QuickBooks(
+        global.QBO = new QuickBooks(
             process.env.qbo_consumerKey,
             process.env.qbo_consumerSecret,
             accessToken.access_token, /* oAuth access token */
