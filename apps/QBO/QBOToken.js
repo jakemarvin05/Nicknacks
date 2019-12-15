@@ -115,7 +115,7 @@ function retrieveTokenAndRefresh() {
     // }
 
         oauthClient.refresh().then(function(authResponse) {
-            console.log(authReponse)
+            console.log(authResponse)
              console.log('Tokens refreshed : ' + JSON.stringify(authResponse.json()));
 
              var accessToken = authResponse.getJson();
