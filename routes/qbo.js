@@ -29,7 +29,7 @@ router.get('/requestToken', function (req, res) {
 
     var redirecturl = QuickBooks.AUTHORIZATION_URL +
         '?client_id=' + consumerKey +
-        '&redirect_uri=' + encodeURIComponent(process.env.DOMAIN + 'qbo/callback/') +  //Make sure this path matches entry in application dashboard
+        '&redirect_uri=' + encodeURIComponent(process.env.DOMAIN + '/qbo/callback/') +  //Make sure this path matches entry in application dashboard
         '&scope=com.intuit.quickbooks.accounting' +
         '&response_type=code' +
         '&state=' + generateAntiForgery(req.session);
@@ -178,7 +178,7 @@ router.get('/callback', function (req, res) {
         form: {
         grant_type: 'authorization_code',
         code: req.query.code,
-        redirect_uri: process.env.DOMAIN + 'qbo/callback/'  //Make sure this path matches entry in application dashboard
+        redirect_uri: process.env.DOMAIN + '/qbo/callback/'  //Make sure this path matches entry in application dashboard
         }
     }
 
