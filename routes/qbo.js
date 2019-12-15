@@ -85,6 +85,7 @@ router.get('/callback', function (req, res) {
             let error = new Error('QBO requestToken error')
             error.status = 500
             error.level = 'high'
+            error.debug = e
 
             API_ERROR_HANDLER(error, req, res)
 
