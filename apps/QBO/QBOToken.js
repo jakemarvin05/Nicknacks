@@ -152,6 +152,6 @@ function retrieveTokenAndRefresh() {
 
 
     // attempt refresh every 50 min
-    setInterval(retrieveTokenAndRefresh, 3e+6);
+    setTimeout(retrieveTokenAndRefresh, 3e+6);
 }
 module.exports = retrieveTokenAndRefresh
