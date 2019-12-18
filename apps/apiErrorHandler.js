@@ -63,7 +63,7 @@ function apiErrorHandler(err, req, res, next, config) {
         // logging
         logger('**API ERROR OUTPUT - ' + level.toUpperCase() + ' ** (TS: ' + timestamp + ')')
         logger(D.get(err, 'message') || D.get(config, 'message'))
-        logger(err)
+        logger(JSON.stringify(err))
 
         // category dependent outputs
         if (err.category === 'QBO') {
