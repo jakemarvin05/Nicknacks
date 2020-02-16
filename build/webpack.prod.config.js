@@ -46,7 +46,7 @@ module.exports = merge(webpackBaseConfig, {
     new UglifyJSPlugin({
       uglifyOptions: {
         compress: {
-          drop_console: true
+          drop_console: false
         }
       }
     }),
