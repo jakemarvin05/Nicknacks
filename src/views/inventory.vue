@@ -6,8 +6,13 @@
             <BreadcrumbItem>List</BreadcrumbItem>
         </Breadcrumb>
 
-        <Button style="width:400;" type="primary" @click="addProduct()">Add product</Button>
-
+        <Button style="width:400;" type="primary" @click="addProduct()">+ Add product</Button>
+        <br />
+        <Icon type="ios-search" /> <el-input
+            style="width: 250px; padding:20px 0px"
+            v-model="search"
+            placeholder="Type to search"
+        />
         <el-table
             :data="inventories.filter(
                 inventory => !search || (
@@ -79,15 +84,8 @@
 
             <el-table-column
                 min-width="62"
+                label="Actions"
             >
-            <template slot="header" slot-scope="scope">
-                <el-input
-                    v-model="search"
-                    size="mini"
-                    placeholder="Type to search"
-                />
-            </template>
-
                 <template slot-scope="scope">
                     <Button type="primary" size="small" @click="editInventory(scope.row)">
                         <Icon type="ios-create" /><span class="inventoryActionText">Edit</span>
