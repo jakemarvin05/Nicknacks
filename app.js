@@ -11,6 +11,7 @@ SGMAIL.setApiKey(process.env.SENDGRID_API_KEY)
 global.DB = require('./models/index.js')
 global.MOMENT = require('moment')
 global.D = require('dottie')
+global.ASANA = require('asana').Client.create().useAccessToken(process.env.ASANA_PA_TOKEN)
 
 global.API_ERROR_HANDLER = require('./apps/apiErrorHandler')
 

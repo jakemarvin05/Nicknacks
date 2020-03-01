@@ -71,10 +71,10 @@ function apiErrorHandler(err, req, res, next, config) {
             logger(err.category + ' error output:')
             logger(JSON.stringify(err.QBOResponse))
         }
-
+        logger('=====RAW OUTPUT======')
+        logger(err)
         logger('**END OUTPUT**')
         logger('^^^^^^^^^^^^^^^^^^^^^^^^^^')
-
     }
 
     // default response
