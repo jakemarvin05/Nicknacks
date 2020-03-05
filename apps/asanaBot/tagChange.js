@@ -11,7 +11,7 @@ function tagChange(task, toWhichTag) {
     let toInsertTag = _.find(task.tags, {
         gid: toWhichTag
     })
-    if (toInsertTag) {
+    if (!toInsertTag) {
         debug('Inserting tag: ' + toWhichTag)
         promises.push(
             ASANA.tasks.addTag(task.gid, { tag: toWhichTag })
