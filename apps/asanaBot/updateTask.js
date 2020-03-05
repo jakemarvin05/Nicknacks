@@ -171,7 +171,7 @@ function updateTask(fromMagento, options) {
 
             // AUTOMATIC ASSIGNMENT TO DELIVERY PARTNERS
             // AS WELL AS DELIVERY TICKET COMMENT UPDATES
-            if (['shipment', 'shipmentcomment'].indexOf(fromMagento.type.toLowerCase()) !== -1) {
+            if (['ordercomment', 'shipment', 'shipmentcomment'].indexOf(fromMagento.type.toLowerCase()) !== -1) {
 
                 // update task with comment
                 let ticketComment = ASANA.tasks.addComment(_DB_TASK.asanaTaskDeliveryTicketID, {
@@ -190,13 +190,26 @@ function updateTask(fromMagento, options) {
                     }
                 }
 
-                if (isRenford) {
+                // check if already assigned to renford
+                let isAssignedToRenford = _.find(task.projects, {
+                    gid: config.projects.renfordDelivery.id
+                })
+
+                // if it is to be assigned to renford, yet to be assigned, and is shipment or shipmentcomment
+                // assign it
+                if (isRenford &&!isAssignedToRenford && ['shipment', 'shipmentcomment'].indexOf(fromMagento.type.toLowerCase()) !== -1) {
+
                     promises.push(
                         ASANA.tasks.addProject(_DB_TASK.asanaTaskDeliveryTicketID, {
                             project: config.projects.renfordDelivery.id
                         })
                     )
-                } else {
+
+                } else if (!isRenford && isAssignedToRenford || fromMagento.type.toLowerCase() === 'ordercomment') {
+                    // if it is not assigned to renford, but is now assigned to renford
+                    // or if it is an orderComment
+                    // we will unassign
+
                     promises.push(
                         ASANA.tasks.removeProject(_DB_TASK.asanaTaskDeliveryTicketID, {
                             project: config.projects.renfordDelivery.id
