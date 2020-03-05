@@ -12,7 +12,7 @@ const config = {
         main: {
             id:"1163211650953761",
             sections: {
-                noDeliveryDate: "1163211650953762",
+                noDeliveryDateAndTime: "1163211650953762",
                 haveDateButNotConfirmed: "1164258736317066",
                 deliveryConfirmed: "1163270200047312"
             }
@@ -21,6 +21,11 @@ const config = {
             id:"1164274787472653",
             sections: {}
         }
+    },
+    tags: {
+        noDeliveryDateAndTime: "1165039615164465",
+        haveDateButNotConfirmed: "1165039615164466",
+        deliveryConfirmed: "1165039615164467"
     }
 }
 

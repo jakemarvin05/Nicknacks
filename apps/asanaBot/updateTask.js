@@ -7,6 +7,8 @@ const makeIDObject = require('./makeIDObject.js')
 const _ = require('lodash')
 const prepareComments = require('./prepareComments')
 const config = require('./config.js')
+const sectionShift = require('./sectionShift.js')
+const tagChange = require('./tagChange.js')
 
 function updateTask(fromMagento, options) {
 
@@ -84,119 +86,126 @@ function updateTask(fromMagento, options) {
                     let momentTime = MOMENT(deliveryDate + ' ' + deliveryStartTime + ' +0800', 'YYYY-MM-DD HH:mm A Z')
 
                     taskUpdatePayload.due_at = momentTime.format()
+                } else {
+                    // if delivery time don't exist, just put date
+                    taskUpdatePayload.due_on = deliveryDate
                 }
             } else {
                 // delivery date does not exist, remove task due date
-                // this may not work, i need to check it
                 taskUpdatePayload.due_on = null
                 taskUpdatePayload.due_at = null
             }
 
-            // SHIFTING BETWEEN SECTIONS
+            // SHIFTING BETWEEN SECTIONS AND TAGGING
             if (fromMagento.type.toLowerCase() === 'ordercomment') {
 
                 // if there is deliveryDate in sales order
                 // we take it that delivery is scheduled ONLY if it also includes TIME
-                if (taskUpdatePayload.due_at) {
-                    // shift it to have date
-                    let sectionShift = ASANA.sections.addTask(
-                        config.projects.main.sections.haveDateButNotConfirmed, {
-                            task: task.gid
-                        }
-                    )
-                    promises.push(sectionShift)
+
+                // hence if there is no time
+                if (!taskUpdatePayload.due_at) {
+
+                    // tag it to no delivery date and time
+                    let tagging = tagChange(task, config.tags.noDeliveryDateAndTime)
+                    if (tagging.length > 0) promises.concat(tagging)
+
+                    // shift it to no delivery date and time
+                    let shift = sectionShift(task, config.projects.main.sections.noDeliveryDateAndTime)
+                    if (shift) promises.push(shift)
+
                 } else {
-                    let sectionShift = ASANA.sections.addTask(
-                        config.projects.main.sections.noDeliveryDate, {
-                            task: task.gid
-                        }
-                    )
-                    promises.push(sectionShift)
+
+                    //Have Date, Not Confirmed
+                    let tagging = tagChange(task, config.tags.haveDateButNotConfirmed)
+                    if (tagging.length > 0) promises.concat(tagging)
+
+                    // shift it to have date, not confirmed
+                    let shift = sectionShift(task, config.projects.main.sections.haveDateButNotConfirmed)
+                    if (shift) promises.push(shift)
+
                 }
             } else if (['shipment', 'shipmentcomment'].indexOf(fromMagento.type.toLowerCase()) !== -1) {
+
                 if (taskUpdatePayload.due_at) {
-                    // if there is delivery date and time in delivery order
-                    let sectionShift = ASANA.sections.addTask(
-                        config.projects.main.sections.deliveryConfirmed, {
-                            task: task.gid
-                        }
-                    )
-                    promises.push(sectionShift)
+
+                    //confirmed tagging
+                    let tagging = tagChange(task, config.tags.deliveryConfirmed)
+                    if (tagging.length > 0) promises.concat(tagging)
+
+                    //confirmed section shift
+                    let shift = sectionShift(task, config.projects.main.sections.deliveryConfirmed)
+                    if (shift) promises.push(shift)
 
                 } else {
 
-                    let sectionShift = ASANA.sections.addTask(
-                        config.projects.main.sections.noDeliveryDate, {
-                            task: task.gid
-                        }
-                    )
-                    promises.push(sectionShift)
+                    //tag it to unconfirmed, no delivery date and time
+                    let tagging = tagChange(task, config.tags.noDeliveryDateAndTime)
+                    if (tagging.length > 0) promises.concat(tagging)
+
+                    //confirmed section shift
+                    let shift = sectionShift(task, config.projects.main.sections.noDeliveryDateAndTime)
+                    if (shift) promises.push(shift)
                 }
 
             }
 
-            // now we will update the due dates accordingly, and also just apply the followers
-            let GNS_TEAM_MEMBERS = []
+            // now we will update the due dates accordingly
+            promises.push( ASANA.tasks.update(_DB_TASK.asanaTaskID, taskUpdatePayload) )
+            promises.push( ASANA.tasks.update(_DB_TASK.asanaTaskDeliveryTicketID, taskUpdatePayload) )
 
-            let taskUpdates = PROMISE.resolve().then(() => {
-
-                return [
-                    ASANA.tasks.update(task.gid, taskUpdatePayload),
-                    ASANA.tasks.update(_DB_TASK.asanaTaskDeliveryTicketID, taskUpdatePayload),
-                    ASANA.teams.users(config.teams.gns).then(team => {
-                        for (let i=0; i<team.data.length; i++) {
-                            GNS_TEAM_MEMBERS.push(team.data[i].gid)
-                        }
-                        return false
-                    })
-                ]
-            }).spread((task, deliveryTicket, _) => {
-
-                // carpet bombing manner of adding followers.
-                let promises = [
-                    ASANA.tasks.addFollowers(task.gid, { followers: GNS_TEAM_MEMBERS }),
-                    ASANA.tasks.addFollowers(deliveryTicket.gid, { followers: GNS_TEAM_MEMBERS })
-                ]
-
-                // AUTOMATIC ASSIGNMENT TO DELIVERY PARTNERS
-                // AS WELL AS DELIVERY TICKET COMMENT UPDATES
-                if (['shipment', 'shipmentcomment'].indexOf(fromMagento.type.toLowerCase()) !== -1) {
-
-                    // update task with comment
-                    let ticketComment = ASANA.tasks.addComment(deliveryTicket.gid, {
-                        html_text: _COMMENT
-                    })
-                    promises.push(ticketComment)
-
-                    // AUTO ASSIGNMENT
-                    let isRenford = false
-
-                    if(Array.isArray(fromMagento.trackinginfo) && fromMagento.trackinginfo.length > 0 ) {
-                        for(let i=0; i<fromMagento.trackinginfo.length; i++) {
-                            let tracking = fromMagento.trackinginfo[i]
-                            if (tracking.title.toLowerCase() === 'renford') isRenford = true
-                            // let title = tracking.title + ' (' + tracking.number + ')'
-                        }
-                    }
-
-                    if (isRenford) {
-                        promises.push(
-                            ASANA.tasks.addProject(deliveryTicket.gid, {
-                                project: config.projects.renfordDelivery.id
-                            })
-                        )
-                    } else {
-                        promises.push(
-                            ASANA.tasks.removeProject(deliveryTicket.gid, {
-                                project: config.projects.renfordDelivery.id
-                            })
-                        )
-                    }
-
+            //and also just apply the followers
+            let followersUpdate = ASANA.teams.users(config.teams.gns).then(team => {
+                let gnsTeamMembers = []
+                for (let i=0; i<team.data.length; i++) {
+                    gnsTeamMembers.push(team.data[i].gid)
                 }
-                return promises
+
+                PROMISE.all([
+                    ASANA.tasks.addFollowers(_DB_TASK.asanaTaskID, { followers: gnsTeamMembers }),
+                    ASANA.tasks.addFollowers(_DB_TASK.asanaTaskDeliveryTicketID, { followers: gnsTeamMembers })
+                ])
+
             })
-            promises.concat(taskUpdates)
+
+            promises.push(followersUpdate)
+
+            // AUTOMATIC ASSIGNMENT TO DELIVERY PARTNERS
+            // AS WELL AS DELIVERY TICKET COMMENT UPDATES
+            if (['shipment', 'shipmentcomment'].indexOf(fromMagento.type.toLowerCase()) !== -1) {
+
+                // update task with comment
+                let ticketComment = ASANA.tasks.addComment(_DB_TASK.asanaTaskDeliveryTicketID, {
+                    html_text: _COMMENT
+                })
+                promises.push(ticketComment)
+
+                // AUTO ASSIGNMENT
+                let isRenford = false
+
+                if(Array.isArray(fromMagento.trackinginfo) && fromMagento.trackinginfo.length > 0 ) {
+                    for(let i=0; i<fromMagento.trackinginfo.length; i++) {
+                        let tracking = fromMagento.trackinginfo[i]
+                        if (tracking.title.toLowerCase() === 'renford') isRenford = true
+                        // let title = tracking.title + ' (' + tracking.number + ')'
+                    }
+                }
+
+                if (isRenford) {
+                    promises.push(
+                        ASANA.tasks.addProject(_DB_TASK.asanaTaskDeliveryTicketID, {
+                            project: config.projects.renfordDelivery.id
+                        })
+                    )
+                } else {
+                    promises.push(
+                        ASANA.tasks.removeProject(_DB_TASK.asanaTaskDeliveryTicketID, {
+                            project: config.projects.renfordDelivery.id
+                        })
+                    )
+                }
+
+            }
+
 
         }
         return promises
