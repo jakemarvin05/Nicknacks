@@ -219,7 +219,7 @@ function createTask(fromMagento, options) {
             // otherwise maybe just the date is arranged.
             // need to use the `due_on` attribute
             taskObject.due_on = obj.deliveryDate
-            taskObject.tags = [ gid: config.tags.noDeliveryDateAndTime ]
+            taskObject.tags = [ config.tags.noDeliveryDateAndTime ]
         }
 
 
