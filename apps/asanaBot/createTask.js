@@ -266,7 +266,7 @@ function createTask(fromMagento, options) {
             // create subtasks for bank transfer
             if (obj.paymentMethod.toLowerCase().indexOf('bank transfer') === 0) {
                 debug('Bank transfer detected. Creating subtask...')
-                let verifyBankTransferSubtask = ASANA.tasks.subtasks.addSubtask(
+                let verifyBankTransferSubtask = ASANA.tasks.addSubtask(
                     taskData.gid, {
                         name: 'Verify bank transfer: ' + obj.totals.grand_total_incl_tax,
                         followers: GNS_TEAM_MEMBERS
