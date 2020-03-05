@@ -22,7 +22,7 @@ function tagChange(task, toWhichTag) {
     // first we create a tags array to use
     let tags = config.tags
     let tagsArray = []
-    for (tag in tags) {
+    for (let tag in tags) {
         tagsArray.push(tags[tag])
     }
 
