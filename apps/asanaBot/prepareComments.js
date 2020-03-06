@@ -80,11 +80,22 @@ function prepareComments(fromMagento) {
         body += '\n\n\n # Refund'
         body += '\n ' + fromMagento.all_data.grand_total
 
-        return body
+        return markDownToHTML(body)
+
+    } else if (type === "invoice") {
+
+        let body = '# ' + obj.salesOrderID.stub
+
+        body += ' Invoice (No.'
+        body += ' ' + obj.docID.withoutHex + ')'
+
+        body += '\n\n\n Invoice sent'
+
+        return markDownToHTML(body)
 
     } else {
-        // need to format the rest later
-        return jsonFormat(fromMagento)
+        // For anything else just print out the JSON and we will deal with it later...
+        return markDownToHTML( jsonFormat(fromMagento) )
     }
 
     return 'Error in preparing comments as `type` of ' + fromMagento.type + ' does not fall into any valid category.\nPlease check prepareComments.js. `fromMagento` output: ' + JSON.stringify(fromMagento)
