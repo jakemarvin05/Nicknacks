@@ -74,10 +74,10 @@ function prepareComments(fromMagento) {
         body += ' Credit Memo (No.'
         body += ' ' + obj.docID.withoutHex + ')'
 
-        body += '\n\n\n # Comment'
+        body += '\n\n\n# Comment'
         body += '\n ' + fromMagento.customer_note
 
-        body += '\n\n\n # Refund'
+        body += '\n\n\n# Refund'
         body += '\n ' + fromMagento.all_data.grand_total
 
         return markDownToHTML(body)
