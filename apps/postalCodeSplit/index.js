@@ -10,7 +10,7 @@ function postalCodeSplit(address) {
 }
 
 function extractPostalCode(address) {
-    return address.match(/\d{6}/)[0]
+    return address.match(/\d{6}/) ? address.match(/\d{6}/)[0] : false
 }
 
 function categorise(postalCode) {
