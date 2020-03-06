@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
 
 /* GET home page. */
 router.get('/admin_' + process.env.ADMIN_URL_SUFFIX + '*', (req, res) => {
-    if(!global.QBOIsWorking) {
+    if(!global.QBOIsWorking && process.env.NODE_ENV !== "development") {
         res.send('QBO is not working. Please initialise QBO token.')
     } else {
         res.render('admin')
