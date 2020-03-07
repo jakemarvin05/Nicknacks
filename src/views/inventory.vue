@@ -14,6 +14,7 @@
             placeholder="Type to search"
         />
         <el-table
+            style="width: 100%"
             :data="inventories.filter(
                 inventory => !search || (
                     inventory.name.toLowerCase().includes(
@@ -25,6 +26,13 @@
             )"
             :row-class-name="tableRowClassName"
         >
+            <el-table-column style="width:10px;" type="expand">
+                <template slot-scope="scope">
+                    <p><strong>CBM:</strong> {{ scope.row.cbm }}</p>
+                    <p><strong>Comments:</strong> {{ scope.row.comments }}</p>
+                </template>
+            </el-table-column>
+
             <el-table-column
                 min-width="135"
                 prop="name"
@@ -33,9 +41,8 @@
                 :filters="categoryFilters"
                 :filter-method="categoryFilterHandler"
             >
-
                 <template slot-scope="scope">
-                    <p><router-link :to="{ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }">{{ scope.row.name }}</router-link></p>
+                    <p><router-link target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }">{{ scope.row.name }}</router-link></p>
                     <p style="font-size: 10px;"><i>{{ scope.row.sku }}</i></p>
                 </template>
             </el-table-column>
@@ -81,6 +88,20 @@
                 label="COGS"
                 sortable
             ></el-table-column>
+
+            <el-table-column
+                prop="cbm"
+                label="CBM"
+                sortable
+            >
+                <template slot-scope="scope">
+                    <span v-if="parseFloat(scope.row.cbm) === 0 ">
+                        <span style="color: red;">{{ scope.row.cbm }}</span>
+                    </span>
+                    <span v-else>{{ scope.row.cbm }}</span>
+                </template>
+
+            </el-table-column>
 
             <el-table-column
                 min-width="62"
@@ -219,7 +240,9 @@ export default {
                 form: {
                     name: '',
                     sku: '',
-                    cogs: 0
+                    cogs: 0,
+                    cbm: 0,
+                    comments: ''
                 }
             },
 
@@ -229,7 +252,9 @@ export default {
                 form: {
                     name: '',
                     sku: '',
-                    cogs: 0
+                    cogs: 0,
+                    cbm: 0,
+                    comments: ''
                 }
             },
             transitModal: {
@@ -354,6 +379,8 @@ export default {
             this.editInventoryModal.form.name = inventory.name
             this.editInventoryModal.form.sku = inventory.sku
             this.editInventoryModal.form.cogs = inventory.cogs
+            this.editInventoryModal.form.cbm = inventory.cbm
+            this.editInventoryModal.form.comments = inventory.comments
             this.editInventoryModal.inventory = inventory
             this.editInventoryModal.show = true
 

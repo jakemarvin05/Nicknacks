@@ -16,6 +16,12 @@
             <FormItem prop="cogs" label="COGS">
                 <Input type="text" number v-model="modalData.form.cogs"></Input>
             </FormItem>
+            <FormItem prop="cbm" label="CBM">
+                <Input type="text" number v-model="modalData.form.cbm"></Input>
+            </FormItem>
+            <FormItem label="Comments" prop="comments">
+                <Input v-model="modalData.form.comments"></Input>
+            </FormItem>
 
         </Form>
 
@@ -51,6 +57,20 @@ module.exports = {
 
                     },
                     trigger: 'blur'
+                }],
+                cbm: [{
+                    required: true,
+                    validator (rule, value, callback) {
+
+                        // check regex
+                        let regex = /^\d{1,6}(\.\d{1,4})?$/
+                        if (!regex.test(value.toString())) return callback( new Error('Please the value in the correct format.') )
+
+                        // everything passed
+                        return callback()
+
+                    },
+                    trigger: 'blur'
                 }]
             }
         }
@@ -61,7 +81,9 @@ module.exports = {
             form: {
                 name: '',
                 sku: '',
-                cogs: 0
+                cogs: 0,
+                cbm: 0,
+                comments: ''
             }
         },
     },
@@ -81,7 +103,9 @@ module.exports = {
                 let payload = {
                     name: this.modalData.form.name,
                     sku: this.modalData.form.sku,
-                    cogs: this.modalData.form.cogs
+                    cogs: this.modalData.form.cogs,
+                    cbm: this.modalData.form.cbm,
+                    comments: this.modalData.form.comments
                 }
 
                 this.AXIOS.put(this.DOMAIN + '/api/v2/inventory/add', payload).then(response => {

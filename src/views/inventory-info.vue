@@ -6,7 +6,12 @@
             <BreadcrumbItem>{{ inventory.name }}</BreadcrumbItem>
         </Breadcrumb>
 
-        <p>SKU: {{inventory.sku}}</p>
+        <List style="width: 400px; max-width: 100%;" border>
+            <ListItem><strong>SKU: </strong> {{inventory.sku}}</ListItem>
+            <ListItem v-if="$store.state.user.rightsLevel > 2"><strong>COGS:</strong> {{inventory.cogs}}</ListItem>
+            <ListItem><strong>CBM: </strong> {{inventory.cbm}}</ListItem>
+            <ListItem><strong>Comments: </strong> {{inventory.comments}}</ListItem>
+        </List>
 
         <h1>Stock level</h1>
 

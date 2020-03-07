@@ -33,8 +33,8 @@ const routers = [
             meta: {
                 title: 'Nicknacks - Inventory Log'
             },
-            component: (resolve) => require(['./views/inventory-cogs.vue'], resolve)
-        },{
+            component: (resolve) => require(['./views/inventory-log.vue'], resolve)
+        }, {
             path: '/inventory/cogs',
             title: 'Inventory COGS',
             name: 'InventoryCOGS',
@@ -42,6 +42,14 @@ const routers = [
                 title: 'Nicknacks - Inventory COGS'
             },
             component: (resolve) => require(['./views/inventory-cogs.vue'], resolve)
+        }, {
+            path: '/inventory/storage',
+            title: 'Inventory Storage',
+            name: 'InventoryStorage',
+            meta: {
+                title: 'Nicknacks - Inventory Storage'
+            },
+            component: (resolve) => require(['./views/inventory-storage.vue'], resolve)
         }, {
             path: '/inventory/one/:inventoryID',
             title: 'Inventory Info',
