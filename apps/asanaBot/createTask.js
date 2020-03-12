@@ -159,7 +159,7 @@ function createTask(fromMagento, options) {
 
         let titleShort = title + ', ' + obj.name
         let postal = postalCodeSplit(obj.address)
-        if (postal) titleShort = titleShort + ', ' + postal.code + ', ' + ((postal.zone === 'West') ? "⬅️" : "➡️")
+        if (postal) titleShort = titleShort + ', ' + postal.code + ', ' + ((postal.zone === 'West') ? "👈" : "👉🏾")
 
         let titleLong = title
         if (obj.address && obj.address.length > 0) titleLong += ', ' + obj.address
