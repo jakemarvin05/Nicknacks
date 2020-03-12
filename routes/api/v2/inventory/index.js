@@ -7,6 +7,7 @@ const singleInventoryProcessor = require(__appsDir + '/inventory/singleInventory
 const createInventoryRecord = require(__appsDir + '/inventory/createInventoryRecord')
 const _ = require('lodash')
 const inventoryTimeLineFilter = require(__appsDir + '/inventory/timelineFilter')
+const stockChartSeries = require(__appsDir + '/inventory/stockChartSeries')
 
 let inventoryIncludes = [{
 
@@ -202,6 +203,7 @@ router.get('/one/audit-log/:inventoryID', permit('/one/audit-log/:inventoryID', 
 
         let inventory = singleInventoryProcessor(_INVENTORY, soldInventories)
         inventory.timeline = inventoryTimeLineFilter(inventory)
+        inventory.stockChart = stockChartSeries(inventory, movementRecords)
 
         res.send({
             success: true,

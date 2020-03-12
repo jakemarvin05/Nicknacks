@@ -1,6 +1,11 @@
 import Vue from 'vue'
+
 import ViewUI from 'view-design'
+Vue.use(ViewUI, { locale })
+
 import VueRouter from 'vue-router'
+Vue.use(VueRouter)
+
 import Routers from './router'
 import Util from './libs/util'
 import App from './app.vue'
@@ -8,22 +13,26 @@ import 'view-design/dist/styles/iview.css'
 import locale from 'view-design/dist/locale/en-US'
 import D from 'dottie'
 import moment from 'moment-timezone'
+
 import Element from 'element-ui'
+Vue.use(Element, { locale: El_locale })
 import El_locale from 'element-ui/lib/locale/lang/en'
+
 import VueJsonPretty from 'vue-json-pretty'
+Vue.use(VueJsonPretty)
+Vue.component('vue-json-pretty', VueJsonPretty)
+
 import Vuex from 'vuex'
+Vue.use(Vuex)
+
+import ApexCharts from 'vue-apexcharts'
+Vue.component('apexchart', ApexCharts)
 
 import axios from 'axios'
 axios.defaults.withCredentials = true
 axios.defaults.crossDomain = true
 
-Vue.use(VueRouter)
-Vue.use(ViewUI, { locale })
-Vue.use(Element, { locale: El_locale })
-Vue.use(VueJsonPretty)
-Vue.use(Vuex)
 
-Vue.component('vue-json-pretty', VueJsonPretty)
 
 //filters
 Vue.filter('unixToDate', value => {

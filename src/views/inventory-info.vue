@@ -13,7 +13,7 @@
             <ListItem><strong>Comments: </strong> {{inventory.comments}}</ListItem>
         </List>
 
-        <h1>Stock level</h1>
+        <Divider style="font-size:20px;" orientation="left">Stock level</Divider>
 
         <el-table
             v-if="inventory.stock"
@@ -40,12 +40,14 @@
             </el-table-column>
         </el-table>
 
-
-        <h1 style="margin-top: 50px;">Timeline</h1>
+        <Divider style="font-size:20px;" orientation="left">Timeline</Divider>
 
         <timeline-content style="margin-left: 10px;" :inventory="inventory"></timeline-content>
 
-        <h1 style="margin-top: 50px;">Movment Records</h1>
+        <Divider style="font-size:20px;" orientation="left">Chart</Divider>
+        <apexchart :options="options" :series="inventory.stockChart.series"></apexchart>
+
+        <Divider style="font-size:20px;" orientation="left">Movement Records</Divider>
 
         <el-table :data="movementRecords">
 
@@ -167,7 +169,6 @@ import D from 'dottie'
 import _ from 'lodash'
 import moment from 'moment'
 
-
 import timelineContent from './components/inventory/timeline-content.vue'
 
 export default {
@@ -185,11 +186,47 @@ export default {
                 timeline: {
                     list: [],
                     hasShortFall: Boolean
+                },
+                stockChart: {
+                    series: [],
+                    unscheduledDeliveryCount: 0
                 }
             },
             movementRecords: [],
             categoryFilters: [],
-            physicalSums: []
+            physicalSums: [],
+
+            options: {
+                chart: {},
+                xaxis: {
+                    type: 'datetime'
+                },
+                yaxis: {
+                    title: {
+                        text: 'Qty'
+                    },
+                },
+                plotOptions: {
+                    bar: {
+                        colors: {
+                            ranges: [{
+                                from: -999999999999,
+                                to: -1,
+                                color: '#F15B46'
+                            }]
+                        },
+                        columnWidth: '150%'
+                    },
+
+                },
+                stroke: {
+                    width: [0, 4]
+                },
+                dataLabels: {
+                  enabled: true,
+                  enabledOnSeries: [1]
+                }
+            }
         }
     },
     methods: {
@@ -197,74 +234,74 @@ export default {
             return row.source.indexOf(value.toLowerCase()) === 0
         },
         getPhysicalSummaries(param) {
-        const { columns, data } = param;
-        const sums = [];
-        columns.forEach((column, index) => {
-          if (index === 0) {
-            sums[index] = '';
-            return;
-          }
-          if (index === 1) {
-            sums[index] = 'Total physical';
-            return;
-          }
-          const values = data.map(item => Number(item[column.property]));
-          if (!values.every(value => isNaN(value))) {
-            sums[index] = values.reduce((prev, curr) => {
-              const value = Number(curr);
-              if (!isNaN(value)) {
-                return prev + curr;
-              } else {
-                return prev;
+            const { columns, data } = param;
+            const sums = [];
+            columns.forEach((column, index) => {
+              if (index === 0) {
+                sums[index] = '';
+                return;
               }
-            }, 0);
-          } else {
-            sums[index] = 'N/A';
-          }
-        });
+              if (index === 1) {
+                sums[index] = 'Total physical';
+                return;
+              }
+              const values = data.map(item => Number(item[column.property]));
+              if (!values.every(value => isNaN(value))) {
+                sums[index] = values.reduce((prev, curr) => {
+                  const value = Number(curr);
+                  if (!isNaN(value)) {
+                    return prev + curr;
+                  } else {
+                    return prev;
+                  }
+                }, 0);
+              } else {
+                sums[index] = 'N/A';
+              }
+            });
 
-        this.physicalSums = sums
+            this.physicalSums = sums
 
-        return sums;
-      },
-      getNetSummaries(param) {
-      const { columns, data } = param;
-      const sums = [];
-      columns.forEach((column, index) => {
-        if (index === 0) {
-          sums[index] = '';
-          return;
+            return sums;
+        },
+        getNetSummaries(param) {
+            const { columns, data } = param;
+            const sums = [];
+            columns.forEach((column, index) => {
+                if (index === 0) {
+                    sums[index] = '';
+                    return;
+                }
+                if (index === 1) {
+                    sums[index] = 'Total net';
+                    return;
+                }
+                const values = data.map(item => {
+                    if(item.name.toLowerCase() === 'sold') {
+                        return -Number(item[column.property])
+                    } else {
+                        return Number(item[column.property])
+                    }
+                });
+                if (!values.every(value => isNaN(value))) {
+                    sums[index] = values.reduce((prev, curr) => {
+                        const value = Number(curr);
+                        if (!isNaN(value)) {
+                            return prev + curr;
+                        } else {
+                            return prev;
+                        }
+                    }, 0);
+                } else {
+                    sums[index] = 'N/A';
+                }
+            });
+
+            // add the phyiscal sums to net.
+            sums[2] += this.physicalSums[2]
+
+            return sums;
         }
-        if (index === 1) {
-          sums[index] = 'Total net';
-          return;
-        }
-        const values = data.map(item => {
-            if(item.name.toLowerCase() === 'sold') {
-                return -Number(item[column.property])
-            } else {
-                return Number(item[column.property])
-            }
-        });
-        if (!values.every(value => isNaN(value))) {
-          sums[index] = values.reduce((prev, curr) => {
-            const value = Number(curr);
-            if (!isNaN(value)) {
-              return prev + curr;
-            } else {
-              return prev;
-            }
-          }, 0);
-        } else {
-          sums[index] = 'N/A';
-        }
-      });
-
-      // add the phyiscal sums to net.
-      sums[2] += this.physicalSums[2]
-
-      return sums;
-    }
     },
     created () {
 
@@ -334,6 +371,7 @@ export default {
 
 
         }).catch(CATCH_ERR_HANDLER).then(() => { this.spinShow = false })
+
 
     }
 }
