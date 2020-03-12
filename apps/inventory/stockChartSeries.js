@@ -144,10 +144,6 @@ function stockChartSeries(inventory, movementRecords) {
         }
         stockSeries.data.push(serial)
     }
-
-    console.log(stockSeries)
-    console.log(changeSeries)
-
     series.push(stockSeries)
 
 
