@@ -43,47 +43,58 @@
                             <span v-if="salesReceipt.deliveryConfirmed"><Tag color="success">Confirmed</Tag></span>
                         </p>
                     </Panel>
-                    <Panel name="productsSold">
-                        <Icon type="ios-cube" />
-                        Product(s) sold (<b>{{ salesReceipt.data.items.length }}</b>)
+                    <Panel>
+                        Products tagging ({{ salesReceipt.data.items.length }} vs {{ salesReceipt.soldInventories.length }})
                         <p slot="content">
-                            <Card v-for="(cartItem, index) in salesReceipt.data.items" :key="cartItem.id + '_' + index">
-                                <p slot="title">{{ cartItem.name }} <br></p>
-                                <p><b>SKU:</b> {{ cartItem.sku }}</p>
-                                <p><b>Qty:</b> {{ cartItem["Ordered Qty"] }}</p>
-                                <p><b>Price:</b> {{ cartItem.Price }} </p>
-                                <span v-if="cartItem.Options" v-for="(option, label) in cartItem.Options">
-                                    <p><b>{{ label }}:</b> {{ option }}</p>
-                                </span>
-                            </Card>
-                        </p>
-                    </Panel>
-                    <Panel name="productsTagged">
-                        <Icon type="md-done-all" />
-                        Product(s) tagged (<b>{{ salesReceipt.soldInventories.length }}</b>)
-                        <p slot="content">
-                            <Card v-for="soldInventory in salesReceipt.soldInventories" :key="soldInventory.SoldInventoryID">
-                                <p slot="title">
-                                    <router-link v-if="['', undefined].indexOf(soldInventory.InventoryID) === -1" target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': soldInventory.InventoryID } }">
-                                        {{ soldInventory.name }}
-                                    </router-link>
-                                </p>
-                                <a href="javascript:void(0);" slot="extra" type="primary" @click="removeSoldInventory(soldInventory, salesReceipt)">
-                                    <Icon type="ios-trash" />
-                                </a>
-                                <inventory-status
-                                    v-for="inventory in inventories"
-                                    v-if="parseInt(inventory.InventoryID) === parseInt(soldInventory.InventoryID)"
-                                    :inventory="inventory"
-                                    :key="'inventory_status_for_' + soldInventory.InventoryID"
-                                ></inventory-status>
-                                <p><b>SKU:</b> {{ soldInventory.sku }}</p>
-                                <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
-                                <p v-if="$store.state.user.rightsLevel > 2"><b>COGS/item:</b> {{ soldInventory.perItemCOGS }} </p>
-                                <p v-if="$store.state.user.rightsLevel > 2"><b>Total COGS: {{ soldInventory.totalCOGS }}</b></p>
-                            </Card>
+                            <Row>
+                                <Col span="11">
+                                    <p style="padding-bottom:5px;"><Icon type="ios-cube" /> Product(s) sold (<b>{{ salesReceipt.data.items.length }}</b>)</p>
+                                    <p>
+                                        <Card style="font-size:12px;" :padding="5" v-for="(cartItem, index) in salesReceipt.data.items" :key="cartItem.id + '_' + index">
+                                            <p><b>{{ index+1 }}</b></p>
+                                            <p><u>{{ cartItem.name }}</u></p>
+                                            <p><b>SKU:</b> {{ cartItem.sku }}</p>
+                                            <p><b>Qty:</b> {{ parseFloat(cartItem["Ordered Qty"]).toFixed(1) }}</p>
+                                            <p><b>Price:</b> {{ parseFloat(cartItem.Price).toFixed(2) }} </p>
+                                            <span v-if="cartItem.Options" v-for="(option, label) in cartItem.Options">
+                                                <p v-if="label.toLowerCase().indexOf('delivery via staircase') === -1"><b>{{ label }}:</b> {{ option }}</p>
+                                            </span>
+                                        </Card>
+                                    </p>
+                                </Col>
+                                <Col span="1" style="font-size=1px;">&nbsp;</Col>
+                                <Col span="12">
 
-                            <Button icon="md-add" type="primary" @click="addInventory(salesReceipt)">Add</Button>
+                                        <p style="padding-bottom:5px;"><Icon type="md-done-all" /> Product(s) tagged (<b>{{ salesReceipt.soldInventories.length }}</b>)</p>
+                                        <p>
+                                            <Card style="font-size:12px;" :padding="5" v-for="(soldInventory, index) in salesReceipt.soldInventories" :key="soldInventory.SoldInventoryID">
+                                                <p><b>{{ index+1 }}</b></p>
+                                                <p><u>
+                                                    <router-link v-if="['', undefined].indexOf(soldInventory.InventoryID) === -1" target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': soldInventory.InventoryID } }">
+                                                        {{ soldInventory.name }}
+                                                    </router-link>
+                                                </u></p>
+                                                <inventory-status
+                                                    v-for="inventory in inventories"
+                                                    v-if="parseInt(inventory.InventoryID) === parseInt(soldInventory.InventoryID)"
+                                                    :inventory="inventory"
+                                                    :key="'inventory_status_for_' + soldInventory.InventoryID"
+                                                ></inventory-status>
+                                                <p><b>SKU:</b> {{ soldInventory.sku }}</p>
+                                                <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
+                                                <p v-if="$store.state.user.rightsLevel > 2">
+                                                    <b>COGS:</b> {{ soldInventory.perItemCOGS }}x{{ soldInventory.quantity }} = {{ soldInventory.totalCOGS }}
+                                                </p>
+                                                <Button size="small" @click="removeSoldInventory(soldInventory, salesReceipt)" type="error">
+                                                    <Icon type="ios-trash" /> Del
+                                                </Button>
+
+                                            </Card>
+
+                                            <Button style="margin-top: 5px;" icon="md-add" type="primary" @click="addInventory(salesReceipt)">Add</Button>
+                                        </p>
+                                </Col>
+                            </Row>
                         </p>
                     </Panel>
                 </Collapse>
