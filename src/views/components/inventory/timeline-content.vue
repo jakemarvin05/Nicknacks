@@ -31,7 +31,7 @@
 
                 <!-- unscheduled deliveries -->
                 <span v-else-if="line.date === 9999999999999">
-                    <p class="time">Not scheduled</p>
+                    <p class="time" style="color: red;">Not scheduled</p>
                     <p class="content">
                         Change: {{ line.change }},
                         Stock: {{ line.stockAvailableAtCurrentDate }},

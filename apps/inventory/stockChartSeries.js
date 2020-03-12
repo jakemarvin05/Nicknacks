@@ -46,6 +46,10 @@ function stockChartSeries(inventory, movementRecords) {
             } else if (record.source === 'delivery') {
                 serial.x = parseInt(record.sourceData.deliveryDate) ? parseInt(record.sourceData.deliveryDate) : MOMENT(record.createdAt).unix() * 1000
 
+                // use this to locate weird data.
+                // console.log(serial.x)
+                // console.log(record.InventoryMovementID)
+
                 record.sourceData.soldInventories.forEach(soldInventory => {
                     if (parseInt(soldInventory.InventoryID) === parseInt(inventory.InventoryID)) {
                         serial.y -= parseInt(soldInventory.quantity)
@@ -69,7 +73,7 @@ function stockChartSeries(inventory, movementRecords) {
                 // no date, set to 9999999999999 so that it will appear last
                 let date = txn.deliveryDate
                 if (!txn.deliveryDate) {
-                    unscheduledDeliveryCount += txn.SoldInventory.quantity
+                    unscheduledDeliveryCount += parseInt(txn.SoldInventory.quantity)
                 } else {
                     changeSeries.data.push({
                         x: parseInt(date),
@@ -146,6 +150,8 @@ function stockChartSeries(inventory, movementRecords) {
     }
     series.push(stockSeries)
 
+    // console.log(changeSeries)
+    // console.log(stockSeries)
 
     return {
         series: series,

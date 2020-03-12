@@ -45,6 +45,7 @@
         <timeline-content style="margin-left: 10px;" :inventory="inventory"></timeline-content>
 
         <Divider style="font-size:20px;" orientation="left">Chart</Divider>
+        <el-tag v-if="inventory.stockChart.unscheduledDeliveryCount > 0" type="danger">⚠️<strong>You have {{inventory.stockChart.unscheduledDeliveryCount}} unscheduled deliveries that will not show on this chart. </strong></el-tag>
         <apexchart :options="options" :series="inventory.stockChart.series"></apexchart>
 
         <Divider style="font-size:20px;" orientation="left">Movement Records</Divider>
