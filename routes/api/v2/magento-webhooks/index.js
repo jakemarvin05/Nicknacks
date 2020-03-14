@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const debug = require('debug')('nn:api:magento-webhooks')
 debug.log = console.log.bind(console)
-const wunderlistBot = require(__appsDir + '/wunderlistBot_v2/index')
 const asanaBot = require(__appsDir + '/asanaBot/index')
 
 router.post('*', (req, res, next) => {
@@ -72,11 +71,6 @@ router.post('/sales-order', (req, res, next) => {
             }
 
             // whether transaction exist or not, create the task.
-            // wunderlist will not be duplicated if it already exist
-            let wunderlist = wunderlistBot(req.body, {transaction: t})
-            promises.push(wunderlist)
-
-            // whether transaction exist or not, create the task.
             // asana will not be duplicated if it already exist
             let asanaTask = asanaBot(req.body, { transaction: t })
             promises.push(asanaTask)
@@ -142,13 +136,9 @@ router.post('/sales-order/comment', (req, res, next) => {
         }
         _TXN = txn
 
-        return [
-            wunderlistBot(req.body),
-            asanaBot(req.body)
-        ]
+        return asanaBot(req.body)
 
-
-    }).spread(() => {
+    }).then(() => {
 
         var date = D.get(req, 'body.data.delivery_date')
         if (date) date = convertToUnixMS(date)
@@ -204,10 +194,7 @@ router.post('/others', (req, res, next) => {
 
         _TXN = txn
 
-        return [
-            wunderlistBot(req.body),
-            asanaBot(req.body)
-        ]
+        return asanaBot(req.body)
 
     }).then(() => {
 
