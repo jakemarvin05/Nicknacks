@@ -15,19 +15,20 @@ global.ASANA = require('asana').Client.create().useAccessToken(process.env.ASANA
 
 global.API_ERROR_HANDLER = require('./apps/apiErrorHandler')
 
-const WunderlistSDK = require('wunderlist');
-global.WL = new WunderlistSDK({
-  'accessToken': process.env.WL_ACCESS_TOKEN,
-  'clientID': process.env.WL_CLIENT_ID
-});
-
-let WLOptions = {
-    retryLimit: 10,
-    testInterval: 10,
-    retryInterval: 0.25 //in minutes
-}
-const WLConnectionTest = require(__appsDir + '/wunderlistBot_v2/connectionTest.js')
-WLConnectionTest(WLOptions);
+// Wunderlist will stop getting updated - 14 March 2020
+// const WunderlistSDK = require('wunderlist');
+// global.WL = new WunderlistSDK({
+//   'accessToken': process.env.WL_ACCESS_TOKEN,
+//   'clientID': process.env.WL_CLIENT_ID
+// });
+//
+// let WLOptions = {
+//     retryLimit: 10,
+//     testInterval: 10,
+//     retryInterval: 0.25 //in minutes
+// }
+// const WLConnectionTest = require(__appsDir + '/wunderlistBot_v2/connectionTest.js')
+// WLConnectionTest(WLOptions);
 
 var express = require('express');
 var path = require('path');
