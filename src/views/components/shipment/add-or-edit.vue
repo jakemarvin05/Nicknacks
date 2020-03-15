@@ -29,8 +29,10 @@
                         <FormItem prop="products">
                             <Select placeholder="Select product" v-model="product.InventoryID" filterable>
                                 <Option v-for="(inventory, index) in inventories" :value="inventory.InventoryID" :key="index" :label="inventory.name">
-                                    <span>{{ inventory.name }}</span>
-                                    <span style="display:block;"><i>{{ inventory.sku }}</i></span>
+                                    <div :style="{ maxWidth: (windowWidth - 40) + 'px'}">
+                                        <span style="overflow: hidden; text-overflow: ellipsis;">{{ inventory.name }}</span>
+                                        <span style="overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; display:block;"><i>{{ inventory.sku }}</i></span>
+                                    </div>
                                 </Option>
                             </Select>
                         </FormItem>

@@ -32,7 +32,8 @@ import axios from 'axios'
 axios.defaults.withCredentials = true
 axios.defaults.crossDomain = true
 
-
+import VueWindowSize from 'vue-window-size'
+Vue.use(VueWindowSize)
 
 //filters
 Vue.filter('unixToDate', value => {

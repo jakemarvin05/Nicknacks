@@ -91,7 +91,7 @@
 
                                             </Card>
 
-                                            <Button style="margin-top: 5px;" icon="md-add" type="primary" @click="addInventory(salesReceipt)">Add</Button>
+                                            <Button style="margin-top: 5px;" icon="md-add" type="primary" @click="addInventory(salesReceipt)" :disabled="!canAddProduct">{{ canAddProduct ? 'Add' : 'Loading..' }}</Button>
                                         </p>
                                 </Col>
                             </Row>
@@ -111,6 +111,7 @@
             </Card>
         </span>
 
+        <!-- Make this shared code into a component -->
         <Modal
             v-model="addInventoryModal.show"
             title="Add Inventory"
@@ -121,8 +122,10 @@
                 <FormItem prop="inventoryIndex">
                     <Select placeholder="Select product" v-model="addInventoryModal.form.inventoryIndex" filterable @on-change="triggerStorageSelection()">
                         <Option v-for="(inventory, index) in addInventoryModal.inventories" :value="index" :key="index" :label="inventory.name">
-                            <span>{{ inventory.name }}</span>
-                            <span style="display:block;"><i>{{ inventory.sku }}</i></span>
+                            <div :style="{ maxWidth: (windowWidth - 40) + 'px'}">
+                                <span style="overflow: hidden; text-overflow: ellipsis;">{{ inventory.name }}</span>
+                                <span style="overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; display:block;"><i>{{ inventory.sku }}</i></span>
+                            </div>
                         </Option>
                     </Select>
                 </FormItem>
@@ -166,7 +169,9 @@ export default {
     data () {
         return {
 
+            // view properties
             spinShow: true,
+            canAddProduct: false, // inventory takes awhile to retrive. but we don't want to slow the whole view
 
             salesReceipts: [{
                 TransactionID: '',
@@ -191,9 +196,6 @@ export default {
                 totalCOGS: '',
                 submitLoading: false
             }],
-
-            //view properties
-            //totalSalesAmountOnView: 0, // default value here to 0, but is computed before
 
             inventories: [{
                 timeline: {
@@ -420,7 +422,6 @@ export default {
             })
         }
     },
-
     created () {
 
         window.V = this
@@ -467,7 +468,7 @@ export default {
             console.log(response.data.data)
             this.inventories = response.data.data
 
-        }).catch(CATCH_ERR_HANDLER)
+        }).catch(CATCH_ERR_HANDLER).then(() => { this.canAddProduct = true })
     },
 
     computed: {

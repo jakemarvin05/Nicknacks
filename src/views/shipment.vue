@@ -15,7 +15,7 @@
             <BreadcrumbItem>Shipments</BreadcrumbItem>
         </Breadcrumb>
 
-        <Button type="primary" @click="addShipment()">Add shipment</Button>
+        <Button type="primary" @click="addShipment()" :disabled="!inventoryQueryCompleted">{{ inventoryQueryCompleted ? 'Add shipment' : 'Loading...' }}</Button>
 
         <span v-if="shipments.length < 1">
             <Card class="salesReceiptCard">
@@ -51,8 +51,8 @@
                     <span>Ship</span>
                 </Button>
 
-                <Button v-if="!shipment.hasArrived" type="primary" slot="extra" @click="editShipment(shipment)">
-                    <span>Edit</span>
+                <Button v-if="!shipment.hasArrived" type="primary" slot="extra" @click="editShipment(shipment)" :disabled="!inventoryQueryCompleted">
+                    <span>{{ inventoryQueryCompleted ? 'Edit' : 'Loading...' }}</span>
                 </Button>
 
                 <Collapse style="max-width: 100%;" value="info">
@@ -138,6 +138,7 @@ export default {
         return {
 
             spinShow: true,
+            inventoryQueryCompleted: false,
 
             productColumns: [{
                 title: 'No.',
@@ -313,7 +314,7 @@ export default {
             }
             console.log(response.data.data)
             this.inventories = response.data.data
-        }).catch(CATCH_ERR_HANDLER)
+        }).catch(CATCH_ERR_HANDLER).then(() => { this.inventoryQueryCompleted = true })
 
         // get all storage location info
         this.AXIOS.get(domain + '/api/v2/storage-location/all').then(response => {
