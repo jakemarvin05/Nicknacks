@@ -8,22 +8,14 @@
 
         <Button style="width:400;" type="primary" @click="addProduct()">+ Add product</Button>
         <br />
-        <Icon type="ios-search" /> <el-input
+        <Icon type="ios-search" /> <Input
             style="width: 250px; padding:20px 0px"
-            v-model="search"
+            v-model.lazy="search"
             placeholder="Type to search"
         />
         <el-table
             style="width: 100%"
-            :data="inventories.filter(
-                inventory => !search || (
-                    inventory.name.toLowerCase().includes(
-                        search.toLowerCase()
-                    ) || inventory.sku.toLowerCase().includes(
-                        search.toLowerCase()
-                    )
-                )
-            )"
+            :data="searchInventories(inventories)"
             :row-class-name="tableRowClassName"
         >
             <el-table-column style="width:10px;" type="expand">
@@ -409,12 +401,24 @@ export default {
                 }
             }
             return '';
+        },
+        searchInventories(inventories) {
+            return inventories.filter(
+                inventory => !this.search || (
+                    inventory.name.toLowerCase().includes(
+                        this.search.toLowerCase()
+                    ) || inventory.sku.toLowerCase().includes(
+                        this.search.toLowerCase()
+                    )
+                )
+            )
         }
     },
     created () {
 
         window.V = this
 
+        let timeThen = new Date().getTime()
         this.AXIOS.get(domain + '/api/v2/inventory/all').then(response => {
 
             if (!response.data.success) {
@@ -455,7 +459,9 @@ export default {
             }
             this.categoryFilters = categoryFilters
 
-        }).catch(CATCH_ERR_HANDLER).then(() => { this.spinShow = false })
+            console.log('completed in ' + (new Date().getTime() - timeThen))
+
+        }).catch(CATCH_ERR_HANDLER).then(() => { console.log('Spin stop ' + (new Date().getTime() - timeThen)); this.spinShow = false })
 
         // get all storage location info
         this.AXIOS.get(domain + '/api/v2/storage-location/all').then(response => {
@@ -465,6 +471,7 @@ export default {
                 throw error
             }
             this.storageLocations = response.data.data
+            console.log('completed storage location req')
         }).catch(CATCH_ERR_HANDLER)
     }
 }
