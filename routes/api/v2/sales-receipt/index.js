@@ -215,55 +215,55 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
             if (_TRANSACTION.details.addressCountry) D.set(newCustomer, 'BillAddr.Country', _TRANSACTION.details.addressCountry)
 
             // create the customer
-            promise = QBO.createCustomerAsync(newCustomer)
+            promise = QBO.createCustomerAsync(newCustomer).catch(error => {
+                // sometimes updating customer causes error
+                if (D.get(error, 'Fault')) {
+
+                    // if there are more than one error, throw
+                    let errors = error.Fault.Error;
+
+                    if ( errors.length === 1 && (D.get(errors[0], 'code') === "5010") ) {
+
+                        // we don't need this to fail, so just log.
+                        console.log('Note: ' + errors[0].Message + ' for updating customer ' + _CUSTOMER.Id + ' ' + _CUSTOMER.DisplayName);
+
+                    } else if ( errors.length === 1 && (D.get(errors[0], 'code') === "6240") ) {
+
+                        // 6240 is where this current customer has the same name as an existing one.
+                        // solution is to add a random short string
+                        let newCustomer = {}
+
+                        // the minimum
+                        D.set(newCustomer, 'PrimaryEmailAddr.Address', _TRANSACTION.details.customerEmail)
+                        D.set(newCustomer, 'DisplayName', _TRANSACTION.details.customerName + ' ' + Math.random().toString(36).substring(2, 7))
+
+                        // other information
+
+                        // address
+                        if (_TRANSACTION.details.address) D.set(newCustomer, 'BillAddr.Line1', _TRANSACTION.details.address)
+                        if (_TRANSACTION.details.addressZip) D.set(newCustomer, 'BillAddr.PostalCode', _TRANSACTION.details.addressZip)
+                        if (_TRANSACTION.details.addressCountry) D.set(newCustomer, 'BillAddr.Country', _TRANSACTION.details.addressCountry)
+
+                        // create the customer
+                        return QBO.createCustomerAsync(newCustomer)
+
+                    } else {
+
+                        let error = new Error('QBO error. See `QBOResponse` for more information.')
+                        error.QBOResponse = customer
+                        error.category = 'QBO'
+                        throw error
+
+                    }
+                } else {
+                    throw error
+                }
+
+            })
         }
 
         return promise
 
-    }).then(function(customer) {
-
-        // sometimes updating customer causes error
-        if (D.get(customer, 'Fault')) {
-
-            // if there are more than one error, throw
-            let errors = customer.Fault.Error;
-
-            if ( errors.length === 1 && (D.get(errors[0], 'code') === "5010") ) {
-
-                // we don't need this to fail, so just log.
-                console.log('Note: ' + errors[0].Message + ' for updating customer ' + _CUSTOMER.Id + ' ' + _CUSTOMER.DisplayName);
-
-            } else if ( errors.length === 1 && (D.get(errors[0], 'code') === "6240") ) {
-
-                // 6240 is where this current customer has the same name as an existing one.
-                // solution is to add a random short string
-                let newCustomer = {}
-
-                // the minimum
-                D.set(newCustomer, 'PrimaryEmailAddr.Address', _TRANSACTION.details.customerEmail)
-                D.set(newCustomer, 'DisplayName', _TRANSACTION.details.customerName + ' ' + Math.random().toString(36).substring(2, 7))
-
-                // other information
-
-                // address
-                if (_TRANSACTION.details.address) D.set(newCustomer, 'BillAddr.Line1', _TRANSACTION.details.address)
-                if (_TRANSACTION.details.addressZip) D.set(newCustomer, 'BillAddr.PostalCode', _TRANSACTION.details.addressZip)
-                if (_TRANSACTION.details.addressCountry) D.set(newCustomer, 'BillAddr.Country', _TRANSACTION.details.addressCountry)
-
-                // create the customer
-                return QBO.createCustomerAsync(newCustomer)
-
-            } else {
-
-                let error = new Error('QBO error. See `QBOResponse` for more information.')
-                error.QBOResponse = customer
-                error.category = 'QBO'
-                throw error
-
-            }
-        }
-
-        return customer
     }).then((customer) => {
 
         // no errors are thrown, proceed.
