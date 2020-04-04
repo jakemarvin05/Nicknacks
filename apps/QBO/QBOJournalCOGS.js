@@ -1,7 +1,7 @@
 const QBOJournalCOGS = (transactionDetails, COGS) => {
 
     let defaults = {
-        "DocNumber": 'SO' + transactionDetails.salesOrderNumber,
+        "DocNumber": 'SO' + transactionDetails.salesOrderNumber + '-COGS',
         "TxnDate": transactionDetails.transactionDateQBOFormat,
         "PrivateNote": "COGS: " + transactionDetails.generalDescription + "($" + COGS + ")",
         "TotalAmt": COGS
