@@ -74,6 +74,16 @@
             </el-table-column>
 
             <el-table-column
+                min-width="50"
+                label="Net"
+                sortable
+            >
+                <template slot-scope="scope">
+                    <span>{{ scope.row.timeline.list[scope.row.timeline.list.length - 1].stockAvailableAtCurrentDate }}</span>
+                </template>
+            </el-table-column>
+
+            <el-table-column
                 v-if="$store.state.user.rightsLevel > 2"
                 min-width="84"
                 prop="cogs"
@@ -459,7 +469,7 @@ export default {
             }
             this.categoryFilters = categoryFilters
 
-            console.log('completed in ' + (new Date().getTime() - timeThen))
+            console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
 
         }).catch(CATCH_ERR_HANDLER).then(() => { console.log('Spin stop ' + (new Date().getTime() - timeThen)); this.spinShow = false })
 
