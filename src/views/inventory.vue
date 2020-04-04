@@ -79,7 +79,7 @@
                 sortable
             >
                 <template slot-scope="scope">
-                    <span>{{ scope.row.timeline.list[scope.row.timeline.list.length - 1].stockAvailableAtCurrentDate }}</span>
+                    <span>{{ scope.row.timeline.list[scope.row.timeline.list.length - 1].stockAvailableAtCurrentDate || 0 }}</span>
                 </template>
             </el-table-column>
 
