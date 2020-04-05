@@ -68,7 +68,7 @@ router.post('/logout', permit('/', 0), (req, res, next) => {
 });
 
 
-router.get('/am-i-authenticated', permit('/am-i-authenticated', 1), (req, res, next) => {
+router.get('/am-i-authenticated', permit('/am-i-authenticated', 0), (req, res, next) => {
 
     return res.send({
         success: true,

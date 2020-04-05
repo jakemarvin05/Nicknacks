@@ -16,4 +16,8 @@ router.get('/admin_' + process.env.ADMIN_URL_SUFFIX + '*', (req, res) => {
     }
 })
 
+router.get('/renford*', (req, res) => {
+    res.render('admin')
+})
+
 module.exports = router;

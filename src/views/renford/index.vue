@@ -28,33 +28,15 @@
 
             <Menu mode="horizontal" theme="light" :active-name="$route.name">
 
-                <MenuItem class="menuItem" name="Sales" :to="{name: 'Sales'}">
-                    <Icon class="menuIcon" type="ios-cart"/>
-                    Sales
-                </MenuItem>
-                <MenuItem class="menuItem" name="Delivery" :to="{name: 'Delivery'}">
-                    <Icon class="menuIcon" type="ios-briefcase" />
-                    Delivery
-                </MenuItem>
                 <Submenu class="menuItem" name="3">
                     <template slot="title">
                         <Icon class="menuIcon" type="ios-cube" />
                         Inventory
                     </template>
-                    <MenuItem name="Inventory" :to="{ name: 'Inventory' }">List</MenuItem>
-                    <MenuItem name="InventoryLog" :to="{ name: 'InventoryLog' }">Log</MenuItem>
-                    <MenuItem name="InventoryCOGS" v-if="$store.state.user.rightsLevel > 2" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
-                    <MenuGroup title="Storage Reports">
-                        <MenuItem name="InventoryStorage" :to="{ name: 'InventoryStorage' }">Now</MenuItem>
-                        <MenuItem name="InventoryStorageReports" :to="{ name: 'InventoryStorageReports' }">History</MenuItem>
-                    </MenuGroup>
+                    <MenuItem name="InventoryStorage" :to="{ name: 'RenfordInventoryStorage' }">Storage Report</MenuItem>
+                    <MenuItem name="InventoryStorageReport" :to="{ name: 'RenfordInventoryStorageReports' }">Report History</MenuItem>
+
                 </Submenu>
-
-                <MenuItem class="menuItem" name="Shipment"  :to="{ name: 'Shipment' }">
-                    <Icon class="menuIcon" type="ios-boat" />
-                    Shipment
-                </MenuItem>
-
             </Menu>
 
             <p><Icon type="ios-contact" /> Logged in as: {{$store.state.user.name}} <a href="javascript:void(0);" @click="logout()">logout</a></p>

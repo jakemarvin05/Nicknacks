@@ -84,6 +84,14 @@ function User(sequelize, DataTypes) {
                 self: true,
                 admin: true
             }
+        },
+        userType: {
+            type: DataTypes.STRING, // should use ENUM, but oh well....
+            allowNull: false,
+            values: [
+                'staff',
+                'renford'
+            ]
         }
     }, {
         timestamps: true,

@@ -97,7 +97,7 @@ export default {
                     }
                     self.$store.commit('authenticated', response.data.user)
                     self.$Message.success('Reset is successful!')
-                    self.$router.push({name: 'Sales'})
+                    if (self.$store.state.userType === 'staff') self.$router.push({name: 'Sales'})
 
                 }).catch(error => {
 

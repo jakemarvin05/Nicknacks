@@ -76,7 +76,7 @@ Vue.mixin({
 const RouterConfig = {
     mode: 'history',
     routes: Routers,
-    base: '/admin_' + process.env.ADMIN_URL_SUFFIX + '/'
+    base: '/'
 }
 const router = new VueRouter(RouterConfig)
 

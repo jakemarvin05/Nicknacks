@@ -52,6 +52,10 @@ require('./apps/passport/passportConfig.js')(passport); //this has to be before 
 var session = require('express-session');
 var pgSession = require('connect-pg-simple')(session);
 
+// inventory report generator
+var inventoryReport = require('./apps/inventoryReportGenerator')
+var cron = require('node-schedule')
+var runInventoryReportOnEveryMonday = cron.scheduleJob('* * 8 * * 1', inventoryReport)
 
 global.QBO = ''
 global.QBOIsWorking = false
@@ -119,6 +123,8 @@ app.use('/api/v2/stripe-webhooks', require('./routes/api/v2/stripe-webhooks'));
 app.use('/api/v2/storage-location', require('./routes/api/v2/storage-location'));
 app.use('/api/v2/login', require('./routes/api/v2/login'));
 
+//api renford V2
+app.use('/api/renford/v2/inventory', require('./routes/api/renford/v2/inventory'));
 
 /* SAFARI/IOS Bug */
 app.all('*', function (req, res, next) {

@@ -1,12 +1,14 @@
 <template>
-    <div>
+    <div style="min-height: 500px;">
         <Spin size="large" fix v-if="spinShow"></Spin>
         <Breadcrumb class="mainBreadCrumb">
             <BreadcrumbItem>Inventory</BreadcrumbItem>
             <BreadcrumbItem>Storage</BreadcrumbItem>
+            <BreadcrumbItem>Report History</BreadcrumbItem>
         </Breadcrumb>
 
         <Button type="primary" @click="renfordModeToggle()">{{ renfordMode ? 'Full Mode' : 'Renford Mode' }}</Button>
+        <Cascader style="max-width: 300px" v-model="reportIndex" :data="reportSelectionData" filterable @on-change="toggleData" clearable placeholder="Select report"></Cascader>
 
         <span v-show="!renfordMode">
             <el-table :data="inventories" show-summary>
@@ -180,6 +182,7 @@ export default {
             categoryFilters: [],
             inventories: [],
             renfordInventories: [],
+            reports: [],
 
             storageLocations: [],
 
@@ -198,7 +201,11 @@ export default {
 
             locationFilter: [ { text: 'Select', value: 0 } ],
 
-            renfordMode: false
+            renfordMode: false,
+
+
+            reportIndex: [],
+            reportSelectionData: []
 
         }
 
@@ -225,9 +232,64 @@ export default {
         },
         renfordModeToggle () {
             this.renfordMode = this.renfordMode ? false : true
+        },
+        toggleData (value, selectedData) {
+            this.spinShow = true
+
+            // need to use setTimeout to force spin show to start
+            setTimeout(() => {
+                this.inventories = _.cloneDeep(this.reports[value[value.length - 1]].data)
+
+                let categoryArray = []
+
+                // split up the skus and get the broad categories
+                for(let i=0; i<this.inventories.length; i++) {
+                    let inv = this.inventories[i]
+                    let sku = inv.sku
+                    let categoryName = sku.split('-')[0].toLowerCase()
+
+                    // create renford inventory
+                    for (let i=0; i<inv.stock.length; i++) {
+                        let stock = inv.stock[i]
+                        if (stock.name.toLowerCase() === 'renford' && parseFloat(stock.quantity) > 0) this.renfordInventories.push(inv)
+                    }
+
+                    // make stockCBM
+                    // this method is bad but is the only way the table summaries will work
+                    for (let i=0; i<this.storageLocations.length; i++) {
+                        let location = this.storageLocations[i]
+
+                        let found = _.find(inv.stock, { name: location.name })
+
+                        inv['stockCBM-' + location.name] = (found) ? (parseInt((found.quantity * inv.cbm) * 10000)/10000 || 0) : 0
+
+                    }
 
 
-            console.log(this.renfordMode)
+                    if (categoryArray.indexOf(categoryName) > -1) continue
+
+                    categoryArray.push(categoryName)
+                }
+
+                _.sortBy(categoryArray)
+
+                //make categoryArray into filters
+                let categoryFilters = []
+                for(let i=0; i<categoryArray.length; i++) {
+                    let cat = categoryArray[i]
+
+                    categoryFilters.push({
+                        text: cat,
+                        value: cat
+                    })
+
+                }
+                this.categoryFilters = categoryFilters
+
+                this.spinShow = false
+            }, 100)
+
+
         }
     },
     created () {
@@ -235,12 +297,12 @@ export default {
         window.V = this
 
         this.AXIOS.all([
-            this.AXIOS.get(domain + '/api/v2/inventory/all'),
+            this.AXIOS.get(domain + '/api/v2/inventory/storage-report/all'),
 
             // get all storage location info
             this.AXIOS.get(domain + '/api/v2/storage-location/all')
 
-        ]).then(this.AXIOS.spread((inventories, storageLocations) => {
+        ]).then(this.AXIOS.spread((reports, storageLocations) => {
 
             if (!storageLocations.data.success) {
                 let error = new Error('API operation not successful.')
@@ -249,61 +311,58 @@ export default {
             }
             this.storageLocations = storageLocations.data.data
 
-            if (!inventories.data.success) {
+            if (!reports.data.success) {
                 let error = new Error('API operation not successful.')
                 error.reponse = response
                 throw error
             }
 
-            console.log(inventories.data.data)
+            console.log(reports.data.data)
+            this.reports = reports.data.data
+            this.reports.unshift({})
 
-            this.inventories = inventories.data.data
+            // create the report tree
+            for (let i = 1; i < this.reports.length; i++) {
 
-            let categoryArray = []
+                let report = this.reports[i]
+                let date = moment(report.createdAt)
 
-            // split up the skus and get the broad categories
-            for(let i=0; i<this.inventories.length; i++) {
-                let inv = this.inventories[i]
-                let sku = inv.sku
-                let categoryName = sku.split('-')[0].toLowerCase()
+                let foundYear = _.find(this.reportSelectionData, { label: date.year() })
 
-                // create renford inventory
-                for (let i=0; i<inv.stock.length; i++) {
-                    let stock = inv.stock[i]
-                    if (stock.name.toLowerCase() === 'renford' && parseFloat(stock.quantity) > 0) this.renfordInventories.push(inv)
+                if (foundYear) {
+                    let foundMonth = _.find(foundYear.children, { label: date.format('MMM') })
+
+                    if (foundMonth) {
+                        foundMonth.children.push({
+                            value: i,
+                            label: date.format('ddd, Do, h:mm:ss a')
+                        })
+                    } else {
+                        foundYear.children.push({
+                            value: 1,
+                            label: date.format('MMM'),
+                            children: [{
+                                value: i,
+                                label: date.format('ddd, Do, h:mm:ss a')
+                            }]
+                        })
+                    }
+
+                } else {
+                    this.reportSelectionData.push({
+                        value: 1,
+                        label: date.year(),
+                        children: [{
+                            value: 1,
+                            label: date.format('MMM'),
+                            children: [{
+                                value: i,
+                                label: date.format('ddd, Do, h:mm:ss a')
+                            }]
+                        }]
+                    })
                 }
-
-                // make stockCBM
-                // this method is bad but is the only way the table summaries will work
-                for (let i=0; i<this.storageLocations.length; i++) {
-                    let location = this.storageLocations[i]
-
-                    let found = _.find(inv.stock, { name: location.name })
-
-                    inv['stockCBM-' + location.name] = (found) ? (parseInt((found.quantity * inv.cbm) * 10000)/10000 || 0) : 0
-
-                }
-
-
-                if (categoryArray.indexOf(categoryName) > -1) continue
-
-                categoryArray.push(categoryName)
             }
-
-            _.sortBy(categoryArray)
-
-            //make categoryArray into filters
-            let categoryFilters = []
-            for(let i=0; i<categoryArray.length; i++) {
-                let cat = categoryArray[i]
-
-                categoryFilters.push({
-                    text: cat,
-                    value: cat
-                })
-
-            }
-            this.categoryFilters = categoryFilters
 
         })).catch(CATCH_ERR_HANDLER).then(() => { this.spinShow = false })
 

@@ -1,8 +1,13 @@
+function adminPath(relativePath) {
+    return '/admin_' + process.env.ADMIN_URL_SUFFIX + relativePath
+}
+
 const routers = [
     {
-        path: '/',
+        path: '/admin_' + process.env.ADMIN_URL_SUFFIX,
         component: (resolve) => require(['./views/index.vue'], resolve),
-        children : [{
+        children: [{
+            // ADMIN PATHS
             path: '',
             title: 'Sales',
             name: 'Sales',
@@ -11,7 +16,7 @@ const routers = [
             },
             component: (resolve) => require(['./views/sales.vue'], resolve)
         }, {
-            path: '/delivery',
+            path: 'delivery',
             title: 'Delivery',
             name: 'Delivery',
             meta: {
@@ -19,7 +24,7 @@ const routers = [
             },
             component: (resolve) => require(['./views/delivery.vue'], resolve)
         }, {
-            path: '/inventory',
+            path: 'inventory',
             title: 'Inventory',
             name: 'Inventory',
             meta: {
@@ -27,7 +32,7 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory.vue'], resolve)
         }, {
-            path: '/inventory/log',
+            path: 'inventory/log',
             title: 'Inventory Log',
             name: 'InventoryLog',
             meta: {
@@ -35,7 +40,7 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory-log.vue'], resolve)
         }, {
-            path: '/inventory/cogs',
+            path: 'inventory/cogs',
             title: 'Inventory COGS',
             name: 'InventoryCOGS',
             meta: {
@@ -43,7 +48,7 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory-cogs.vue'], resolve)
         }, {
-            path: '/inventory/storage',
+            path: 'inventory/storage',
             title: 'Inventory Storage',
             name: 'InventoryStorage',
             meta: {
@@ -51,7 +56,15 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory-storage.vue'], resolve)
         }, {
-            path: '/inventory/one/:inventoryID',
+            path: 'reports',
+            title: 'Inventory Storage - Reports',
+            name: 'InventoryStorageReports',
+            meta: {
+                title: 'Nicknacks - Inventory Storage Reports'
+            },
+            component: (resolve) => require(['./views/inventory-storage-report.vue'], resolve)
+        }, {
+            path: 'inventory/one/:inventoryID',
             title: 'Inventory Info',
             name: 'InventoryInfo',
             meta: {
@@ -59,7 +72,7 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory-info.vue'], resolve)
         }, {
-            path: '/shipment',
+            path: 'shipment',
             title: 'Shipment',
             name: 'Shipment',
             meta: {
@@ -67,13 +80,44 @@ const routers = [
             },
             component: (resolve) => require(['./views/shipment.vue'], resolve)
         }, {
-            path: '/login/forget-password-reset/:token',
+            path: 'login/forget-password-reset/:token',
             title: 'Forget Password Reset',
             name: 'ForgetPasswordReset',
             meta: {
                 title: 'Nicknacks - Forget Password Reset'
             },
             component: (resolve) => require(['./views/forget-password-reset.vue'], resolve)
+
+        }]
+    }, {
+        // RENFORD paths
+        path: '/renford',
+        component: (resolve) => require(['./views/renford/index.vue'], resolve),
+        children: [{
+            path: '',
+            title: 'Inventory Storage',
+            name: 'RenfordInventoryStorage',
+            meta: {
+                title: 'Nicknacks - Inventory Storage'
+            },
+            component: (resolve) => require(['./views/renford/inventory-storage.vue'], resolve)
+        }, {
+            path: 'reports',
+            title: 'Inventory Storage - Reports',
+            name: 'RenfordInventoryStorageReports',
+            meta: {
+                title: 'Nicknacks - Inventory Storage Reports'
+            },
+            component: (resolve) => require(['./views/renford/inventory-storage-report.vue'], resolve)
+        }, {
+            path: 'login/forget-password-reset/:token',
+            title: 'Forget Password Reset',
+            name: 'RenfordForgetPasswordReset',
+            meta: {
+                title: 'Nicknacks - Forget Password Reset'
+            },
+            component: (resolve) => require(['./views/forget-password-reset.vue'], resolve)
+
         }]
     }
 ];

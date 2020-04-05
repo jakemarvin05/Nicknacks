@@ -789,4 +789,21 @@ router.post('/transfer', permit('/transfer', 7), function(req, res, next) {
 
 })
 
+router.get('/storage-report/all', permit('/storage-report/all', 1), function(req, res, next) {
+
+    debug(req.body);
+
+    return DB.InventoryReport.findAll({
+        where: { reportType: 'full' }
+    }).then(function(reports) {
+
+        return res.send({
+            success: true,
+            data: reports
+        })
+
+    }).catch(function(error) { API_ERROR_HANDLER(error, req, res, next) });
+
+})
+
 module.exports = router;
