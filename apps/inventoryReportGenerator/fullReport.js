@@ -2,7 +2,7 @@
 
 const debug = require('debug')('nn:apps:inventoryReportGenerator:full')
 debug.log = console.log.bind(console)
-const inventoryTimeLineFilter = require('../inventory/timeLineFilter')
+const inventoryTimeLineFilter = require('../inventory/timelineFilter')
 
 const reportType = 'full'
 
