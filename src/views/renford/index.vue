@@ -24,7 +24,7 @@
 
 <template>
     <div class="layout">
-        <div v-if="$store.state.isAuthenticated">
+        <div v-if="$store.state.isAuthenticated && $store.state.user && $store.state.user.name">
 
             <Menu mode="horizontal" theme="light" :active-name="$route.name">
 
