@@ -57,7 +57,7 @@ const inventoryStorageIncludes = [{
 
 function generate() {
 
-    PROMISE.resolve().then(() => {
+    return PROMISE.resolve().then(() => {
 
         return [
             DB.Inventory.findAll({
@@ -151,7 +151,7 @@ function generate() {
             inventory.timeline = inventoryTimeLineFilter(inventory)
         })
 
-        DB.InventoryReport.create({
+        return DB.InventoryReport.create({
             reportType: reportType,
             data: inventories
         })
