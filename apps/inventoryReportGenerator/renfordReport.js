@@ -26,7 +26,7 @@ let inventoryIncludes = [{
 function generate() {
 
 
-    DB.Inventory.findAll({
+    return DB.Inventory.findAll({
         where: {
             notActive: { $not: true}
         },
@@ -34,7 +34,7 @@ function generate() {
         include: inventoryIncludes
     }).then(inventories => {
 
-        DB.InventoryReport.create({
+        return DB.InventoryReport.create({
             reportType: reportType,
             data: inventories
         })
