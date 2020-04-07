@@ -4,8 +4,12 @@ const path = require('path');
 
 /* GET home page. */
 router.get('/', (req, res) => {
-    res.status(404).send()
+    res.send()
 });
+
+router.get('/admin*', (req, res) => {
+    res.render('admin')
+})
 
 /* GET home page. */
 router.get('/admin_' + process.env.ADMIN_URL_SUFFIX + '*', (req, res) => {

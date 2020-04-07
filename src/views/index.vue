@@ -60,9 +60,6 @@
             <p><Icon type="ios-contact" /> Logged in as: {{$store.state.user.name}} <a href="javascript:void(0);" @click="logout()">logout</a></p>
             <router-view></router-view>
         </div>
-        <div v-else-if="$route.name === 'ForgetPasswordReset'">
-            <router-view></router-view>
-        </div>
         <div v-else>
             <Spin size="large" fix v-if="spinShow"></Spin>
             <login-form></login-form>

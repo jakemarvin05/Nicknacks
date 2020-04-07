@@ -100,7 +100,7 @@ function User(sequelize, DataTypes) {
         instanceMethods: {
             generatePasswordResetToken: function () {
                 this.passwordResetToken = crypto.randomBytes(16).toString('hex');
-                this.passwordResetTokenExpire = MOMENT().add(12, 'hours').format(); //add .format()?
+                this.passwordResetTokenExpire = MOMENT().add(24, 'hours').format(); //add .format()?
                 return this;
             },
             authenticate: function (password) {

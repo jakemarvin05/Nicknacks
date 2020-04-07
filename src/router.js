@@ -4,6 +4,18 @@ function adminPath(relativePath) {
 
 const routers = [
     {
+        path: '/admin',
+        component: (resolve) => require(['./views/facade.vue'], resolve),
+        children: [{
+            path: 'forget-password-reset/:token',
+            title: 'Forget Password Reset',
+            name: 'ForgetPasswordReset',
+            meta: {
+                title: 'Nicknacks - Forget Password Reset'
+            },
+            component: (resolve) => require(['./views/forget-password-reset.vue'], resolve)
+        }]
+    }, {
         path: '/admin_' + process.env.ADMIN_URL_SUFFIX,
         component: (resolve) => require(['./views/index.vue'], resolve),
         children: [{
@@ -79,15 +91,6 @@ const routers = [
                 title: 'Nicknacks - Shipment'
             },
             component: (resolve) => require(['./views/shipment.vue'], resolve)
-        }, {
-            path: 'login/forget-password-reset/:token',
-            title: 'Forget Password Reset',
-            name: 'ForgetPasswordReset',
-            meta: {
-                title: 'Nicknacks - Forget Password Reset'
-            },
-            component: (resolve) => require(['./views/forget-password-reset.vue'], resolve)
-
         }]
     }, {
         // RENFORD paths
@@ -109,15 +112,6 @@ const routers = [
                 title: 'Nicknacks - Inventory Storage Reports'
             },
             component: (resolve) => require(['./views/renford/inventory-storage-report.vue'], resolve)
-        }, {
-            path: 'login/forget-password-reset/:token',
-            title: 'Forget Password Reset',
-            name: 'RenfordForgetPasswordReset',
-            meta: {
-                title: 'Nicknacks - Forget Password Reset'
-            },
-            component: (resolve) => require(['./views/forget-password-reset.vue'], resolve)
-
         }]
     }
 ];

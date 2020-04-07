@@ -10,13 +10,12 @@ if (!SGMAIL) {
 module.exports = function send(user) {
 
     let resetUrl = process.env.DOMAIN
-    resetUrl += '/admin_' + process.env.ADMIN_URL_SUFFIX
-    resetUrl += '/login/forget-password-reset'
+    resetUrl += '/admin/forget-password-reset'
     resetUrl += '/' + user.get({role: 'self'}).passwordResetToken
 
     var html  = '<h3>Hi there!</h3>';
         html += '<p>You have requested for a password reset. In order to reset your password please follow this <a href="' + resetUrl + '">link</a>.</p>';
-        html += '<p>You have 12 hours before the request expires. If you did not request for the change, please ignore this mail.</p>';
+        html += '<p>You have 24 hours before the request expires. If you did not request for the change, please ignore this mail.</p>';
 
     SGMAIL.send({
       to:       user.get({role: 'self'}).email,

@@ -84,7 +84,6 @@ export default {
                 }
 
                 let payload = {
-                    email: self.form.user + '@greyandsanders.com',
                     password: self.form.password,
                     token: self.$route.params.token
                 }
@@ -97,7 +96,11 @@ export default {
                     }
                     self.$store.commit('authenticated', response.data.user)
                     self.$Message.success('Reset is successful!')
-                    if (self.$store.state.userType === 'staff') self.$router.push({name: 'Sales'})
+
+                    console.log(self.$store.state.user.userType)
+
+                    if (self.$store.state.user.userType === 'staff') self.$router.push({name: 'Sales'})
+                    if (self.$store.state.user.userType === 'renford') self.$router.push({name: 'RenfordInventoryStorage'})
 
                 }).catch(error => {
 
