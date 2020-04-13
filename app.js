@@ -55,8 +55,10 @@ var pgSession = require('connect-pg-simple')(session);
 // inventory report generator
 if(process.env.NODE_ENV !== "development") {
     var inventoryReport = require('./apps/inventoryReportGenerator')
-    var cron = require('node-schedule')
-    var runInventoryReportOnEveryMonday = cron.scheduleJob('0 0 8 * * 1', inventoryReport)
+    var cron = require('cron').CronJob
+    //constructor(cronTime, onTick, onComplete, start, timezone, context, runOnInit, utcOffset, unrefTimeout)
+    var runInventoryReportOnEveryMonday = new cron('0 0 8 * * 1', inventoryReport, null, true, 'Asia/Singapore')
+    runInventoryReportOnEveryMonday.start()
 }
 
 global.QBO = ''
