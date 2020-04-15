@@ -162,6 +162,110 @@ router.get('/all', permit('/all', 1), (req, res, next) => {
     }).catch(error => { API_ERROR_HANDLER(error, req, res, next) })
 
 })
+router.get('/all/deactivated', permit('/all', 1), (req, res, next) => {
+
+    PROMISE.resolve().then(() => {
+
+        return [
+            DB.Inventory.findAll({
+                where: {
+                    notActive: true
+                },
+                order: [ ['sku', 'ASC'], ['name', 'ASC'] ],
+                include: inventoryIncludes
+            }),
+
+            DB.Inventory_Storage.findAll({
+                include: inventoryStorageIncludes
+            })
+        ]
+
+    }).spread( (inventories, soldInventories) => {
+
+
+        // merge inventories with soldInventories
+        inventories = JSON.parse(JSON.stringify(inventories));
+        soldInventories = JSON.parse(JSON.stringify(soldInventories));
+
+        // for each of the soldInventories record
+        soldInventories.forEach(element => {
+
+            // find the matching inventory from the inventory list
+            var matchedInventory = inventories.find(item => {
+                if (item.InventoryID === element.Inventory_inventoryID) return item;
+            });
+
+            // past sold inventories could have gone obsolete (deleted or deactivated)
+            // can stop the operations here.
+            // matchedInventory is undefined when nothing is found:
+            if (!matchedInventory) return;
+
+            // joining this particular soldInventory line item to the inventory line item
+            if (Array.isArray(matchedInventory.soldInventories)) {
+                matchedInventory.soldInventories.push(element);
+            } else {
+                matchedInventory.soldInventories = [ element ];
+            }
+
+
+            // calculating for quantities sold
+            var quantitySold = 0;
+
+            // for each of the transactions within this soldInventory
+            // NOTE: a single line of soldInventory is a pair between Transaction and
+            //       a particular physical inventory stored at a place (Inventory_Storage)
+            element.Transactions.forEach( element => {
+                quantitySold += parseInt(element.SoldInventory.quantity)
+            });
+
+            var soldStockObject = matchedInventory.stock.find( item => {
+                if (item.name === "Sold") return item;
+                return false;
+            })
+
+            if (soldStockObject) {
+                soldStockObject.quantity += quantitySold;
+            } else {
+
+                if (!matchedInventory.stock) {
+                    matchedInventory.stock = {name: "Sold", quantity: quantitySold }
+                } else {
+                    matchedInventory.stock.push({name: "Sold", quantity: quantitySold })
+                }
+
+            }
+
+        });
+
+        // Loop through the transit inventories to generate the Transit object.
+        inventories.forEach(inventory => {
+
+            let transitStock = { name: 'Transit', quantity: 0 };
+
+            inventory.TransitInventories.forEach(transit => {
+                transitStock.quantity += parseInt(transit.quantity)
+            });
+
+            if (!inventory.stock) {
+                inventory.stock = [transitStock]
+            } else {
+                inventory.stock.push(transitStock)
+            }
+
+        })
+
+        inventories.forEach(inventory => {
+            inventory.timeline = inventoryTimeLineFilter(inventory)
+        })
+
+        res.send({
+            success: true,
+            data: inventories
+        })
+
+    }).catch(error => { API_ERROR_HANDLER(error, req, res, next) })
+
+})
 
 router.get('/one/audit-log/:inventoryID', permit('/one/audit-log/:inventoryID', 1), (req, res, next) => {
 
@@ -327,17 +431,20 @@ router.delete('/delete', permit('/delete', 9), (req, res, next) => {
 
 router.post('/deactivate', permit('/deactivate', 9), (req, res, next) => {
 
-    let where = { InventoryID: req.body.InventoryID };
-
-    debug(req.body)
-
-    DB.Inventory.findById(req.body.InventoryID, {
+    DB.Inventory.find({
+        where: {
+            InventoryID: req.body.InventoryID,
+            notActive: { $not: true }
+        },
         include: inventoryIncludes
     }).then(inventory => {
 
         if (!inventory) {
             //no inventory is found. don't care just respond that it is deleted.
-            return
+            let error = new Error('Deactivated inventory not found.')
+            error.status = 400
+            error.level = 'low'
+            throw error
         }
 
         // inventory is found
@@ -353,7 +460,59 @@ router.post('/deactivate', permit('/deactivate', 9), (req, res, next) => {
             let update = DB.Inventory.update({
                 notActive: true
             }, {
-                where: where
+                where: { InventoryID: req.body.InventoryID }
+            })
+            promises.push(update)
+
+            // don't need to call a spread. instead just call #all to wait for all before commiting.
+            return PROMISE.all(promises)
+
+        })
+
+    })
+    .then(() => {
+
+        return res.send({
+            success: true
+        })
+
+    })
+    .catch(error => { API_ERROR_HANDLER(error, req, res, next) })
+
+});
+
+router.post('/activate', permit('/activate', 9), (req, res, next) => {
+
+    DB.Inventory.find({
+        where: {
+            InventoryID: req.body.InventoryID,
+            notActive: true
+        },
+        include: inventoryIncludes
+    }).then(inventory => {
+
+        if (!inventory) {
+            //no inventory is found. don't care just respond that it is deleted.
+            let error = new Error('Active inventory not found.')
+            error.status = 400
+            error.level = 'low'
+            throw error
+        }
+
+        // inventory is found
+        return DB.sequelize.transaction(t => {
+
+            let promises = []
+
+            //record inventory movement
+            // same for DB calls "required" from outside, it will be outside of this CLS scoping, need to manually pass `t`
+            let recordMovement = createInventoryRecord(t, 'inventoryActivated', inventory, req.user)
+            promises.push(recordMovement)
+
+            let update = DB.Inventory.update({
+                notActive: false
+            }, {
+                where: { InventoryID: req.body.InventoryID }
             })
             promises.push(update)
 

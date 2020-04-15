@@ -6,7 +6,7 @@ function createInventoryRecord(t, source, sourceData, user) {
         sourceData.soldInventories.forEach(sold => {
             involvedProductIDs.push(parseInt(sold.InventoryID))
         })
-    } else if (source === 'inventoryDeleted' || source === 'inventoryDeactivated') {
+    } else if (source === 'inventoryDeleted' || source === 'inventoryDeactivated' || source === 'inventoryActivated') {
 
         involvedProductIDs = [ sourceData.InventoryID ]
 

@@ -13,8 +13,8 @@ function inventoryTimeLineFilter(inventory) {
         date: 0,
         isConfirmed: true,
         type: 'stock',
-        change: inventoryStockTotalWithoutDisplay,
-        stockAvailableAtCurrentDate: inventoryStockTotalWithoutDisplay
+        change: 0,
+        stockAvailableAtCurrentDate: inventoryStockTotalWithoutDisplay || 0
     }]
 
     if (inventory.soldInventories && inventory.soldInventories.length > 0) {

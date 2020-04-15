@@ -42,6 +42,7 @@
                         Inventory
                     </template>
                     <MenuItem name="Inventory" :to="{ name: 'Inventory' }">List</MenuItem>
+                    <MenuItem name="inventoryDeactivated" :to="{ name: 'inventoryDeactivated' }">List (Deactivated)</MenuItem>
                     <MenuItem name="InventoryLog" :to="{ name: 'InventoryLog' }">Log</MenuItem>
                     <MenuItem name="InventoryCOGS" v-if="$store.state.user.rightsLevel > 2" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>
                     <MenuGroup title="Storage Reports">

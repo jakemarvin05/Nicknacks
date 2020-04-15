@@ -44,6 +44,14 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory.vue'], resolve)
         }, {
+            path: 'inventory/deactivated',
+            title: 'Inventory (Deactivated)',
+            name: 'inventoryDeactivated',
+            meta: {
+                title: 'Nicknacks - Inventory (Deactivated)'
+            },
+            component: (resolve) => require(['./views/inventory-deactivated.vue'], resolve)
+        }, {
             path: 'inventory/log',
             title: 'Inventory Log',
             name: 'InventoryLog',

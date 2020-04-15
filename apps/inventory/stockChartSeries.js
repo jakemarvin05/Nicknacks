@@ -123,32 +123,35 @@ function stockChartSeries(inventory, movementRecords) {
     }
 
     // adjusting the inventory with every past event starting from the most recent
-    for (let i=indexOfLatestEvent; i>-1; i--) {
-        let serial = {
-            x: changeSeries.data[i].x
-        }
-        if (i === indexOfLatestEvent) {
-            // the current stock is reflected by the very last event that happened.
-            // so the time of the last event, reflects the current stock count.
-            serial.y = _.sumBy(inventory.StorageLocations, s => {
-                return parseInt(s.Inventory_Storage.quantity)
-            })
-        } else {
-            serial.y = stockSeries.data[0].y - changeSeries.data[i+1].y // because we use unshift to insert the stockSeries, the next serial is always calculated based on position 0
-        }
-        stockSeries.data.unshift(serial)
-    }
+    if (changeSeries.data.length > 1) {
 
-    // adjusting the inventory with future events starting from the nearest one
-    for (let i=indexOfLatestEvent+1; i<changeSeries.data.length; i++) {
-
-        let serial = {
-            x: changeSeries.data[i].x,
-            y: stockSeries.data[stockSeries.data.length-1].y + changeSeries.data[i].y // we calculate the next serial based on the last serial of the current array.
+        for (let i=indexOfLatestEvent; i>-1; i--) {
+            let serial = {
+                x: changeSeries.data[i].x
+            }
+            if (i === indexOfLatestEvent) {
+                // the current stock is reflected by the very last event that happened.
+                // so the time of the last event, reflects the current stock count.
+                serial.y = _.sumBy(inventory.StorageLocations, s => {
+                    return parseInt(s.Inventory_Storage.quantity)
+                })
+            } else {
+                serial.y = stockSeries.data[0].y - changeSeries.data[i+1].y // because we use unshift to insert the stockSeries, the next serial is always calculated based on position 0
+            }
+            stockSeries.data.unshift(serial)
         }
-        stockSeries.data.push(serial)
+
+        // adjusting the inventory with future events starting from the nearest one
+        for (let i=indexOfLatestEvent+1; i<changeSeries.data.length; i++) {
+
+            let serial = {
+                x: changeSeries.data[i].x,
+                y: stockSeries.data[stockSeries.data.length-1].y + changeSeries.data[i].y // we calculate the next serial based on the last serial of the current array.
+            }
+            stockSeries.data.push(serial)
+        }
+        series.push(stockSeries)
     }
-    series.push(stockSeries)
 
     // console.log(changeSeries)
     // console.log(stockSeries)
