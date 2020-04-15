@@ -144,32 +144,67 @@ new Vue({
     render: h => h(App)
 })
 
-window.CATCH_ERR_HANDLER = (err) => {
-
-    return (function(store) {
-        return function(err) {
-            let response = D.get(err , 'response')
-
-            //if this is an api response
-            if(response) {
-
-                if (response.status === 401) {
-                    store.state.logout()
-                    return
-                }
-
-                if (response.status === 403) {
-                    return alert('Oops. Looks like you don\'t have enough rights to access this resource.')
-                }
-
-                console.log(response)
-                alert(D.get(response, 'data.message'))
-
-
-            } else {
-                alert(err)
-            }
-        }
-    })(store)
-
+function CatchErrorHandler(store) {
+    this.store = store
 }
+CatchErrorHandler.prototype.handler = function(err) {
+    let response = D.get(err , 'response')
+
+    //if this is an api response
+    //TODO: AXIOS error handling sucks.... it breaks the promise chain on 404
+    if(response) {
+
+        if (response.status === 401) {
+            this.store.state.logout()
+            return
+        }
+
+        if (response.status === 403) {
+            return alert('Oops. Looks like you don\'t have enough rights to access this resource.')
+        }
+
+        console.log(response)
+        alert(D.get(response, 'data.message'))
+
+
+    } else {
+        console.log('Please screenshot the follow error to the administrator:')
+        console.log(JSON.stringify(err))
+        alert(err)
+    }
+}
+
+window.CATCH_ERR_HANDLER = (new CatchErrorHandler(store)).handler
+
+// window.CATCH_ERR_HANDLER = (err) => {
+// console.log(err)
+// console.log(222222)
+//     return (function(store) {
+//         return function(err) {
+//             let response = D.get(err , 'response')
+//
+//             //if this is an api response
+//             if(response) {
+//
+//                 if (response.status === 401) {
+//                     store.state.logout()
+//                     return
+//                 }
+//
+//                 if (response.status === 403) {
+//                     return alert('Oops. Looks like you don\'t have enough rights to access this resource.')
+//                 }
+//
+//                 console.log(response)
+//                 alert(D.get(response, 'data.message'))
+//
+//
+//             } else {
+//                 console.log('Please screenshot the follow error to the administrator:')
+//                 console.log(err)
+//                 alert(err)
+//             }
+//         }
+//     })(store)
+//
+// }
