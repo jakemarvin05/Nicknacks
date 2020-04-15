@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="content">
         <Spin size="large" fix v-if="spinShow"></Spin>
         <Breadcrumb class="mainBreadCrumb">
             <BreadcrumbItem>Inventory</BreadcrumbItem>

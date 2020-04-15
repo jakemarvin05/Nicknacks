@@ -1,5 +1,5 @@
 <template>
-    <div style="min-height: 500px;">
+    <div class="content">
         <Spin size="large" fix v-if="spinShow"></Spin>
         <Breadcrumb class="mainBreadCrumb">
             <BreadcrumbItem>Inventory</BreadcrumbItem>
@@ -162,7 +162,6 @@
                 </Card>
             </span>
         </Modal>
-
     </div>
 </template>
 <script>
