@@ -270,7 +270,7 @@ export default {
                     this.AXIOS.put(domain + '/api/v2/inventory/sold', payload).then(response => {
                         if (!response.data.success) {
                             let error = new Error('API operation not successful.')
-                            error.reponse = response
+                            error.response = response
                             throw error
                         }
 
@@ -343,7 +343,7 @@ export default {
                     this.AXIOS.delete(domain + '/api/v2/inventory/sold/delete', { data: { SoldInventoryID: soldInventory.SoldInventoryID }}).then(response => {
                         if (!response.data.success) {
                             let error = new Error('API operation not successful.')
-                            error.reponse = response
+                            error.response = response
                             throw error
                         }
 
@@ -397,7 +397,7 @@ export default {
                         // if success: false
                         if (!response.data.success) {
                             let error = new Error('API operation not successful.')
-                            error.reponse = response
+                            error.response = response
                             throw error
                         }
 
@@ -431,7 +431,7 @@ export default {
 
             if (!response.data.success) {
                 let error = new Error('API operation not successful.')
-                error.reponse = response
+                error.response = response
                 throw error
             }
 
@@ -461,7 +461,7 @@ export default {
 
             if (!response.data.success) {
                 let error = new Error('API operation not successful.')
-                error.reponse = response
+                error.response = response
                 throw error
             }
 

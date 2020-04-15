@@ -111,7 +111,7 @@ module.exports = {
                 this.AXIOS.put(this.DOMAIN + '/api/v2/inventory/add', payload).then(response => {
                     if (!response.data.success) {
                         let error = new Error('API operation not successful.')
-                        error.reponse = response
+                        error.response = response
                         throw error
                     }
                     console.log(response.data)

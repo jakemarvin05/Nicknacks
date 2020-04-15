@@ -433,7 +433,7 @@ export default {
 
             if (!response.data.success) {
                 let error = new Error('API operation not successful.')
-                error.reponse = response
+                error.response = response
                 throw error
             }
 
@@ -477,7 +477,7 @@ export default {
         this.AXIOS.get(domain + '/api/v2/storage-location/all').then(response => {
             if (!response.data.success) {
                 let error = new Error('API operation not successful.')
-                error.reponse = response
+                error.response = response
                 throw error
             }
             this.storageLocations = response.data.data

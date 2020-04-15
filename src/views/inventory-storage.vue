@@ -244,14 +244,14 @@ export default {
 
             if (!storageLocations.data.success) {
                 let error = new Error('API operation not successful.')
-                error.reponse = response
+                error.response = response
                 throw error
             }
             this.storageLocations = storageLocations.data.data
 
             if (!inventories.data.success) {
                 let error = new Error('API operation not successful.')
-                error.reponse = response
+                error.response = response
                 throw error
             }
 

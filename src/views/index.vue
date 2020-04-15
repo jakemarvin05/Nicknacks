@@ -94,7 +94,7 @@ export default {
                     this.AXIOS.post(this.DOMAIN + '/api/v2/login/logout').then(response => {
                         if (!response.data.success) {
                             let error = new Error('API operation not successful.')
-                            error.reponse = response
+                            error.response = response
                             throw error
                         }
 
@@ -126,7 +126,7 @@ export default {
 
             if (!response.data.success) {
                 let error = new Error('API operation not successful.')
-                error.reponse = response
+                error.response = response
                 throw error
             }
 

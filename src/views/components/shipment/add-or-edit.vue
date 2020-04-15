@@ -171,7 +171,7 @@ module.exports = {
                     if (!response.data.success) {
 
                         let error = new Error('API operation not successful.')
-                        error.reponse = response
+                        error.response = response
                         throw error
                     }
 
@@ -232,7 +232,7 @@ module.exports = {
 
                         if (!response.data.success) {
                             let error = new Error('API operation not successful.')
-                            error.reponse = response
+                            error.response = response
                             throw error
                         }
 

@@ -96,7 +96,7 @@ module.exports = {
 
                     if (!response.data.success) {
                         let error = new Error('API operation not successful.')
-                        error.reponse = response
+                        error.response = response
                         throw error
                     }
 
@@ -146,7 +146,7 @@ module.exports = {
                     this.AXIOS.post(this.DOMAIN + '/api/v2/inventory/deactivate', { InventoryID: inventory.InventoryID }).then(response => {
                         if (!response.data.success) {
                             let error = new Error('API operation not successful.')
-                            error.reponse = response
+                            error.response = response
                             throw error
                         }
 
@@ -204,7 +204,7 @@ module.exports = {
                     this.AXIOS.delete(self.DOMAIN + '/api/v2/inventory/delete', { data: {InventoryID: inventory.InventoryID} }).then(response => {
                         if (!response.data.success) {
                             let error = new Error('API operation not successful.')
-                            error.reponse = response
+                            error.response = response
                             throw error
                         }
 

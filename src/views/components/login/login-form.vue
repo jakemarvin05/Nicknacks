@@ -114,7 +114,7 @@ export default {
                 this.AXIOS.post(this.DOMAIN + '/api/v2/login', payload).then(response => {
                     if (!response.data.success) {
                         let error = new Error('API operation not successful.')
-                        error.reponse = response
+                        error.response = response
                         throw error
                     }
                     this.$store.commit('authenticated', response.data.user)
@@ -153,7 +153,7 @@ export default {
                 this.AXIOS.post(this.DOMAIN + '/api/v2/login/password/forget', payload).then(response => {
                     if (!response.data.success) {
                         let error = new Error('API operation not successful.')
-                        error.reponse = response
+                        error.response = response
                         throw error
                     }
                     // this.$store.state.authenticated()
