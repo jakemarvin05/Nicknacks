@@ -9,7 +9,7 @@
 </style>
 
 <template>
-    <div class="content">
+    <div id="main-content">
         <Spin size="large" fix v-if="spinShow"></Spin>
         <Breadcrumb class="mainBreadCrumb">
             <BreadcrumbItem>Shipments</BreadcrumbItem>
