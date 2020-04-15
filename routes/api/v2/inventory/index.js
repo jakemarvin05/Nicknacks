@@ -789,6 +789,45 @@ router.post('/transfer', permit('/transfer', 7), function(req, res, next) {
 
 })
 
+router.put('/add-location', permit('/add-location', 7), function(req, res, next) {
+
+    return DB.sequelize.transaction(function(t) {
+
+        return DB.Inventory_Storage.findOne({
+            where: {
+                Inventory_inventoryID: req.body.InventoryID,
+                StorageLocation_storageLocationID: req.body.StorageLocationID
+            }
+        }, {transaction: t}).then(inventoryStorage => {
+            if (inventoryStorage) {
+                // somehow storage is found though user tried to add
+                return res.send({ success: true })
+            } else {
+                return DB.Inventory_Storage.create({
+                    Inventory_inventoryID: req.body.InventoryID,
+                    StorageLocation_storageLocationID: req.body.StorageLocationID,
+                    quantity: 0
+                }, {transaction: t}).then(() => { res.send({ success: true }) })
+            }
+        })
+
+    }).catch(function(error) { API_ERROR_HANDLER(error, req, res, next) });
+
+})
+
+router.delete('/delete-empty-locations', permit('/add-location', 7), function(req, res, next) {
+
+    DB.Inventory_Storage.destroy({
+        where: {
+            Inventory_inventoryID: req.body.InventoryID,
+            quantity: 0
+        }
+    }).then(() => {
+        return res.send({ success: true })
+    }).catch(function(error) { API_ERROR_HANDLER(error, req, res, next) });
+
+})
+
 router.get('/storage-report/all', permit('/storage-report/all', 1), function(req, res, next) {
 
     debug(req.body);

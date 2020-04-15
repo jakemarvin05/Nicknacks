@@ -40,6 +40,11 @@
             </el-table-column>
         </el-table>
 
+        <Button :disabled="!(availableLocationsToAdd.length > 0)" style="width:400;" type="primary" @click="addLocation()">+ Add location</Button>
+        <Button :disabled="!haveEmptyLocations" style="width:400;" type="success" @click="removeEmptyLocation()">- Remove Empty Locations</Button>
+
+
+
         <Divider style="font-size:20px;" orientation="left">Timeline</Divider>
 
         <timeline-content style="margin-left: 10px;" :inventory="inventory"></timeline-content>
@@ -162,6 +167,33 @@
 
         </el-table>
 
+        <Modal
+            v-model="addLocationModal.show"
+            title="Add Location"
+            :loading="addLocationModal.loading"
+            @on-ok="addLocationOK()">
+
+            <Form ref="addLocation" :model="addLocationModal.form" :rules="addLocationModal.formRules">
+                <FormItem prop="storageLocationID">
+                    <Select
+                        ref="addLocationStorage"
+                        placeholder="Select location"
+                        v-model="addLocationModal.form.StorageLocationID" filterable>
+
+                        <Option
+                            v-for="(location, index) in storageLocations"
+                            v-if="(availableLocationsToAdd.indexOf(location.StorageLocationID) > -1 )"
+                            :value="location.StorageLocationID || -1"
+                            :key="index" :label="location.name">
+                            <span>{{ location.name }}</span>
+                        </Option>
+
+                    </Select>
+                </FormItem>
+            </Form>
+
+        </Modal>
+
     </div>
 </template>
 <script>
@@ -194,6 +226,7 @@ export default {
                 }
             },
             movementRecords: [],
+            storageLocations: [],
             categoryFilters: [],
             physicalSums: [],
 
@@ -227,6 +260,20 @@ export default {
                   enabled: true,
                   enabledOnSeries: [1]
                 }
+            },
+
+            addLocationModal: {
+                show: false,
+                loading: true,
+                form: {
+                    StorageLocationID: ''
+                },
+                formRules: {
+                    StorageLocationID: [
+                        { required: true, message: 'Please select a storage location.', trigger: 'blur' }
+                    ]
+                },
+
             }
         }
     },
@@ -302,6 +349,129 @@ export default {
             sums[2] += this.physicalSums[2]
 
             return sums;
+        },
+        addLocation() {
+            this.addLocationModal.show = true
+        },
+        addLocationOK () {
+
+            this.$refs['addLocation'].validate(valid => {
+
+                if (valid) {
+
+                    let payload = {
+                        InventoryID: this.inventory.InventoryID,
+                        StorageLocationID: this.addLocationModal.form.StorageLocationID,
+                        quantity: 0
+                    }
+
+                    this.AXIOS.put(this.DOMAIN + '/api/v2/inventory/add-location', payload).then(response => {
+
+                        if (!D.get(response, 'data.success')) {
+                            let error = new Error('API operation not successful.')
+                            error.response = response
+                            throw error
+                        }
+
+                        this.inventory.stock.push({
+                            name: (_.find(this.storageLocations, { StorageLocationID: this.addLocationModal.form.StorageLocationID })).name,
+                            StorageLocationID: this.addLocationModal.form.StorageLocationID,
+                            quantity: 0
+                        })
+
+                        this.$Message.success('Success!')
+                        this.addLocationModal.show = false
+
+                    }).catch(error => {
+
+                        CATCH_ERR_HANDLER(error)
+                        this.$Message.error('Failed request!')
+
+                    }).then(() => {
+                        let self = this
+                        this.addLocationModal.loading = false
+                        setTimeout(() => { self.addLocationModal.loading = true }, 1)
+                    })
+
+                } else {
+                    let self = this
+                    this.addLocationModal.loading = false
+                    setTimeout(() => { self.addLocationModal.loading = true }, 1)
+                    this.$Message.error('Check your entry!')
+                }
+            })
+        },
+        removeEmptyLocation () {
+            let self = this
+            this.$Modal.confirm({
+                render: (h) => {
+                    return [
+                        h('h2', 'Remove Empty Locations'),
+                        'You are removing all empty locations to reduce clutter. Proceed?'
+                    ]
+                },
+                onOk() {
+
+                    // do cleaning
+                    this.AXIOS.delete(this.DOMAIN + '/api/v2/inventory/delete-empty-locations', { data: {InventoryID: self.inventory.InventoryID } }).then(response => {
+
+                        if (!D.get(response, 'data.success')) {
+                            let error = new Error('API operation not successful.')
+                            error.response = response
+                            throw error
+                        }
+
+                        // remove the inventory from view
+                        for(let i=0; i<self.inventory.stock.length; i++) {
+                            console.log(i)
+                            let storage = self.inventory.stock[i]
+                            if (storage.quantity === 0 || storage.quantity === "0") {
+                                if (storage.StorageLocationID) {
+                                    self.inventory.stock.splice(i, 1)
+                                    i--
+                                }
+                            }
+                        }
+
+                        self.$Message.success('Empty locations removed!')
+                        self.$Modal.remove()
+
+                    }).catch(error => {
+
+                        CATCH_ERR_HANDLER(error)
+                        self.$Modal.loading = false
+                        setTimeout(() => { self.$Modal.loading = true }, 1)
+                        self.$Message.error('Failed request!');
+
+                    })
+
+                },
+                loading: true
+            })
+
+
+        }
+    },
+    computed: {
+        availableLocationsToAdd() {
+            let availableLocations = []
+            if (!this.inventory.stock) return availableLocations
+            for (let i=0; i<this.storageLocations.length; i++) {
+                let location = this.storageLocations[i]
+                let found = _.find(this.inventory.stock, {StorageLocationID: location.StorageLocationID})
+                if (!found) availableLocations.push(location.StorageLocationID)
+            }
+            return availableLocations
+        },
+        haveEmptyLocations() {
+            if (!this.inventory.stock) return false
+            for (let i=0; i<this.inventory.stock.length; i++) {
+                let s = this.inventory.stock[i]
+                // check for existence of storageLocationID
+                // if there is it means that the stock is not a "transient" one like transit or sold
+                if (s.StorageLocationID && (s.quantity === 0 || s.quantity === "0")) return true
+            }
+            return false
         }
     },
     created () {
@@ -373,6 +543,17 @@ export default {
 
         }).catch(CATCH_ERR_HANDLER).then(() => { this.spinShow = false })
 
+
+        // get all storage location info
+        this.AXIOS.get(this.DOMAIN + '/api/v2/storage-location/all').then(response => {
+            if (!response.data.success) {
+                let error = new Error('API operation not successful.')
+                error.response = response
+                throw error
+            }
+            this.storageLocations = response.data.data
+            console.log('completed storage location req')
+        }).catch(CATCH_ERR_HANDLER)
 
     }
 }
