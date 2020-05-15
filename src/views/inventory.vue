@@ -20,9 +20,7 @@
         >
             <el-table-column style="width:10px;" type="expand">
                 <template slot-scope="scope">
-                    <p><strong>CBM:</strong> {{ scope.row.cbm }}</p>
-                    <p><strong>Comments:</strong> {{ scope.row.comments }}</p>
-                    <iframe style="height:500px; width: 90%; border: 0px;" :src="$router.resolve({ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }).href"></iframe>
+                    <iframe class="inventoryInfoIFrame" style="height:500px; width: 90%; border: 0px;" :src="$router.resolve({ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }).href"></iframe>
                 </template>
             </el-table-column>
 
@@ -203,6 +201,21 @@
     color: red;
     font-weight: bold;
 }
+.inventoryInfoIFrame {
+    border: 0px;
+    width: 90%;
+}
+@media all (max-width: 767px) {
+    .inventoryInfoIFrame {
+        height: 350px;
+    }
+}
+@media all (min-width: 768px) {
+    .inventoryInfoIFrame {
+        height: 500px;
+    }
+}
+
 </style>
 
 <script>
