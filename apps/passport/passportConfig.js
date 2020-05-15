@@ -1,13 +1,11 @@
 'use strict';
 
 var LocalStrategy = require('passport-local').Strategy;
-var request = require('request');
-var encryptor = require('./encryptor');
 var debug = require('debug')('nn:apps:passport:passportConfig')
 debug.log = console.log.bind(console)
 
 var validator = require('validator');
-var randomstring = require("randomstring");
+//var randomstring = require("randomstring");
 
 // expose this function to our app using module.exports
 function Passport(passport) {

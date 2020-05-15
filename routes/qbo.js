@@ -1,12 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var request = require('request');
-var rp = require('request-promise');
 var QuickBooks = require('node-quickbooks');
 QuickBooks.setOauthVersion('2.0');
-var qs = require('querystring');
-// var Tokens = require('csrf');
-// var csrf = new Tokens();
 var OAuthClient = require('intuit-oauth')
 const debug = require('debug')('nn:api:qbo')
 

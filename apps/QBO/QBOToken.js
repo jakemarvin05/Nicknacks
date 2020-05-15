@@ -1,6 +1,4 @@
 const QuickBooks = require('node-quickbooks')
-const rp = require('request-promise')
-const parseString = require('xml2js').parseString
 const debug = require('debug')('nn:apps:qbotoken')
 
 function retrieveTokenAndRefresh() {

@@ -15,21 +15,6 @@ global.ASANA = require('asana').Client.create().useAccessToken(process.env.ASANA
 
 global.API_ERROR_HANDLER = require('./apps/apiErrorHandler')
 
-// Wunderlist will stop getting updated - 14 March 2020
-// const WunderlistSDK = require('wunderlist');
-// global.WL = new WunderlistSDK({
-//   'accessToken': process.env.WL_ACCESS_TOKEN,
-//   'clientID': process.env.WL_CLIENT_ID
-// });
-//
-// let WLOptions = {
-//     retryLimit: 10,
-//     testInterval: 10,
-//     retryInterval: 0.25 //in minutes
-// }
-// const WLConnectionTest = require(__appsDir + '/wunderlistBot_v2/connectionTest.js')
-// WLConnectionTest(WLOptions);
-
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -37,19 +22,11 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var request = require('request');
-var rp = require('request-promise');
-var qs = require('querystring');
-var parseString = require('xml2js').parseString;
-
-var retry = require('retry');
 var cors = require('cors');
-
 
 // /*passport, session and pg session */
 const passport = global.PASSPORT = require('passport')
 require('./apps/passport/passportConfig.js')(passport); //this has to be before routes
-var session = require('express-session');
 var pgSession = require('connect-pg-simple')(session);
 
 // inventory report generator
@@ -78,8 +55,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'publicindex.js', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public/static/favicon.ico')))
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -111,7 +87,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
-
 app.use('/', require('./routes/index'));
 app.use('/qbo', require('./routes/qbo'));
 
@@ -140,11 +115,6 @@ app.all('*', function (req, res, next) {
   }
   next();
 });
-
-// attempt refresh on server start
-// no longer works at the moment. need to trigger nicknacks.greyandsanders.com/qbo/requestToken on every server restart.
-// const QBOToken = require('./apps/QBO/QBOToken')
-// QBOToken()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
