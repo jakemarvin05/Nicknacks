@@ -87,23 +87,25 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
-app.use('/', require('./routes/index'));
-app.use('/qbo', require('./routes/qbo'));
+const magic = require('express-routemagic')
+magic.use(app, __dirname, { printRoutes: true, routeFolder: './routes', ignoreSuffix: '_bak' })
+// app.use('/', require('./routes/index'));
+// app.use('/qbo', require('./routes/qbo'));
 
-// api V2
-app.use('/api/v2', require('./routes/api/v2'));
-app.use('/api/v2/shipment', require('./routes/api/v2/shipment'));
-app.use('/api/v2/magento-webhooks', require('./routes/api/v2/magento-webhooks'));
-app.use('/api/v2/sales-receipt', require('./routes/api/v2/sales-receipt'));
-app.use('/api/v2/inventory', require('./routes/api/v2/inventory'));
-    app.use('/api/v2/inventory/movement-record', require('./routes/api/v2/inventory/movement-record'));
-app.use('/api/v2/shipment', require('./routes/api/v2/shipment'));
-app.use('/api/v2/stripe-webhooks', require('./routes/api/v2/stripe-webhooks'));
-app.use('/api/v2/storage-location', require('./routes/api/v2/storage-location'));
-app.use('/api/v2/login', require('./routes/api/v2/login'));
+// // api V2
+// app.use('/api/v2', require('./routes/api/v2'));
+// app.use('/api/v2/shipment', require('./routes/api/v2/shipment'));
+// app.use('/api/v2/magento-webhooks', require('./routes/api/v2/magento-webhooks'));
+// app.use('/api/v2/sales-receipt', require('./routes/api/v2/sales-receipt'));
+// app.use('/api/v2/inventory', require('./routes/api/v2/inventory'));
+//     app.use('/api/v2/inventory/movement-record', require('./routes/api/v2/inventory/movement-record'));
+// app.use('/api/v2/shipment', require('./routes/api/v2/shipment'));
+// app.use('/api/v2/stripe-webhooks', require('./routes/api/v2/stripe-webhooks'));
+// app.use('/api/v2/storage-location', require('./routes/api/v2/storage-location'));
+// app.use('/api/v2/login', require('./routes/api/v2/login'));
 
-//api renford V2
-app.use('/api/renford/v2/inventory', require('./routes/api/renford/v2/inventory'));
+// //api renford V2
+// app.use('/api/renford/v2/inventory', require('./routes/api/renford/v2/inventory'));
 
 /* SAFARI/IOS Bug */
 app.all('*', function (req, res, next) {
