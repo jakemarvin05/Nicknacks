@@ -132,6 +132,15 @@ var QBOSalesReceiptModel = (transaction, customer) => {
         return defaults
     }
 
+    // TODO: Hoolah, should put it under a sub account of accounts receivable.
+    // if (transaction.paymentMethod.toLowerCase().indexOf('instalment') === 0) {
+    //
+    //     defaults.DepositToAccountRef.value = "77"
+    //     defaults.DepositToAccountRef.name = "Accounts Receivable"
+    //
+    //     return defaults
+    // }
+
     if (transaction.paymentMethod.toLowerCase() === 'no payment information required') {
 
         defaults.PaymentMethodRef.value = 4
