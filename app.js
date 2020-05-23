@@ -15,20 +15,25 @@ global.ASANA = require('asana').Client.create().useAccessToken(process.env.ASANA
 
 global.API_ERROR_HANDLER = require('./apps/apiErrorHandler')
 
-const express = require('express');
-const path = require('path');
-const favicon = require('serve-favicon');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const cors = require('cors');
+const express = require('express')
+const path = require('path')
+const favicon = require('serve-favicon')
+const logger = require('morgan')
+const cookieParser = require('cookie-parser')
+const bodyParser = require('body-parser')
+const session = require('express-session')
+const cors = require('cors')
 const compression = require('compression')
 
 // /*passport, session and pg session */
 const passport = global.PASSPORT = require('passport')
-require('./apps/passport/passportConfig.js')(passport); //this has to be before routes
-const pgSession = require('connect-pg-simple')(session);
+require('./apps/passport/passportConfig.js')(passport) //this has to be before routes
+const pgSession = require('connect-pg-simple')(session)
+
+
+global.QBO = false
+global.QBOIsWorking = false
+const runQBO = require(path.join(__appsDir, 'QBO/QBOToken.js'))()
 
 // inventory report generator
 if(process.env.NODE_ENV !== "development") {
@@ -39,80 +44,13 @@ if(process.env.NODE_ENV !== "development") {
     runInventoryReportOnEveryMonday.start()
 }
 
-global.QBO = ''
-global.QBOIsWorking = false
-
-var QuickBooks = require('node-quickbooks');
-//QuickBooks.setOauthVersion('2.0', (process.env.qbo_environment === 'production' ? false : true));
-//console.log(QuickBooks.oauthversion)
-DB.Token.findById(1).then(token => {
-    // let debug = require('debug')('QBOInit')
-    // console.log(QBO.oauthversion)
-    // console.log(!eval('token.data.tokenSecret') && QBO.oauthversion !== '2.0')
-    // global.QBO = QBO(
-    //     token.data,
-    //     null,
-    //     null, /* oAuth access token */
-    //     null, /* no token secret for oAuth 2.0 */
-    //     null,
-    //     null, /* use a sandbox account */
-    //     debug /* turn debugging on */
-    // )
-
-    global.QBO = new QuickBooks({
-        consumerKey: process.env.qbo_consumerKey,
-        consumerSecret: process.env.qbo_consumerSecret,
-        token: token.data.access_token,
-        refreshToken: token.data.refresh_token,
-        oauthversion: '2.0',
-        //useSandbox: process.env.qbo_environment === 'production' ? false : true
-        useSandbox: false
-    })
-
-    // clientId: process.env.qbo_consumerKey,
-    // clientSecret: process.env.qbo_consumerSecret,
-    //
-    // // initialise QBO
-    // global.QBO = new QuickBooks(
-    //     oauthClient.clientId,
-    //     oauthClient.clientSecret,
-    //     accessToken.access_token, /* oAuth access token */
-    //     false, /* no token secret for oAuth 2.0 */
-    //     companyId,
-    //     (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
-    //     false, /* turn debugging on */
-    //     34, /* minor version */
-    //     '2.0', /* oauth version */
-    //     accessToken.refresh_token /* refresh token */
-    // )
-
-    global.QBO = PROMISE.promisifyAll(global.QBO)
-
-    // run a query to ensure it is working.
-    global.QBO.findAccountsAsync(accounts => {
-        accounts.QueryResponse.Account.forEach(function (account) {
-            console.log('QBO is initialised')
-            global.QBOIsWorking = true
-        })
-
-        // run the looping refresh token function
-        const QBOToken = require(path.join(__appsDir, 'QBO/QBOToken'))
-        setTimeout(function() {
-            QBOToken()
-        }, 3e+6)
-
-        //console.log(err)
-    }).catch(err => { console.log(JSON.stringify(err)) })
-
-})
-
-const OAuthClient = require('intuit-oauth')
-global.oauthClient = new OAuthClient({
-    clientId: process.env.qbo_consumerKey,
-    clientSecret: process.env.qbo_consumerSecret,
-    environment: process.env.qbo_environment,
-    redirectUri: process.env.DOMAIN + '/qbo/callback'
-})
+// const OAuthClient = require('intuit-oauth')
+// global.oauthClient = new OAuthClient({
+//     clientId: process.env.qbo_consumerKey,
+//     clientSecret: process.env.qbo_consumerSecret,
+//     environment: process.env.qbo_environment,
+//     redirectUri: process.env.DOMAIN + '/qbo/callback'
+// })
 
 const app = express();
 
@@ -156,7 +94,7 @@ app.use(passport.session()); // persistent login sessions
 
 const magic = require('express-routemagic')
 magic.use(app, __dirname, {
-    logMapping: true,
+    logMapping: false,
     ignoreSuffix: '_bak'
 })
 
