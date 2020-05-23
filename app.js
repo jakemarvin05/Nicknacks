@@ -42,6 +42,49 @@ if(process.env.NODE_ENV !== "development") {
 global.QBO = ''
 global.QBOIsWorking = false
 
+var QuickBooks = require('node-quickbooks');
+//QuickBooks.setOauthVersion('2.0', (process.env.qbo_environment === 'production' ? false : true));
+//console.log(QuickBooks.oauthversion)
+DB.Token.findById(1).then(token => {
+    // let debug = require('debug')('QBOInit')
+    // console.log(QBO.oauthversion)
+    // console.log(!eval('token.data.tokenSecret') && QBO.oauthversion !== '2.0')
+    // global.QBO = QBO(
+    //     token.data,
+    //     null,
+    //     null, /* oAuth access token */
+    //     null, /* no token secret for oAuth 2.0 */
+    //     null,
+    //     null, /* use a sandbox account */
+    //     debug /* turn debugging on */
+    // )
+
+    global.QBO = new QuickBooks(Object.assign(token.data, {
+        oauthversion: '2.0',
+        //useSandbox: process.env.qbo_environment === 'production' ? false : true
+        useSandbox: false
+    }))
+
+    global.QBO = PROMISE.promisifyAll(global.QBO)
+
+    // run a query to ensure it is working.
+    global.QBO.findAccountsAsync(accounts => {
+        accounts.QueryResponse.Account.forEach(function (account) {
+            console.log('QBO is initialised')
+            global.QBOIsWorking = true
+        })
+
+        // run the looping refresh token function
+        const QBOToken = require(path.join(__appsDir, 'QBO/QBOToken'))
+        setTimeout(function() {
+            QBOToken()
+        }, 3e+6)
+
+        //console.log(err)
+    }).catch(err => { console.log(JSON.stringify(err)) })
+
+})
+
 const OAuthClient = require('intuit-oauth')
 global.oauthClient = new OAuthClient({
     clientId: process.env.qbo_consumerKey,
