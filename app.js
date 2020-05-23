@@ -15,33 +15,34 @@ global.ASANA = require('asana').Client.create().useAccessToken(process.env.ASANA
 
 global.API_ERROR_HANDLER = require('./apps/apiErrorHandler')
 
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var session = require('express-session');
-var cors = require('cors');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const cors = require('cors');
+const compression = require('compression')
 
 // /*passport, session and pg session */
 const passport = global.PASSPORT = require('passport')
 require('./apps/passport/passportConfig.js')(passport); //this has to be before routes
-var pgSession = require('connect-pg-simple')(session);
+const pgSession = require('connect-pg-simple')(session);
 
 // inventory report generator
 if(process.env.NODE_ENV !== "development") {
-    var inventoryReport = require('./apps/inventoryReportGenerator')
-    var cron = require('cron').CronJob
+    const inventoryReport = require('./apps/inventoryReportGenerator')
+    const cron = require('cron').CronJob
     //constructor(cronTime, onTick, onComplete, start, timezone, context, runOnInit, utcOffset, unrefTimeout)
-    var runInventoryReportOnEveryMonday = new cron('0 0 8 * * 1', inventoryReport, null, true, 'Asia/Singapore')
+    let runInventoryReportOnEveryMonday = new cron('0 0 8 * * 1', inventoryReport, null, true, 'Asia/Singapore')
     runInventoryReportOnEveryMonday.start()
 }
 
 global.QBO = ''
 global.QBOIsWorking = false
 
-var OAuthClient = require('intuit-oauth')
+const OAuthClient = require('intuit-oauth')
 global.oauthClient = new OAuthClient({
     clientId: process.env.qbo_consumerKey,
     clientSecret: process.env.qbo_consumerSecret,
@@ -49,7 +50,7 @@ global.oauthClient = new OAuthClient({
     redirectUri: process.env.DOMAIN + '/qbo/callback'
 })
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -72,6 +73,8 @@ app.use(cors({
     preflightContinue: true
 }));
 
+app.use(compression())
+
 // Authentication
 app.use(session({
     store: new pgSession({
@@ -88,24 +91,10 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
 const magic = require('express-routemagic')
-magic.use(app, __dirname, { printRoutes: true, routeFolder: './routes', ignoreSuffix: '_bak' })
-// app.use('/', require('./routes/index'));
-// app.use('/qbo', require('./routes/qbo'));
-
-// // api V2
-// app.use('/api/v2', require('./routes/api/v2'));
-// app.use('/api/v2/shipment', require('./routes/api/v2/shipment'));
-// app.use('/api/v2/magento-webhooks', require('./routes/api/v2/magento-webhooks'));
-// app.use('/api/v2/sales-receipt', require('./routes/api/v2/sales-receipt'));
-// app.use('/api/v2/inventory', require('./routes/api/v2/inventory'));
-//     app.use('/api/v2/inventory/movement-record', require('./routes/api/v2/inventory/movement-record'));
-// app.use('/api/v2/shipment', require('./routes/api/v2/shipment'));
-// app.use('/api/v2/stripe-webhooks', require('./routes/api/v2/stripe-webhooks'));
-// app.use('/api/v2/storage-location', require('./routes/api/v2/storage-location'));
-// app.use('/api/v2/login', require('./routes/api/v2/login'));
-
-// //api renford V2
-// app.use('/api/renford/v2/inventory', require('./routes/api/renford/v2/inventory'));
+magic.use(app, __dirname, {
+    logMapping: true,
+    ignoreSuffix: '_bak'
+})
 
 /* SAFARI/IOS Bug */
 app.all('*', function (req, res, next) {
@@ -120,7 +109,7 @@ app.all('*', function (req, res, next) {
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    var err = new Error('404: Not Found');
+    let err = new Error('404: Not Found');
     err.status = 404;
     next(err);
 });
