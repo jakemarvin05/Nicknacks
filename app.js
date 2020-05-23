@@ -59,11 +59,32 @@ DB.Token.findById(1).then(token => {
     //     debug /* turn debugging on */
     // )
 
-    global.QBO = new QuickBooks(Object.assign(token.data, {
+    global.QBO = new QuickBooks({
+        consumerKey: process.env.qbo_consumerKey,
+        consumerSecret: process.env.qbo_consumerSecret,
+        token: token.data.access_token,
+        refreshToken: token.data.refresh_token,
         oauthversion: '2.0',
         //useSandbox: process.env.qbo_environment === 'production' ? false : true
         useSandbox: false
-    }))
+    })
+
+    // clientId: process.env.qbo_consumerKey,
+    // clientSecret: process.env.qbo_consumerSecret,
+    //
+    // // initialise QBO
+    // global.QBO = new QuickBooks(
+    //     oauthClient.clientId,
+    //     oauthClient.clientSecret,
+    //     accessToken.access_token, /* oAuth access token */
+    //     false, /* no token secret for oAuth 2.0 */
+    //     companyId,
+    //     (process.env.qbo_environment === 'production' ? false : true), /* use a sandbox account */
+    //     false, /* turn debugging on */
+    //     34, /* minor version */
+    //     '2.0', /* oauth version */
+    //     accessToken.refresh_token /* refresh token */
+    // )
 
     global.QBO = PROMISE.promisifyAll(global.QBO)
 
