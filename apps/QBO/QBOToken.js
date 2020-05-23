@@ -45,6 +45,14 @@ const Retry = {
     }
 }
 
+let refreshTokenEveryFiftyMinute = new cron(
+    '* */50 * * * *',
+    start,
+    null,
+    true,
+    'Asia/Singapore'
+)
+
 function initialise() {
     console.log('Re-initialising QBO...')
     return DB.Token.findById(1).then(token => {
@@ -114,14 +122,6 @@ function start() {
         300000 // retry every 5 minutes
     )
 }
-
-let refreshTokenEveryFiftyMinute = new cron(
-    '* */50 * * * *',
-    start,
-    null,
-    true,
-    'Asia/Singapore'
-)
 
 module.exports = start
 
