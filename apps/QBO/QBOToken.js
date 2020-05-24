@@ -57,7 +57,8 @@ function initialise() {
     console.log('Re-initialising QBO...')
     return DB.Token.findById(1).then(token => {
         global.QBO = instantiate(QuickBooks, token)
-        return refresh() // always refresh.
+        if (process.env.NODE_ENV === 'production') return refresh() // always refresh.
+        return null
     }).then(() => {
         // run a query to ensure it is working.
         return QBO.findAccountsAsync()
@@ -65,7 +66,7 @@ function initialise() {
         //console.log(JSON.stringify(data))
         console.log('Token is all good!')
         // set the token refresh sequence
-        refreshTokenEveryFiftyMinute.start()
+        if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute.start()
     })
 }
 
