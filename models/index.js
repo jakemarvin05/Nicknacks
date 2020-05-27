@@ -1,5 +1,5 @@
 var databaseUrl = process.env.DB_URL;
-var logging = process.env.DB_LOGGING ? console.log : false;
+var logging = process.env.DB_LOGGING === 'true' ? console.log : false;
 var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
