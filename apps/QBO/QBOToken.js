@@ -108,7 +108,7 @@ function refresh() {
 
     // get the token
     return QBO.refreshAccessTokenAsync().then(token => {
-        if (token.data.error && token.data.error.indexOf('invalid') > -1) {
+        if (token.error && token.error.indexOf('invalid') > -1) {
             let error = new Error('Token retrieved is invalid.')
             error.debug = { token }
             throw error
