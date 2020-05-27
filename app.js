@@ -41,14 +41,6 @@ if(process.env.NODE_ENV !== "development") {
     runInventoryReportOnEveryMonday.start()
 }
 
-// const OAuthClient = require('intuit-oauth')
-// global.oauthClient = new OAuthClient({
-//     clientId: process.env.qbo_consumerKey,
-//     clientSecret: process.env.qbo_consumerSecret,
-//     environment: process.env.qbo_environment,
-//     redirectUri: process.env.DOMAIN + '/qbo/callback'
-// })
-
 const app = express();
 
 // view engine setup

@@ -55,7 +55,7 @@ const Retry = {
         this.errorHeap.unshift(error)
         debug(error)
         debug(JSON.stringify(error))
-        setTimeout(this.start.bind(this), this.timeout)
+        this.timeoutFn = setTimeout(this.start.bind(this), this.timeout)
         if (this._error) this._error(error)
     }
 }

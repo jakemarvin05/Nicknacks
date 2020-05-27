@@ -1,9 +1,17 @@
-var express = require('express');
-var router = express.Router();
-var QuickBooks = require('node-quickbooks');
-QuickBooks.setOauthVersion('2.0');
-var OAuthClient = require('intuit-oauth')
+const express = require('express')
+const router = express.Router()
 const debug = require('debug')('nn:api:qbo')
+
+var QuickBooks = require('node-quickbooks')
+QuickBooks.setOauthVersion('2.0')
+
+const OAuthClient = require('intuit-oauth')
+const oauthClient = new OAuthClient({
+    clientId: process.env.qbo_consumerKey,
+    clientSecret: process.env.qbo_consumerSecret,
+    environment: process.env.qbo_environment,
+    redirectUri: process.env.DOMAIN + '/qbo/callback'
+})
 
 //var oauthClient, companyId
 var companyId
@@ -18,7 +26,7 @@ router.get('/requestToken', function (req, res) {
 
     if(process.env.QBO_ALLOW_LOCKED_ROUTES !== 'true') return res.status(400).send();
 
-    var authUri = global.oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting,OAuthClient.scopes.OpenId],state:'nicknacks'});
+    var authUri = oauthClient.authorizeUri({scope:[OAuthClient.scopes.Accounting,OAuthClient.scopes.OpenId],state:'nicknacks'});
 
     res.redirect(authUri);
 
@@ -70,12 +78,6 @@ router.get('/callback', function (req, res) {
             res.send('Successfully obtained token!')
 
             global.QBOIsWorking = true
-
-            // run the looping refresh token function
-            const QBOToken = require('../apps/QBO/QBOToken')
-            setTimeout(function() {
-                QBOToken()
-            }, 3e+6)
 
         }).catch(function(e) {
             global.QBOIsWorking = false
