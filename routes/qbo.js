@@ -38,7 +38,7 @@ router.get('/callback', function (req, res) {
 
     var accessToken;
 
-    global.oauthClient.createToken(req.url).then(function(authResponse) {
+    oauthClient.createToken(req.url).then(function(authResponse) {
         accessToken = authResponse.getJson();
         companyId = authResponse.token.realmId;
 
