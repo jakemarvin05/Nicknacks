@@ -3,45 +3,60 @@ const QuickBooks = require('node-quickbooks')
 const debug = require('debug')('nn:apps:qbotoken')
 const moment = require('moment')
 const cron = require('cron').CronJob
+
+const retryDuration = 300000 // retry every 5 minutes
+
 const Retry = {
     retries: 5,
     tried: 0,
     timeout: 2000,
     processName: 'Retry',
-    start(process, succeeded, fail, timeout) {
+    errorHeap: [],
+    start(process, succeeded, fail, error, timeout) {
         if (process) this._process = process
         if (succeeded) this._succeeded = succeeded
         if (fail && fail !== 'default') this.fail = fail
         if (error) this._error = error
         if (timeout) this.timeout = timeout
-        setTimeout(this.process.bind(this), this.timeout)
+
+        this.preProcess()
     },
-    succeeded() {
+    postSucceeded() {
         this.tried = 0
+        this.errorHeap = []
     },
-    process() {
+    preProcess() {
         if (this.tried === 0) {
-            console.log(`Starting ${this.processName}...`)
+            debug(`Starting ${this.processName}...`)
         } else {
-            console.log(`Retrying ${this.processName}...`)
+            debug(`Retrying ${this.processName}...`)
         }
-        if (this.tried === this.retries + 1) return this.fail() // is retries + 1 because the first try is not a "retry"
         if (this._process) {
             this.tried += 1
             this._process()
                 .then(this._succeeded)
-                .then(this.succeeded.bind(this))
-                .catch(this.error.bind(this))
+                .then(this.postSucceeded.bind(this))
+                .catch(this.preError.bind(this))
         }
     },
-    fail() {
-        throw new Error(`Failed after ${this.retries} retries for: ${this.processName}`)
+    fail(error) {
+        error.message += ` -- Failed after ${this.retries} retries for: ${this.processName}`
+        throw error
     },
-    error(error) {
-        console.log(error)
-        console.log(JSON.stringify(error))
-        this.start()
-        if (this._error) this._error()
+    preError(error) {
+
+        // if this is the last try
+        if (this.tried === this.retries) {
+            error.heap = this.errorHeap
+            return this.fail(error)
+        }
+
+        // if not last try, push to heap, print out in log, set the next retry.
+        this.errorHeap.unshift(error)
+        debug(error)
+        debug(JSON.stringify(error))
+        setTimeout(this.start.bind(this), this.timeout)
+        if (this._error) this._error(error)
     }
 }
 
@@ -54,8 +69,13 @@ let refreshTokenEveryFiftyMinute = new cron(
 )
 
 function initialise() {
-    console.log('Re-initialising QBO...')
+    debug('Re-initialising QBO...')
     return DB.Token.findById(1).then(token => {
+        if (token.data.error && token.data.error.indexOf('invalid') > -1) {
+            let error = new Error('Token stored in DB is invalid.')
+            error.debug = { token: token.data }
+            throw error
+        }
         global.QBO = instantiate(QuickBooks, token)
         if (process.env.NODE_ENV === 'production') return refresh() // always refresh.
         return null
@@ -63,10 +83,8 @@ function initialise() {
         // run a query to ensure it is working.
         return QBO.findAccountsAsync()
     }).then(data => {
-        //console.log(JSON.stringify(data))
-        console.log('Token is all good!')
-        // set the token refresh sequence
-        if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute.start()
+        //debug(JSON.stringify(data))
+        return null
     })
 }
 
@@ -85,11 +103,16 @@ function instantiate(QBO, token) {
 }
 
 function refresh() {
-    console.log('running QBO token refresh.')
+    debug('running QBO token refresh.')
     if (QBO === null || typeof QBO !== 'object') throw new Error('QBO is not a object.')
 
     // get the token
     return QBO.refreshAccessTokenAsync().then(token => {
+        if (token.data.error && token.data.error.indexOf('invalid') > -1) {
+            let error = new Error('Token retrieved is invalid.')
+            error.debug = { token }
+            throw error
+        }
         debug('Tokens refreshed : ' + JSON.stringify(token))
         // update the token into DB
         return DB.Token.update({
@@ -104,23 +127,35 @@ function refresh() {
 
 function error() {
     global.QBOIsWorking = false
+    global.QBONextRetry = moment().add(retryDuration, 'ms')
     refreshTokenEveryFiftyMinute.stop()
 }
 
 function succeeded() {
-    console.log('QBO is initialised')
+    debug('QBO is initialised')
     global.QBOIsWorking = true
+    // set the token refresh cron
+    if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute.start()
+}
+
+function fail(error) {
+    error.message += ` -- Failed after ${this.retries} retries for: ${this.processName}`
+    error.status = 500
+    error.level = 'high'
+    global.QBONextRetry = false
+    API_ERROR_HANDLER(error)
 }
 
 const retry = Object.create(Retry)
 retry.processName = 'QBO token refresh.'
+
 function start() {
     retry.start(
         initialise,
         succeeded,
-        'default',
+        fail,
         error,
-        300000 // retry every 5 minutes
+        retryDuration
     )
 }
 
