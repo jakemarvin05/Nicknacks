@@ -25,6 +25,10 @@ const session = require('express-session')
 const cors = require('cors')
 const compression = require('compression')
 
+// output debug to stdout.
+const debug = global.DEBUG = require('debug')
+DEBUG.log = console.log.bind(console)
+
 // /*passport, session and pg session */
 const passport = global.PASSPORT = require('passport')
 require('./apps/passport/passportConfig.js')(passport) //this has to be before routes
@@ -38,7 +42,6 @@ if(process.env.NODE_ENV !== "development") {
     const cron = require('cron').CronJob
     //constructor(cronTime, onTick, onComplete, start, timezone, context, runOnInit, utcOffset, unrefTimeout)
     let runInventoryReportOnEveryMonday = new cron('0 0 8 * * 1', inventoryReport, null, true, 'Asia/Singapore')
-    runInventoryReportOnEveryMonday.start()
 }
 
 const app = express();

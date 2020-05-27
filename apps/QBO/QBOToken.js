@@ -1,10 +1,17 @@
 'use strict'
+
+//modules
 const QuickBooks = require('node-quickbooks')
-const debug = require('debug')('nn:apps:qbotoken')
+const debug = DEBUG('nn:apps:qbotoken')
 const moment = require('moment')
 const cron = require('cron').CronJob
 
-const retryDuration = 300000 // retry every 5 minutes
+//properties
+const retryDuration = 300000000000 // 5 minutes
+
+//flags or variables
+let qboRefreshIsRunning = false
+let refreshTokenEveryFiftyMinute = false
 
 const Retry = {
     retries: 5,
@@ -60,16 +67,18 @@ const Retry = {
     }
 }
 
-let refreshTokenEveryFiftyMinute = new cron(
-    '* */50 * * * *',
-    start,
-    null,
-    true,
-    'Asia/Singapore'
-)
+// let refreshTokenEveryFiftyMinute = new cron(
+//     '* */30 * * * *', //using 30 minutes for now due cron bug: https://github.com/kelektiv/node-cron/issues/489#issuecomment-620843432
+//     start,
+//     null,
+//     false,
+//     'Asia/Singapore'
+// )
 
 function initialise() {
     debug('Re-initialising QBO...')
+    if (qboRefreshIsRunning) throw new Error('Another instance of QBO refresh ongoing.')
+    qboRefreshIsRunning = true
     return DB.Token.findById(1).then(token => {
         if (token.data.error && token.data.error.indexOf('invalid') > -1) {
             let error = new Error('Token stored in DB is invalid.')
@@ -83,7 +92,7 @@ function initialise() {
         // run a query to ensure it is working.
         return QBO.findAccountsAsync()
     }).then(data => {
-        //debug(JSON.stringify(data))
+        debug(JSON.stringify(data.QueryResponse.Account[0]))
         return null
     })
 }
@@ -103,7 +112,7 @@ function instantiate(QBO, token) {
 }
 
 function refresh() {
-    debug('running QBO token refresh.')
+    debug('Running QBO token refresh.')
     if (QBO === null || typeof QBO !== 'object') throw new Error('QBO is not a object.')
 
     // get the token
@@ -128,14 +137,18 @@ function refresh() {
 function error() {
     global.QBOIsWorking = false
     global.QBONextRetry = moment().add(retryDuration, 'ms')
-    refreshTokenEveryFiftyMinute.stop()
+    //refreshTokenEveryFiftyMinute.stop()
+    clearTimeout(refreshTokenEveryFiftyMinute)
 }
 
 function succeeded() {
     debug('QBO is initialised')
     global.QBOIsWorking = true
+    qboRefreshIsRunning = false
     // set the token refresh cron
-    if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute.start()
+    //if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute.start()
+    // extremely lousy way of coding, referencing #start. fucking sucks..
+    if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute = setTimeout(start, 50*60*1000) // 50 minutes.
 }
 
 function fail(error) {
