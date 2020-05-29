@@ -59,8 +59,9 @@ router.post('/logout', permit('/', 0), (req, res, next) => {
     debug(req.body)
 
     try {
-        req.logout();
+        req.logout()
     } catch(err) {
+        // even if logout fails, fail silently.
         return res.send({success: true })
     }
     return res.send({success: true});

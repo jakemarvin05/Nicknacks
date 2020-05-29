@@ -108,18 +108,43 @@ const store = new Vuex.Store({
             state.user = payload
         },
         logout (state) {
-            state.isAuthenticated = false
-            state.user = {}
+
+            axios.post(process.env.API_DOMAIN + '/api/v2/login/logout').then(response => {
+                if (!response.data.success) {
+                    let error = new Error('API operation not successful.')
+                    error.response = response
+                    throw error
+                }
+
+                state.isAuthenticated = false
+                state.user = {}
+
+            }).catch(error => {
+                // fail silently
+                state.isAuthenticated = false
+                state.user = {}
+            })
+
+
         }
     }
 })
 
-const authInterceptor = (function(store) {
+new Vue({
+    el: '#app',
+    store,
+    router: router,
+    render: h => h(App)
+})
+
+const CatchErrorHandler = (function(store) {
+
     return function(err) {
         let response = D.get(err , 'response')
 
         //if this is an api response
-        if(response) {
+        //TODO: AXIOS error handling sucks.... it breaks the promise chain on 404
+        if (response) {
 
             if (response.status === 401) {
                 store.commit('logout')
@@ -129,82 +154,17 @@ const authInterceptor = (function(store) {
             if (response.status === 403) {
                 return alert('Oops. Looks like you don\'t have enough rights to access this resource.')
             }
+
+            console.log(response)
+            alert(D.get(response, 'data.message'))
+
+        } else {
+            console.log('Please screenshot the follow error to the administrator:')
+            console.log(JSON.stringify(err))
+            alert(err)
         }
     }
+
 })(store)
 
-axios.interceptors.response.use((response) => {
-    return response
-}, authInterceptor)
-
-new Vue({
-    el: '#app',
-    store,
-    router: router,
-    render: h => h(App)
-})
-
-function CatchErrorHandler(store) {
-    this.store = store
-}
-CatchErrorHandler.prototype.handler = function(err) {
-    let response = D.get(err , 'response')
-
-    //if this is an api response
-    //TODO: AXIOS error handling sucks.... it breaks the promise chain on 404
-    if(response) {
-
-        if (response.status === 401) {
-            this.store.state.logout()
-            return
-        }
-
-        if (response.status === 403) {
-            return alert('Oops. Looks like you don\'t have enough rights to access this resource.')
-        }
-
-        console.log(response)
-        alert(D.get(response, 'data.message'))
-
-
-    } else {
-        console.log('Please screenshot the follow error to the administrator:')
-        console.log(JSON.stringify(err))
-        alert(err)
-    }
-}
-
-window.CATCH_ERR_HANDLER = (new CatchErrorHandler(store)).handler
-
-// window.CATCH_ERR_HANDLER = (err) => {
-// console.log(err)
-// console.log(222222)
-//     return (function(store) {
-//         return function(err) {
-//             let response = D.get(err , 'response')
-//
-//             //if this is an api response
-//             if(response) {
-//
-//                 if (response.status === 401) {
-//                     store.state.logout()
-//                     return
-//                 }
-//
-//                 if (response.status === 403) {
-//                     return alert('Oops. Looks like you don\'t have enough rights to access this resource.')
-//                 }
-//
-//                 console.log(response)
-//                 alert(D.get(response, 'data.message'))
-//
-//
-//             } else {
-//                 console.log('Please screenshot the follow error to the administrator:')
-//                 console.log(err)
-//                 alert(err)
-//             }
-//         }
-//     })(store)
-//
-// }
+window.CATCH_ERR_HANDLER = CatchErrorHandler

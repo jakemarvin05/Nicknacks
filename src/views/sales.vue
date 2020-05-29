@@ -428,7 +428,6 @@ export default {
         window.M = M
 
         this.AXIOS.get(domain + '/api/v2/sales-receipt/pending/all').then(response => {
-
             if (!response.data.success) {
                 let error = new Error('API operation not successful.')
                 error.response = response
