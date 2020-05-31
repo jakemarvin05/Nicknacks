@@ -85,7 +85,7 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
 const magic = require('express-routemagic')
-magic.use(app, __dirname, {
+magic.use(app, {
     logMapping: false,
     ignoreSuffix: '_bak'
 })
