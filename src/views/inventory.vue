@@ -75,10 +75,11 @@
             <el-table-column
                 min-width="50"
                 label="Net"
+                prop="stockAvailableAtCurrentDate"
                 sortable
             >
                 <template slot-scope="scope">
-                    <span>{{ scope.row.timeline.list[scope.row.timeline.list.length - 1].stockAvailableAtCurrentDate || 0 }}</span>
+                    <span>{{ scope.row.stockAvailableAtCurrentDate || 0 }}</span>
                 </template>
             </el-table-column>
 

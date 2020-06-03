@@ -152,6 +152,7 @@ router.get('/all', permit('/all', 1), (req, res, next) => {
 
         inventories.forEach(inventory => {
             inventory.timeline = inventoryTimeLineFilter(inventory)
+            inventory.stockAvailableAtCurrentDate = inventory.timeline.list[inventory.timeline.list.length - 1].stockAvailableAtCurrentDate
         })
 
         res.send({
