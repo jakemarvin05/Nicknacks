@@ -163,7 +163,7 @@ router.get('/all', permit('/all', 1), (req, res, next) => {
     }).catch(error => { API_ERROR_HANDLER(error, req, res, next) })
 
 })
-router.get('/all/deactivated', permit('/all', 1), (req, res, next) => {
+router.get('/all/deactivated', permit('/all/deactivated', 1), (req, res, next) => {
 
     PROMISE.resolve().then(() => {
 
@@ -975,7 +975,7 @@ router.put('/add-location', permit('/add-location', 7), function(req, res, next)
 
 })
 
-router.delete('/delete-empty-locations', permit('/add-location', 7), function(req, res, next) {
+router.delete('/delete-empty-locations', permit('/delete-empty-locations', 7), function(req, res, next) {
 
     DB.Inventory_Storage.destroy({
         where: {
@@ -984,23 +984,6 @@ router.delete('/delete-empty-locations', permit('/add-location', 7), function(re
         }
     }).then(() => {
         return res.send({ success: true })
-    }).catch(function(error) { API_ERROR_HANDLER(error, req, res, next) });
-
-})
-
-router.get('/storage-report/all', permit('/storage-report/all', 1), function(req, res, next) {
-
-    debug(req.body);
-
-    return DB.InventoryReport.findAll({
-        where: { reportType: 'full' }
-    }).then(function(reports) {
-
-        return res.send({
-            success: true,
-            data: reports
-        })
-
     }).catch(function(error) { API_ERROR_HANDLER(error, req, res, next) });
 
 })

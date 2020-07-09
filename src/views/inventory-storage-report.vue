@@ -181,7 +181,7 @@ export default {
             categoryFilters: [],
             inventories: [],
             renfordInventories: [],
-            reports: [],
+            reports: {},
 
             storageLocations: [],
 
@@ -234,29 +234,65 @@ export default {
         },
         toggleData (value, selectedData) {
             this.spinShow = true
+            let date = value[2]
 
-            // need to use setTimeout to force spin show to start
-            setTimeout(() => {
-                this.inventories = _.cloneDeep(this.reports[value[value.length - 1]].data)
+            if (this.reports[date]) {
+                this.inventories = this.reports[date]
+                setTimeout(()=> {
+                    _process(this)
+                    this.spinShow = false
+                }, 100)
+                return
+            }
 
+            this.AXIOS.get(domain + '/api/v2/inventory/storage-report/by-date', {
+                params: {
+                    createdAt: value[2]
+                }
+            }).then(response => {
+
+                if (!response.data.success) {
+                    let error = new Error('API operation not successful.')
+                    error.response = response
+                    throw error
+                }
+
+                if (!response.data.data) {
+                    let error = new Error('Report not found.')
+                    error.response = response
+                    throw error
+                }
+
+                //cache the report
+                this.reports[date] = response.data.data.data
+                this.inventories = response.data.data.data
+
+                _process(this)
+
+                this.spinShow = false
+
+            }).catch(CATCH_ERR_HANDLER).then(() => { this.spinShow = false })
+
+
+            function _process(vueThis) {
                 let categoryArray = []
 
                 // split up the skus and get the broad categories
-                for(let i=0; i<this.inventories.length; i++) {
-                    let inv = this.inventories[i]
+                for(let i=0; i<vueThis.inventories.length; i++) {
+                    let inv = vueThis.inventories[i]
                     let sku = inv.sku
                     let categoryName = sku.split('-')[0].toLowerCase()
 
                     // create renford inventory
                     for (let i=0; i<inv.stock.length; i++) {
                         let stock = inv.stock[i]
-                        if (stock.name.toLowerCase() === 'renford' && parseFloat(stock.quantity) > 0) this.renfordInventories.push(inv)
+                        if (stock.name.toLowerCase() === 'renford' && parseFloat(stock.quantity) > 0) vueThis.renfordInventories.push(inv)
                     }
 
                     // make stockCBM
                     // this method is bad but is the only way the table summaries will work
-                    for (let i=0; i<this.storageLocations.length; i++) {
-                        let location = this.storageLocations[i]
+                    for (let i=0; i<vueThis.storageLocations.length; i++) {
+                        let location = vueThis.storageLocations[i]
 
                         let found = _.find(inv.stock, { name: location.name })
 
@@ -283,12 +319,8 @@ export default {
                     })
 
                 }
-                this.categoryFilters = categoryFilters
-
-                this.spinShow = false
-            }, 100)
-
-
+                vueThis.categoryFilters = categoryFilters
+            }
         }
     },
     created () {
@@ -296,12 +328,12 @@ export default {
         window.V = this
 
         this.AXIOS.all([
-            this.AXIOS.get(domain + '/api/v2/inventory/storage-report/all'),
+            this.AXIOS.get(domain + '/api/v2/inventory/storage-report/report-dates'),
 
             // get all storage location info
             this.AXIOS.get(domain + '/api/v2/storage-location/all')
 
-        ]).then(this.AXIOS.spread((reports, storageLocations) => {
+        ]).then(this.AXIOS.spread((reportDates, storageLocations) => {
 
             if (!storageLocations.data.success) {
                 let error = new Error('API operation not successful.')
@@ -310,20 +342,19 @@ export default {
             }
             this.storageLocations = storageLocations.data.data
 
-            if (!reports.data.success) {
+            if (!reportDates.data.success) {
                 let error = new Error('API operation not successful.')
                 error.response = response
                 throw error
             }
 
-            console.log(reports.data.data)
-            this.reports = reports.data.data
-            this.reports.unshift({})
+            console.log(reportDates.data.data)
+            let dates = reportDates.data.data
 
             // create the report tree
-            for (let i = 1; i < this.reports.length; i++) {
+            for (let i = 1; i < dates.length; i++) {
 
-                let report = this.reports[i]
+                let report = dates[i]
                 let date = moment(report.createdAt)
 
                 let foundYear = _.find(this.reportSelectionData, { label: date.year() })
@@ -333,15 +364,15 @@ export default {
 
                     if (foundMonth) {
                         foundMonth.children.push({
-                            value: i,
+                            value: report.createdAt,
                             label: date.format('ddd, Do, h:mm:ss a')
                         })
                     } else {
                         foundYear.children.push({
-                            value: 1,
+                            value: date.format('MMM'),
                             label: date.format('MMM'),
                             children: [{
-                                value: i,
+                                value: report.createdAt,
                                 label: date.format('ddd, Do, h:mm:ss a')
                             }]
                         })
@@ -349,20 +380,19 @@ export default {
 
                 } else {
                     this.reportSelectionData.push({
-                        value: 1,
+                        value: date.year(),
                         label: date.year(),
                         children: [{
-                            value: 1,
+                            value: date.format('MMM'),
                             label: date.format('MMM'),
                             children: [{
-                                value: i,
+                                value: report.createdAt,
                                 label: date.format('ddd, Do, h:mm:ss a')
                             }]
                         }]
                     })
                 }
             }
-
         })).catch(CATCH_ERR_HANDLER).then(() => { this.spinShow = false })
 
 
