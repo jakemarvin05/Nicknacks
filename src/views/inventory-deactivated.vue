@@ -9,12 +9,13 @@
 
         <Icon type="ios-search" /> <Input
             style="width: 250px; padding:20px 0px"
-            v-model.lazy="search"
+            @on-keyup="searchInventories"
+            v-model="search"
             placeholder="Type to search"
         />
         <el-table
             style="width: 100%"
-            :data="searchInventories(inventories)"
+            :data="searchedInventories"
         >
             <el-table-column style="width:10px;" type="expand">
                 <template slot-scope="scope">
@@ -137,6 +138,7 @@ export default {
             spinShow: true,
             categoryFilters: [],
             inventories: [],
+            searchedInventories: [],
 
             storageLocations: [],
             search: ''
@@ -147,8 +149,8 @@ export default {
         categoryFilterHandler (value, row) {
             return row.sku.toLowerCase().indexOf(value.toLowerCase()) === 0
         },
-        searchInventories(inventories) {
-            return inventories.filter(
+        searchInventories: _.debounce(function(e) {
+            this.searchedInventories = this.inventories.filter(
                 inventory => !this.search || (
                     inventory.name.toLowerCase().includes(
                         this.search.toLowerCase()
@@ -157,7 +159,7 @@ export default {
                     )
                 )
             )
-        },
+        }, 500),
         activateInv(inventory) {
             let self = this
             this.activateInvKey = ''
@@ -208,7 +210,7 @@ export default {
 
                         self.$Message.success(inventory.name + ' has been activated!')
                         self.$Modal.remove()
-                        
+
                     }).catch(error => {
 
                         CATCH_ERR_HANDLER(error)
@@ -305,6 +307,7 @@ export default {
             console.log(response.data.data)
 
             this.inventories = response.data.data
+            this.searchedInventories = response.data.data
 
             let categoryArray = []
 

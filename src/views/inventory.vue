@@ -10,12 +10,13 @@
         <br />
         <Icon type="ios-search" /> <Input
             style="width: 250px; padding:20px 0px"
-            v-model.lazy="search"
+            @on-keyup="searchInventories"
+            v-model="search"
             placeholder="Type to search"
         />
         <el-table
             style="width: 100%"
-            :data="searchInventories(inventories)"
+            :data="searchedInventories"
             :row-class-name="tableRowClassName"
         >
             <el-table-column style="width:10px;" type="expand">
@@ -247,6 +248,7 @@ export default {
             spinShow: true,
             categoryFilters: [],
             inventories: [],
+            searchedInventories: [],
 
             storageLocations: [],
 
@@ -427,8 +429,8 @@ export default {
             }
             return '';
         },
-        searchInventories(inventories) {
-            return inventories.filter(
+        searchInventories: _.debounce(function(e) {
+            this.searchedInventories = this.inventories.filter(
                 inventory => !this.search || (
                     inventory.name.toLowerCase().includes(
                         this.search.toLowerCase()
@@ -437,7 +439,7 @@ export default {
                     )
                 )
             )
-        }
+        }, 500)
     },
     created () {
 
@@ -455,6 +457,7 @@ export default {
             console.log(response.data.data)
 
             this.inventories = response.data.data
+            this.searchedInventories = response.data.data
 
             let categoryArray = []
 
@@ -483,6 +486,7 @@ export default {
 
             }
             this.categoryFilters = categoryFilters
+            console.log(this.categoryFilters)
 
             console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
 
