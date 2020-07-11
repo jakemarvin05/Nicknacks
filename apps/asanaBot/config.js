@@ -25,7 +25,7 @@ const config = {
     tags: {
         noDeliveryDateAndTime: "1165039615164465",
         haveDateButNotConfirmed: "1165039615164466",
-        deliveryConfirmed: "1165039615164467"
+        deliveryConfirmed: "1184159284923906"
     }
 }
 

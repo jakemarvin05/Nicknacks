@@ -196,7 +196,7 @@ router.post('/others', (req, res, next) => {
 
         return asanaBot(req.body)
 
-    }).then(() => {
+    }).spread(() => {
 
         if (['shipment', 'shipmentcomment'].indexOf(req.body.type.toLowerCase()) !== -1) {
             var date = D.get(req, 'body.data.delivery_date')
