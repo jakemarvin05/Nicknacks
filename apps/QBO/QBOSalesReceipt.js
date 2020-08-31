@@ -43,9 +43,9 @@ var QBOSalesReceiptModel = (transaction, customer) => {
         //     "SubTotalLineDetail": {}
         //   }
         // ],
-        "TxnTaxDetail": {
-          "TotalTax": 0
-        },
+        // "TxnTaxDetail": {
+        //   "TotalTax": 0
+        // },
         // "CustomerRef": {
         //   "value": "6",
         //   "name": "Dylan Sollfrank"

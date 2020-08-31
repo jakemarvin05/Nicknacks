@@ -17,7 +17,7 @@ const QBOSalesReceiptLine = (transactionDetails) => {
                 "UnitPrice": transactionDetails.totalAmount,
                 "Qty": 1,
                 "TaxCodeRef": {
-                    "value": "15"
+                    "value": "6"
                 }
             }
         },{
