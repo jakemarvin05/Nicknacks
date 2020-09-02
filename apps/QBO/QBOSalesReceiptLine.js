@@ -5,7 +5,7 @@ const QBOSalesReceiptLine = (transactionDetails) => {
             //"Id": "1",
             "LineNum": 1,
             "Description": transactionDetails.generalDescription,
-            "Amount": transactionDetails.totalAmount,
+            "Amount": transactionDetails.totalAmountExcludeTax,
             "DetailType": "SalesItemLineDetail",
             "SalesItemLineDetail": {
 
@@ -14,14 +14,14 @@ const QBOSalesReceiptLine = (transactionDetails) => {
                     "value": "42",
                     "name": "Custom item"
                 },
-                "UnitPrice": transactionDetails.totalAmount,
+                "UnitPrice": transactionDetails.totalAmountExcludeTax,
                 "Qty": 1,
                 "TaxCodeRef": {
                     "value": "6"
                 }
             }
         },{
-            "Amount": transactionDetails.totalAmount,
+            "Amount": transactionDetails.totalAmountExcludeTax,
             "DetailType": "SubTotalLineDetail",
             "SubTotalLineDetail": {}
         }

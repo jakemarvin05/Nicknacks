@@ -121,8 +121,11 @@ function Transaction(sequelize, DataTypes) {
                     object.customerPhone = D.get(self, 'data.data.customer_telephone')
 
                     // MISSING!!!
+                    object.totalAmountExcludeTax = D.get(self, 'data.totals.grand_total')
+                    if (!object.totalAmountExcludeTax) throw new Error('`data.totals.grand_total` is missing from transaction.`')
+
                     object.totalAmount = D.get(self, 'data.totals.grand_total_incl_tax')
-                    if (!object.totalAmount) throw new Error('`totalAmount` is missing from transaction.`')
+                    if (!object.totalAmount) throw new Error('`data.totals.grand_total_incl_tax` is missing from transaction.`')
 
                     object.address = D.get(self, 'data.data.shipping_address')
 

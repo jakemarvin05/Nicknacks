@@ -99,7 +99,7 @@ router.post('/refunded', function (req, res, next) {
             "Line": [{
                 // credit stripe transit cash for refund
                 "Id": "0",
-                "Amount": D.get(req.body, 'data.object.amount_refunded')/100,
+                "Amount": D.get(req.body, 'data.object.amount_refunded')*((100-parseInt(process.env.GST))/100)/100,
                 "DetailType": "JournalEntryLineDetail",
                 "JournalEntryLineDetail": {
                     // take out from stripe transit account
@@ -107,17 +107,25 @@ router.post('/refunded', function (req, res, next) {
                     "AccountRef": {
                         "value": "46",
                         "name": "Stripe Transit"
+                    },
+                    "TaxApplicableOn": "Sales",
+                    "TaxCodeRef": {
+                        "value": "6"
                     }
                 }
             }, {
                 // debit sales refund
-                "Amount": D.get(req.body, 'data.object.amount_refunded')/100,
+                "Amount": D.get(req.body, 'data.object.amount_refunded')*((100-parseInt(process.env.GST))/100)/100,
                 "DetailType": "JournalEntryLineDetail",
                 "JournalEntryLineDetail": {
                     "PostingType": "Debit",
                     "AccountRef": {
                         "value": "30",
                         "name": "Sales Refund"
+                    },
+                    "TaxApplicableOn": "Sales",
+                    "TaxCodeRef": {
+                        "value": "6"
                     }
                 }
             }, {
