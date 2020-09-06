@@ -91,6 +91,9 @@ router.post('/refunded', function (req, res, next) {
             return res.send({ success: true });
         }
 
+        let amount = Math.round(D.get(req.body, 'data.object.amount_refunded')*((100-parseInt(process.env.GST))/100))/100
+        let tax = (D.get(req.body, 'data.object.amount_refunded') - (amount*100))/100
+
         // create a journal entry to reduce stripe commission
         return QBO.createJournalEntryAsync({
             "DocNumber": _TRANSACTION.salesOrderNumber + '-R',
@@ -99,7 +102,7 @@ router.post('/refunded', function (req, res, next) {
             "Line": [{
                 // credit stripe transit cash for refund
                 "Id": "0",
-                "Amount": D.get(req.body, 'data.object.amount_refunded')*((100-parseInt(process.env.GST))/100)/100,
+                "Amount": amount,
                 "DetailType": "JournalEntryLineDetail",
                 "JournalEntryLineDetail": {
                     // take out from stripe transit account
@@ -111,11 +114,12 @@ router.post('/refunded', function (req, res, next) {
                     "TaxApplicableOn": "Sales",
                     "TaxCodeRef": {
                         "value": "6"
-                    }
+                    },
+                    "TaxAmount": tax
                 }
             }, {
                 // debit sales refund
-                "Amount": D.get(req.body, 'data.object.amount_refunded')*((100-parseInt(process.env.GST))/100)/100,
+                "Amount": amount,
                 "DetailType": "JournalEntryLineDetail",
                 "JournalEntryLineDetail": {
                     "PostingType": "Debit",
@@ -126,7 +130,8 @@ router.post('/refunded', function (req, res, next) {
                     "TaxApplicableOn": "Sales",
                     "TaxCodeRef": {
                         "value": "6"
-                    }
+                    },
+                    "TaxAmount": tax
                 }
             }, {
                 // debit stripe transit because stripe will return some money in refund.
