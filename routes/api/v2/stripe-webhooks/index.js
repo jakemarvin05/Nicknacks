@@ -156,7 +156,23 @@ router.post('/refunded', function (req, res, next) {
                         "name": "Stripe Charges"
                     }
                 }
-            }]
+            }],
+            "TxnTaxDetail": {
+                "TaxLine": [
+                    {
+                        "Amount": 0,
+                        "DetailType": "TaxLineDetail",
+                        "TaxLineDetail": {
+                            "TaxRateRef": {
+                                "value": "5"
+                            },
+                            "PercentBased": true,
+                            "TaxPercent": 7,
+                            "NetAmountTaxable": 0
+                        }
+                    }
+                ]
+            }
         })
 
     }).then(function(journalEntry) {
