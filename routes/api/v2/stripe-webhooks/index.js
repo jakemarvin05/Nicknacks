@@ -91,8 +91,8 @@ router.post('/refunded', function (req, res, next) {
             return res.send({ success: true });
         }
 
-        let amount = Math.round(D.get(req.body, 'data.object.amount_refunded')*((100-parseInt(process.env.GST))/100))/100
-        let tax = (D.get(req.body, 'data.object.amount_refunded') - (amount*100))/100
+        let amount = D.get(req.body, 'data.object.amount_refunded')/100
+        let tax = Math.round(D.get(req.body, 'data.object.amount_refunded')*0.07)/100
 
         // create a journal entry to reduce stripe commission
         return QBO.createJournalEntryAsync({
