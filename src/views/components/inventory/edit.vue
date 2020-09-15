@@ -13,7 +13,7 @@
             <FormItem label="SKU" prop="sku">
                 <Input v-model="modalData.form.sku"></Input>
             </FormItem>
-            <FormItem v-if="$store.state.user.rightsLevel > 2" prop="cogs" label="COGS">
+            <FormItem v-if="$store.state.user.rightsLevel > 9.5" prop="cogs" label="COGS">
                 <Input type="text" number v-model="modalData.form.cogs"></Input>
             </FormItem>
             <FormItem prop="cbm" label="CBM">

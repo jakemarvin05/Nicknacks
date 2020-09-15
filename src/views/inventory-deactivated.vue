@@ -71,7 +71,7 @@
             </el-table-column>
 
             <el-table-column
-                v-if="$store.state.user.rightsLevel > 2"
+                v-if="$store.state.user.rightsLevel > 9.5"
                 min-width="84"
                 prop="cogs"
                 label="COGS"

@@ -58,7 +58,7 @@ function User(sequelize, DataTypes) {
             defaultValue: {}
         },
         rightsLevel: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(99,4),
             allowNull: false,
             validate: {
                 max: 10,

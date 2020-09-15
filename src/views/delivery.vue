@@ -87,7 +87,7 @@
                                                 ></inventory-status>
                                                 <p><b>SKU:</b> {{ soldInventory.sku }}</p>
                                                 <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
-                                                <p v-if="$store.state.user.rightsLevel > 2">
+                                                <p v-if="$store.state.user.rightsLevel > 9.5">
                                                     <b>COGS:</b> {{ soldInventory.perItemCOGS }}x{{ soldInventory.quantity }} = {{ soldInventory.totalCOGS }}
                                                 </p>
                                                 <Button size="small" @click="removeSoldInventory(soldInventory, salesReceipt)" type="error">

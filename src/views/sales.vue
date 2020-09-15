@@ -82,7 +82,7 @@
                                                 ></inventory-status>
                                                 <p><b>SKU:</b> {{ soldInventory.sku }}</p>
                                                 <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
-                                                <p v-if="$store.state.user.rightsLevel > 2">
+                                                <p v-if="$store.state.user.rightsLevel > 9.5">
                                                     <b>COGS:</b> {{ soldInventory.perItemCOGS }}x{{ soldInventory.quantity }} = {{ soldInventory.totalCOGS }}
                                                 </p>
                                                 <Button size="small" @click="removeSoldInventory(soldInventory, salesReceipt)" type="error">
@@ -100,9 +100,11 @@
                 </Collapse>
 
                 <Form :ref="salesReceipt.TransactionID" :model="salesReceipt" :rules="salesReceiptFormRules" :label-width="80" style="padding-top: 10px;">
-                    <FormItem prop="totalCOGS" label="COGS">
-                        <Input type="text" number v-model="salesReceipt.totalCOGS" placeholder=""></Input>
-                    </FormItem>
+                    <p v-show="$store.state.user.rightsLevel > 9.5">
+                        <FormItem prop="totalCOGS" label="COGS">
+                            <Input type="text" number v-model="salesReceipt.totalCOGS" placeholder=""></Input>
+                        </FormItem>
+                    </p>
                     <FormItem prop="comments" label="Comments">
                         <Input type="text" v-model="salesReceipt.comments" placeholder=""></Input>
                     </FormItem>
