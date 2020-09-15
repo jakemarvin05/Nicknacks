@@ -6,11 +6,11 @@
   "scripts": {
     "start": "node ./bin/www",
     "webpack-init": "webpack --progress --config build/webpack.dev.config.js",
-    "webpack-build": "webpack --progress --hide-modules --config build/webpack.prod.config.js",
+    "webpack-build": "webpack --progress --config build/webpack.prod.config.js",
     "webpack-lint": "eslint --fix --ext .js,.vue src",
     "webpack-test": "npm run lint",
     "webpack-dev": "webpack --progress --watch --config build/webpack.dev.config.js",
-    "webpack-prod": "webpack --progress --config build/webpack.prod.config.js"
+    "webpack-prod": "webpack --progress --hide-modules --config build/webpack.prod.config.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
