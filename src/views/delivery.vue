@@ -1,3 +1,4 @@
+
 <template>
     <div id="main-content">
         <Spin size="large" fix v-if="spinShow"></Spin>
@@ -13,98 +14,162 @@
 
         <span v-else>
             <p>Total sales on this view: {{ totalSalesAmountOnView | toTwoDecimals  }}</p>
-            <Card v-for="salesReceipt in salesReceipts" :key="salesReceipt.TransactionID" class="salesReceiptCard">
-                <p slot="title">
-                    <Icon type="ios-cart"></Icon>
-                    {{ salesReceipt.salesOrderNumber }}
-                </p>
 
-                <Button type="primary" slot="extra" :loading="salesReceipt.submitLoading" :disable="salesReceipt.submitLoading" @click='deliverSalesReceipt(salesReceipt)'>
-                    <span v-if="!salesReceipt.submitLoading">Deliver</span>
-                    <span v-else>Loading...</span>
-                </Button>
+            <el-table
+                style="width: 100%"
+                :data="salesReceipts"
+            >
+                <el-table-column style="width:5px;" type="expand">
+                    <template slot-scope="scope">
+                        <Card class="salesReceiptCard">
+                            <p slot="title">
+                                <Icon type="ios-cart"></Icon>
+                                {{ scope.row.salesOrderNumber }}
+                            </p>
 
-                <Collapse style="max-width: 100%;" value="info">
-                    <Panel name="info">
-                        Info
-                        <p slot="content">
-                            <Icon type="ios-person" /> {{ salesReceipt.details.customerName }}<br>
-                            <Icon type="ios-mail" /> {{ salesReceipt.details.customerEmail }}<br>
-                            <Icon type="ios-phone-portrait" /> {{ salesReceipt.details.customerPhone }}<br>
-                            <Icon type="ios-card" /> {{ salesReceipt.paymentMethod }}<br>
-                            <Icon type="ios-calendar-outline" /> {{ salesReceipt.details.transactionDateTime }}<br>
-                            <Icon type="logo-usd" /> {{ salesReceipt.details.totalAmount | toTwoDecimals  }} <br>
+                            <Button type="primary" slot="extra" :loading="scope.row.submitLoading" :disable="scope.row.submitLoading" @click='deliverSalesReceipt(scope.row)'>
+                                <span v-if="!scope.row.submitLoading">Deliver</span>
+                                <span v-else>Loading...</span>
+                            </Button>
 
-                            <Icon type="md-car" />
-                            <span v-if="salesReceipt.deliveryDate">
-                                {{ salesReceipt.deliveryDate | unixToDate }}
-                                <Tag v-if="(  parseInt(salesReceipt.deliveryDate) < ( new Date() ).getTime()  )" color="error">Past due</Tag>
-                            </span>
-                            <span v-else><Tag color="warning">Not scheduled</Tag></span>
-                            <span v-if="salesReceipt.deliveryConfirmed"><Tag color="success">Confirmed</Tag></span> <br>
+                            <Collapse style="max-width: 100%;" value="info">
+                                <Panel name="info">
+                                    Info
+                                    <p slot="content">
+                                        <Icon type="ios-person" /> {{ scope.row.details.customerName }}<br>
+                                        <Icon type="ios-mail" /> {{ scope.row.details.customerEmail }}<br>
+                                        <Icon type="ios-phone-portrait" /> {{ scope.row.details.customerPhone }}<br>
+                                        <Icon type="ios-card" /> {{ scope.row.paymentMethod }}<br>
+                                        <Icon type="ios-calendar-outline" /> {{ scope.row.details.transactionDateTime }}<br>
+                                        <Icon type="logo-usd" /> {{ scope.row.details.totalAmount | toTwoDecimals  }} <br>
 
-                            <Icon type="ios-create" />
-                            <span v-if="salesReceipt.comments" >{{ salesReceipt.comments }}</span>
-                            <span v-else>Nil</span>
-                        </p>
-                    </Panel>
-                    <Panel>
-                        Products tagging ({{ salesReceipt.data.items.length }} vs {{ salesReceipt.soldInventories.length }})
-                        <p slot="content">
-                            <Row>
-                                <Col span="11">
-                                    <p style="padding-bottom:5px;"><Icon type="ios-cube" /> Product(s) sold (<b>{{ salesReceipt.data.items.length }}</b>)</p>
-                                    <p>
-                                        <Card style="font-size:12px;" :padding="5" v-for="(cartItem, index) in salesReceipt.data.items" :key="cartItem.id + '_' + index">
-                                            <p><b>{{ index+1 }}</b></p>
-                                            <p><u>{{ cartItem.name }}</u></p>
-                                            <p><b>SKU:</b> {{ cartItem.sku }}</p>
-                                            <p><b>Qty:</b> {{ parseFloat(cartItem["Ordered Qty"]).toFixed(1) }}</p>
-                                            <p><b>Price:</b> {{ parseFloat(cartItem.Price).toFixed(2) }} </p>
-                                            <span v-if="cartItem.Options" v-for="(option, label) in cartItem.Options">
-                                                <p v-if="label.toLowerCase().indexOf('delivery via staircase') === -1"><b>{{ label }}:</b> {{ option }}</p>
-                                            </span>
-                                        </Card>
+                                        <Icon type="md-car" />
+                                        <span v-if="scope.row.deliveryDate">
+                                            {{ scope.row.deliveryDate | unixToDate }}
+                                            <Tag v-if="(  parseInt(scope.row.deliveryDate) < ( new Date() ).getTime()  )" color="error">Past due</Tag>
+                                        </span>
+                                        <span v-else><Tag color="warning">Not scheduled</Tag></span>
+                                        <span v-if="scope.row.deliveryConfirmed"><Tag color="success">Confirmed</Tag></span> <br>
+
+                                        <Icon type="ios-create" />
+                                        <span v-if="scope.row.comments" >{{ scope.row.comments }}</span>
+                                        <span v-else>Nil</span>
                                     </p>
-                                </Col>
-                                <Col span="1" style="font-size=1px;">&nbsp;</Col>
-                                <Col span="12">
-
-                                        <p style="padding-bottom:5px;"><Icon type="md-done-all" /> Product(s) tagged (<b>{{ salesReceipt.soldInventories.length }}</b>)</p>
-                                        <p>
-                                            <Card style="font-size:12px;" :padding="5" v-for="(soldInventory, index) in salesReceipt.soldInventories" :key="soldInventory.SoldInventoryID">
-                                                <p><b>{{ index+1 }}</b></p>
-                                                <p><u>
-                                                    <router-link v-if="['', undefined].indexOf(soldInventory.InventoryID) === -1" target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': soldInventory.InventoryID } }">
-                                                        {{ soldInventory.name }}
-                                                    </router-link>
-                                                </u></p>
-                                                <inventory-status
-                                                    v-for="inventory in inventories"
-                                                    v-if="parseInt(inventory.InventoryID) === parseInt(soldInventory.InventoryID)"
-                                                    :inventory="inventory"
-                                                    :key="'inventory_status_for_' + soldInventory.InventoryID"
-                                                ></inventory-status>
-                                                <p><b>SKU:</b> {{ soldInventory.sku }}</p>
-                                                <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
-                                                <p v-if="$store.state.user.rightsLevel > 9.5">
-                                                    <b>COGS:</b> {{ soldInventory.perItemCOGS }}x{{ soldInventory.quantity }} = {{ soldInventory.totalCOGS }}
+                                </Panel>
+                                <Panel>
+                                    Products tagging ({{ scope.row.data.items.length }} vs {{ scope.row.soldInventories.length }})
+                                    <p slot="content">
+                                        <Row>
+                                            <Col span="11">
+                                                <p style="padding-bottom:5px;"><Icon type="ios-cube" /> Product(s) sold (<b>{{ scope.row.data.items.length }}</b>)</p>
+                                                <p>
+                                                    <Card style="font-size:12px;" :padding="5" v-for="(cartItem, index) in scope.row.data.items" :key="cartItem.id + '_' + index">
+                                                        <p><b>{{ index+1 }}</b></p>
+                                                        <p><u>{{ cartItem.name }}</u></p>
+                                                        <p><b>SKU:</b> {{ cartItem.sku }}</p>
+                                                        <p><b>Qty:</b> {{ parseFloat(cartItem["Ordered Qty"]).toFixed(1) }}</p>
+                                                        <p><b>Price:</b> {{ parseFloat(cartItem.Price).toFixed(2) }} </p>
+                                                        <span v-if="cartItem.Options" v-for="(option, label) in cartItem.Options">
+                                                            <p v-if="label.toLowerCase().indexOf('delivery via staircase') === -1"><b>{{ label }}:</b> {{ option }}</p>
+                                                        </span>
+                                                    </Card>
                                                 </p>
-                                                <Button size="small" @click="removeSoldInventory(soldInventory, salesReceipt)" type="error">
-                                                    <Icon type="ios-trash" /> Del
-                                                </Button>
+                                            </Col>
+                                            <Col span="1" style="font-size=1px;">&nbsp;</Col>
+                                            <Col span="12">
 
-                                            </Card>
+                                                    <p style="padding-bottom:5px;"><Icon type="md-done-all" /> Product(s) tagged (<b>{{ scope.row.soldInventories.length }}</b>)</p>
+                                                    <p>
+                                                        <Card style="font-size:12px;" :padding="5" v-for="(soldInventory, index) in scope.row.soldInventories" :key="soldInventory.SoldInventoryID">
+                                                            <p><b>{{ index+1 }}</b></p>
+                                                            <p><u>
+                                                                <router-link v-if="['', undefined].indexOf(soldInventory.InventoryID) === -1" target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': soldInventory.InventoryID } }">
+                                                                    {{ soldInventory.name }}
+                                                                </router-link>
+                                                            </u></p>
+                                                            <inventory-status
+                                                                v-for="inventory in inventories"
+                                                                v-if="parseInt(inventory.InventoryID) === parseInt(soldInventory.InventoryID)"
+                                                                :inventory="inventory"
+                                                                :key="'inventory_status_for_' + soldInventory.InventoryID"
+                                                            ></inventory-status>
+                                                            <p><b>SKU:</b> {{ soldInventory.sku }}</p>
+                                                            <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
+                                                            <p v-if="$store.state.user.rightsLevel > 9.5">
+                                                                <b>COGS:</b> {{ soldInventory.perItemCOGS }}x{{ soldInventory.quantity }} = {{ soldInventory.totalCOGS }}
+                                                            </p>
+                                                            <Button size="small" @click="removeSoldInventory(soldInventory, scope.row)" type="error">
+                                                                <Icon type="ios-trash" /> Del
+                                                            </Button>
 
-                                            <Button style="margin-top: 5px;" icon="md-add" type="primary" @click="addInventory(salesReceipt)" :disabled="!canAddProduct">{{ canAddProduct ? 'Add' : 'Loading..' }}</Button>
-                                        </p>
-                                </Col>
-                            </Row>
-                        </p>
-                    </Panel>
-                </Collapse>
+                                                        </Card>
 
-            </Card>
+                                                        <Button style="margin-top: 5px;" icon="md-add" type="primary" @click="addInventory(scope.row)" :disabled="!canAddProduct">{{ canAddProduct ? 'Add' : 'Loading..' }}</Button>
+                                                    </p>
+                                            </Col>
+                                        </Row>
+                                    </p>
+                                </Panel>
+                            </Collapse>
+
+                        </Card>
+                    </template>
+                </el-table-column>
+
+                <el-table-column
+                    min-width="60"
+                    prop="salesOrderNumber"
+                    label="#"
+                    sortable
+                    :formatter="formatSalesNo"
+                ></el-table-column>
+
+                <el-table-column
+                    min-width="84"
+                    prop="details.customerName"
+                    label="Name"
+                    sortable
+                ></el-table-column>
+
+                <el-table-column
+                    min-width="84"
+                    prop="details.totalAmount"
+                    label="$"
+                    :formatter="formatPrice"
+                >
+                </el-table-column>
+
+                <el-table-column
+                    min-width="84"
+                    prop="details.transactionDateTime"
+                    label="Purchased"
+                    sortable
+                ></el-table-column>
+
+                <el-table-column
+                    min-width="84"
+                    label="Delivery"
+                    prop="deliveryDate"
+                    sortable
+                    :formatter="formatDeliveryDate"
+                >
+                </el-table-column>
+
+                <el-table-column
+                    min-width="84"
+                    label="Status"
+                >
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.deliveryDate">
+                            <Tag v-if="(  parseInt(scope.row.deliveryDate) < ( new Date() ).getTime()  )" color="error">Past due</Tag>
+                        </span>
+                        <span v-else><Tag color="warning">Not scheduled</Tag></span>
+                        <span v-if="scope.row.deliveryConfirmed"><Tag color="success">Confirmed</Tag></span> <br>
+                    </template>
+                </el-table-column>
+
+            </el-table>
+
         </span>
 
         <!-- Make this shared code into a component -->
@@ -381,6 +446,30 @@ export default {
                 }
             });
 
+        },
+        formatDeliveryDate (row, column) {
+            if(row.deliveryDate) return this.$options.filters.unixToDate(row.deliveryDate)
+            return 'Nil'
+        },
+        formatSalesNo (row, column) {
+            let ID = row.salesOrderNumber
+
+            for(var i=2; i < ID.length; i++) {
+                if(ID[i] === "0") continue;
+                return ID.substring(i, ID.length);
+            }
+        },
+        formatPrice (row, column) {
+            return this.$options.filters.toTwoDecimals(row.details.totalAmount)
+        },
+
+        // TODO: figure out price sorting.
+        sortPrice (a, b) {
+            var a = a.details.totalAmount
+            var b = b.details.totalAmount
+            console.log(a,b)
+            console.log(parseFloat(a) > parseFloat(b))
+            return parseFloat(a) > parseFloat(b)
         }
     },
 
