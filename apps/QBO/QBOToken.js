@@ -136,6 +136,7 @@ function refresh() {
 
 function error() {
     global.QBOIsWorking = false
+    qboRefreshIsRunning = false
     global.QBONextRetry = moment().add(retryDuration, 'ms')
     //refreshTokenEveryFiftyMinute.stop()
     clearTimeout(refreshTokenEveryFiftyMinute)
