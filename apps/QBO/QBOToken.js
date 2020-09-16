@@ -48,6 +48,7 @@ const Retry = {
     },
     fail(error) {
         error.message += ` -- Failed after ${this.retries} retries for: ${this.processName}`
+        error.sendEmail = true
         throw error
     },
     preError(error) {
