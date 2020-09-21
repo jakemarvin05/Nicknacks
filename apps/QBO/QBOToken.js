@@ -48,6 +48,7 @@ const Retry = {
     },
     fail(error) {
         error.message += ` -- Failed after ${this.retries} retries for: ${this.processName}`
+        error.sendEmail = true
         throw error
     },
     preError(error) {
@@ -136,6 +137,7 @@ function refresh() {
 
 function error() {
     global.QBOIsWorking = false
+    qboRefreshIsRunning = false
     global.QBONextRetry = moment().add(retryDuration, 'ms')
     //refreshTokenEveryFiftyMinute.stop()
     clearTimeout(refreshTokenEveryFiftyMinute)
