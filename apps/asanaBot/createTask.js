@@ -288,7 +288,7 @@ function createTask(fromMagento, options) {
                         task: taskData.gid
                     }
                 )
-                promise.push(sectionShift)
+                promises.push(sectionShift)
             }
 
             return promises
