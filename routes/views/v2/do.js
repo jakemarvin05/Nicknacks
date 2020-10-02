@@ -49,6 +49,10 @@ router.get('/:id', (req, res) => {
         data.notes = removeWrapped(data.task.notes, '[[', ']]')
         data.notes = data.notes.replace(/(\r\n|\n|\r)/gm, '<br>')
 
+        while (data.notes.indexOf('<br>') === 0) {
+            data.notes = data.notes.substring(4, data.notes.length)
+        }
+
         return res.render('delivery-order', data)
 
     }).catch(err => {
