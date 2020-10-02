@@ -43,6 +43,9 @@ function createTask(fromMagento, options) {
                 //if no task is found, return the task object as stored in our local DB
                 if (error.status === 404) {
                     return task
+                } else if (error.status === 403) {
+                    debug('403 error... in this case the task could have been deleted before.')
+                    return task
                 } else {
                     // for whatever other errors we face, we throw the error
                     throw error
