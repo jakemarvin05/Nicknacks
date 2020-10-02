@@ -6,6 +6,7 @@ const debug = require('debug')('nn:views:do')
 debug.log = console.log.bind(console)
 
 const removeWrapped = require('../../../apps/utils/removeWrapped.js')
+const getAddressFromTaskName = require('../../../apps/utils/delivery-order/getAddressFromTaskName.js')
 
 router.get('/:id', (req, res) => {
 
@@ -52,6 +53,8 @@ router.get('/:id', (req, res) => {
         while (data.notes.indexOf('<br>') === 0) {
             data.notes = data.notes.substring(4, data.notes.length)
         }
+
+        data.address = getAddressFromTaskName(data.task.name)
 
         return res.render('delivery-order', data)
 
