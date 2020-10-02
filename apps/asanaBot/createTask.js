@@ -249,7 +249,7 @@ function createTask(fromMagento, options) {
             // with each task, always create a delivery ticket
             let deliveryTicketPayload = {
                 name: '🚛 ' + titleLong + ' (delivery ticket)',
-                html_notes: "<body><strong>Picking list:</strong>\n\n(Fill in here)\n\n\n<strong>Other instructions:</strong>\n\n(Fill in here)</body>",
+                html_notes: "<body>[[Please enclose text to be hidden from the DO in double square brackets.]]\n\n<strong>[[Picking list:]]</strong>\n\n(Fill in here)\n\n\n<strong>Other instructions:</strong>\n\n(Fill in here)</body>",
                 followers: GNS_TEAM_MEMBERS
             }
 
@@ -325,6 +325,12 @@ function createTask(fromMagento, options) {
             if (typeof dbTask !== 'string') {
                 return dbTask.destroy()
             } else { return false }
+
+            // make the DO link
+            let doLink = process.env.DOMAIN + '/views/v2/do/' + deliveryTicket.gid
+            return ASANA.tasks.addComment(deliveryTicket.gid, {
+                html_text: doLink
+            })
 
         }).then(() => {
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Grey and Sanders Delivery Order</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/static/android-chrome-512x512.png" sizes="512x512">
+    <link rel="icon" type="image/png" href="/static/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/static/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/static/favicon-32x32.png" sizes="32x32">
+</head>
+
+<body style="padding: 25px; ">
+
+    <div class="card" style="margin: auto; max-width: 700px;">
+        <div class="card-body">
+
+            <img src="/static/logo.png" style="width: 300px; padding-bottom: 15px;">
+            <h5 class="card-title">Delivery Order</h5>
+
+            <p class="card-text">
+                <strong>Order Number </strong> {{ transaction.salesOrderNumber }}
+                <br>
+                <strong>Name </strong> {{ transaction.details.customerName }}
+                <br>
+                <strong>Address </strong> {{ transaction.details.address }}
+
+                <div style="padding-top: 50px;">
+                    <strong>Items/Details</strong>
+                    <br>
+                    {{{ notes }}}
+            </p>
+
+            <div class="card-footer" style="margin-top: 50px; height: 200px;">
+                Signature:
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
