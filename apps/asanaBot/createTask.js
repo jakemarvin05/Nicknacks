@@ -288,16 +288,19 @@ function createTask(fromMagento, options) {
                         task: taskData.gid
                     }
                 )
+                promise.push(sectionShift)
             }
 
             return promises
 
-        }).spread((deliveryTicket, verifyBankTransferSubtask)=> {
+        }).spread((deliveryTicket, verifyBankTransferSubtask, sectionShift)=> {
 
             debug(obj.ID.withoutHex + ': Response in creating deliveryTicket:')
             debug(deliveryTicket)
 
             DELIVERY_TICKET = deliveryTicket
+
+            debug(DELIVERY_TICKET)
 
 
             if(verifyBankTransferSubtask) {
