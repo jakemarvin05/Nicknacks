@@ -326,9 +326,13 @@ function createTask(fromMagento, options) {
                 return dbTask.destroy()
             } else { return false }
 
+        }).then(() => {
+
+            debug('Adding delivery ticket comment:')
             // make the DO link
-            let doLink = process.env.DOMAIN + '/views/v2/do/' + deliveryTicket.gid
-            return ASANA.tasks.addComment(deliveryTicket.gid, {
+            let doLink = process.env.DOMAIN + '/views/v2/do/' + DELIVERY_TICKET.gid
+            debug(doLink)
+            return ASANA.tasks.addComment(DELIVERY_TICKET.gid, {
                 html_text: doLink
             })
 
