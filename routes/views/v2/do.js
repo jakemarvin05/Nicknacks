@@ -56,6 +56,8 @@ router.get('/:id', (req, res) => {
 
         data.address = getAddressFromTaskName(data.task.name)
 
+        data.deliveryDate = MOMENT(parseInt(data.transaction.deliveryDate)).format('Do MMMM YYYY, dddd')
+
         return res.render('delivery-order', data)
 
     }).catch(err => {

@@ -28,6 +28,13 @@
                 <strong>Name </strong> {{ transaction.details.customerName }}
                 <br>
                 <strong>Address </strong> {{ address }}
+                <br>
+                <strong>Delivery date </strong> {{ deliveryDate }}
+                <br>
+                <br>
+                <strong>Time in </strong> ______________
+                <br>
+                <strong>Time out </strong> ______________
 
                 <div style="padding-top: 50px;">
                     <strong>Items/Details</strong>
@@ -35,8 +42,9 @@
                     {{{ notes }}}
             </p>
 
-            <div class="card-footer" style="margin-top: 50px; height: 200px;">
-                Signature:
+            <div class="card-footer" style="margin-top: 50px; ">
+                <div>Signature:</div>
+                <div style="margin-top: 190px">(in acknowledgement of the condition and the receipt of goods.)</div>
             </div>
 
         </div>
