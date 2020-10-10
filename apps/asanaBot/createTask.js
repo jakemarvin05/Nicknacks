@@ -252,7 +252,7 @@ function createTask(fromMagento, options) {
             // with each task, always create a delivery ticket
             let deliveryTicketPayload = {
                 name: '🚛 ' + titleLong + ' (delivery ticket)',
-                html_notes: "<body>[[Please enclose text to be hidden from the DO in double square brackets.]]\n<strong>[[Picking list:]]</strong>\n\n(Fill in here)\n\n\n<strong>Other instructions:</strong>\n\n(Fill in here)</body>",
+                html_notes: "<body>[[Please enclose text to be hidden from the DO in double square brackets.]]\n<strong>[[Picking list:]]</strong>\n\n[[Fill in here]]\n\n\n<strong>Other instructions:</strong>\n\n[[Fill in here]]</body>",
                 followers: GNS_TEAM_MEMBERS
             }
 
