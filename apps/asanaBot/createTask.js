@@ -9,6 +9,7 @@ const makeIDObject = require('./makeIDObject.js')
 const _ = require('lodash')
 const postalCodeSplit = require('../postalCodeSplit/index.js')
 const markDownToHTML = require('./markDownToHTML.js')
+const addContact = require('../addContact/index.js')
 
 function createTask(fromMagento, options) {
 
@@ -343,6 +344,18 @@ function createTask(fromMagento, options) {
             })
 
         }).then(() => {
+
+            // add contact to Iphone
+            // we accept failures in adding contacts (non-critical)
+            if (fromMagento.customer_email && fromMagento.customer_email.toLowerCase() !== 'sayhi@greyandsanders.com') {
+                addContact({
+                    email: fromMagento.customer_email,
+                    firstName: fromMagento.customer_firstname,
+                    lastName: fromMagento.customer_lastname,
+                    phone: fromMagento.customer_telephone,
+                    salesOrderID: obj.ID.stub
+                })
+            }
 
             return DB.TaskList.create({
                 asanaTaskID: TASK_DATA.gid,
