@@ -347,12 +347,12 @@ function createTask(fromMagento, options) {
 
             // add contact to Iphone
             // we accept failures in adding contacts (non-critical)
-            if (fromMagento.customer_email && fromMagento.customer_email.toLowerCase() !== 'sayhi@greyandsanders.com') {
+            if (fromMagento.data.customer_email && fromMagento.data.ustomer_email.toLowerCase() !== 'sayhi@greyandsanders.com') {
                 addContact({
-                    email: fromMagento.customer_email,
-                    firstName: fromMagento.customer_firstname,
-                    lastName: fromMagento.customer_lastname,
-                    phone: fromMagento.customer_telephone,
+                    email: fromMagento.data.customer_email,
+                    firstName: fromMagento.data.customer_firstname,
+                    lastName: fromMagento.data.customer_lastname,
+                    phone: fromMagento.data.customer_telephone,
                     salesOrderID: obj.ID.stub
                 })
             }
