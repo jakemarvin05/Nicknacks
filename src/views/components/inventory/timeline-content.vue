@@ -20,7 +20,7 @@
                 v-for="(line, index) in inventory.timeline.list"
                 :key="'timeline_' + inventory.InventoryID + '_' + index"
                 :color="(line.date === 0 || line.stockAvailableAtCurrentDate > 10) ? 'green' : (
-                    (line.stockAvailableAtCurrentDate > -0.0001) ? 'yellow' : 'red'
+                    (line.stockAvailableAtCurrentDate > -1) ? 'yellow' : 'red'
                 )">
 
                 <!-- stock -->
@@ -52,7 +52,7 @@
                     </p>
                     <p class="content">
                         Change: {{ line.change }},
-                        Stock: {{ line.stockAvailableAtCurrentDate }},
+                        Stock left: {{ line.stockAvailableAtCurrentDate }},
                         Info:
                             <span v-if="line.type==='sales'"><Icon type="ios-cart" /></span>
                             <span v-else-if="line.type==='transit'"><Icon type="ios-boat" /></span>
