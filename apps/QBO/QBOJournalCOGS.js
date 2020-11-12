@@ -1,3 +1,5 @@
+const accountList = require('./accountList.js')
+
 const QBOJournalCOGS = (transactionDetails, COGS) => {
 
     let defaults = {
@@ -15,10 +17,7 @@ const QBOJournalCOGS = (transactionDetails, COGS) => {
             "DetailType": "JournalEntryLineDetail",
             "JournalEntryLineDetail": {
                 "PostingType": "Credit",
-                "AccountRef": {
-                    "value": "29",
-                    "name": "Inventory Asset"
-                }
+                "AccountRef": accountList["Inventory Asset"]
                 // ,
                 // "TaxCodeRef": {
                 //   "value": "17"
@@ -34,10 +33,7 @@ const QBOJournalCOGS = (transactionDetails, COGS) => {
             "DetailType": "JournalEntryLineDetail",
             "JournalEntryLineDetail": {
                 "PostingType": "Debit",
-                "AccountRef": {
-                    "value": "28",
-                    "name": "Cost of Sales"
-                }
+                "AccountRef": accountList["Cost of Sales"]
                 // ,
                 // "TaxCodeRef": {
                 //   "value": "17"

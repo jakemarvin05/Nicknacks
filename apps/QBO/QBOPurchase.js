@@ -1,18 +1,14 @@
+const accountList = require('./accountList.js')
+const otherConfig = require('./otherConfig.js')
+
 const QBOPurchase = (transactionDetails, stripeCommission) => {
     let defaults = {
-        "AccountRef": {
-            "value": "46",
-            "name": "Stripe Transit"
-        },
+        "AccountRef": accountList["Stripe Transit"],
         "PaymentMethodRef": {
             "value": "1"
         },
         "PaymentType": "Cash",
-        "EntityRef": {
-            "value": "28",
-            "name": "Stripe Commission",
-            "type": "Vendor"
-        },
+        "EntityRef": otherConfig["Stripe Vendor"],
         "GlobalTaxCalculation": "TaxExcluded"
         // "Line": [
         //   {
@@ -44,14 +40,9 @@ const QBOPurchase = (transactionDetails, stripeCommission) => {
         "DetailType": "AccountBasedExpenseLineDetail",
         "Description": description,
         "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "33",
-            "name": "Stripe Charges"
-          },
+          "AccountRef": accountList["Stripe Charges"],
           "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "9"
-          }
+          "TaxCodeRef": otherConfig["Stripe GST"]
         }
       }
     ]

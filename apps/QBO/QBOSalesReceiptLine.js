@@ -1,3 +1,6 @@
+const accountList = require('./accountList.js')
+const otherConfig = require('./otherConfig.js')
+
 const QBOSalesReceiptLine = (transactionDetails) => {
 
     let defaults = [
@@ -10,15 +13,10 @@ const QBOSalesReceiptLine = (transactionDetails) => {
             "SalesItemLineDetail": {
 
                 // currently just peg everything as custom
-                "ItemRef": {
-                    "value": "42",
-                    "name": "Custom item"
-                },
+                "ItemRef": otherConfig["Sales Receipt Item"],
                 "UnitPrice": transactionDetails.totalAmountExcludeTax,
                 "Qty": 1,
-                "TaxCodeRef": {
-                    "value": "6"
-                }
+                "TaxCodeRef": otherConfig["Sales Receipt GST"]
             }
         },{
             "Amount": transactionDetails.totalAmountExcludeTax,

@@ -1,4 +1,7 @@
-var QBOSalesReceiptModel = (transaction, customer) => {
+const accountList = require('./accountList.js')
+const otherConfig = require('./otherConfig.js')
+
+const QBOSalesReceiptModel = (transaction, customer) => {
 
     let defaults = {
         "domain": "QBO",
@@ -64,16 +67,12 @@ var QBOSalesReceiptModel = (transaction, customer) => {
         // "PrintStatus": "NotSet",
         // "EmailStatus": "NotSet",
         "Balance": 0,
-        "PaymentMethodRef": {
-          "value": "3",
-          "name": "Credit Card"
+        "PaymentMethodRef": otherConfig["Credit Card"]
         },
         //"PaymentRefNum": "10264",
 
         // default to stripe transit account
-        "DepositToAccountRef": {
-          "value": "46",
-          "name": "Stripe Transit"
+        "DepositToAccountRef": accountList["Stripe Transit"]
         }
     }
 
@@ -111,11 +110,11 @@ var QBOSalesReceiptModel = (transaction, customer) => {
 
     if (transaction.paymentMethod.toLowerCase().indexOf('bank transfer') === 0) {
 
-        defaults.PaymentMethodRef.value = 4
-        defaults.PaymentMethodRef.name = "Bank Transfer"
+        defaults.PaymentMethodRef.value = otherConfig["Bank Transfer"].value
+        defaults.PaymentMethodRef.name = otherConfig["Bank Transfer"].name
 
-        defaults.DepositToAccountRef.value = "77"
-        defaults.DepositToAccountRef.name = "Accounts Receivable"
+        defaults.DepositToAccountRef.value = accountList["Accounts Receivable"].value
+        defaults.DepositToAccountRef.name = accountList["Accounts Receivable"].name
 
         return defaults
     }
@@ -123,11 +122,11 @@ var QBOSalesReceiptModel = (transaction, customer) => {
     // there is mobile payment and mobile payment (mw), conduct loose check and apply same rules to both.
     if (transaction.paymentMethod.toLowerCase().indexOf('mobile payment') === 0) {
 
-        defaults.PaymentMethodRef.value = 4
-        defaults.PaymentMethodRef.name = "Bank Transfer"
+        defaults.PaymentMethodRef.value = otherConfig["Bank Transfer"].value
+        defaults.PaymentMethodRef.name = otherConfig["Bank Transfer"].name
 
-        defaults.DepositToAccountRef.value = "64"
-        defaults.DepositToAccountRef.name = "DBS Current"
+        defaults.DepositToAccountRef.value = accountList["DBS Current"].value
+        defaults.DepositToAccountRef.name = accountList["DBS Current"].name
 
         return defaults
     }
@@ -143,11 +142,11 @@ var QBOSalesReceiptModel = (transaction, customer) => {
 
     if (transaction.paymentMethod.toLowerCase() === 'no payment information required') {
 
-        defaults.PaymentMethodRef.value = 4
-        defaults.PaymentMethodRef.name = "Bank Transfer"
+        defaults.PaymentMethodRef.value = otherConfig["Bank Transfer"].value
+        defaults.PaymentMethodRef.name = otherConfig["Bank Transfer"].name
 
-        defaults.DepositToAccountRef.value = "64"
-        defaults.DepositToAccountRef.name = "DBS Current"
+        defaults.DepositToAccountRef.value = accountList["DBS Current"].value
+        defaults.DepositToAccountRef.name = accountList["DBS Current"].name
 
         return defaults
     }

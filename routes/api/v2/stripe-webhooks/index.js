@@ -2,7 +2,9 @@ const express = require('express')
 const router = express.Router()
 const debug = require('debug')('nn:api:magento-webhooks')
 debug.log = console.log.bind(console)
-const calculateStripeCommissionAmountOnRefund = require(__appsDir + '/stripe/calculateStripeCommissionAmountOnRefund');
+const calculateStripeCommissionAmountOnRefund = require(__appsDir + '/stripe/calculateStripeCommissionAmountOnRefund')
+const stripeRefundJournal = require(__appsDir + '/QBO/QBOStripeRefundJournal.js')
+
 
 router.post('*', (req, res, next) => {
     if(req.query.token !== process.env.STRIPE_SIMPLE_TOKEN) return res.status(403).send()
@@ -95,85 +97,18 @@ router.post('/refunded', function (req, res, next) {
         let tax = Math.round(D.get(req.body, 'data.object.amount_refunded')*(parseInt(process.env.GST)/100))/100
 
         // create a journal entry to reduce stripe commission
-        return QBO.createJournalEntryAsync({
-            "DocNumber": _TRANSACTION.salesOrderNumber + '-R',
-            "TxnDate": MOMENT().format('YYYY-MM-DD'),
-            "PrivateNote": "Refund for " + _TRANSACTION.details.salesOrderNumber,
-            "Line": [{
-                // credit stripe transit cash for refund
-                "Id": "0",
-                "Amount": amount,
-                "DetailType": "JournalEntryLineDetail",
-                "JournalEntryLineDetail": {
-                    // take out from stripe transit account
-                    "PostingType": "Credit",
-                    "AccountRef": {
-                        "value": "46",
-                        "name": "Stripe Transit"
-                    },
-                    "TaxApplicableOn": "Sales",
-                    "TaxCodeRef": {
-                        "value": "6"
-                    },
-                    "TaxAmount": tax
-                }
-            }, {
-                // debit sales refund
-                "Amount": amount,
-                "DetailType": "JournalEntryLineDetail",
-                "JournalEntryLineDetail": {
-                    "PostingType": "Debit",
-                    "AccountRef": {
-                        "value": "30",
-                        "name": "Sales Refund"
-                    },
-                    "TaxApplicableOn": "Sales",
-                    "TaxCodeRef": {
-                        "value": "6"
-                    },
-                    "TaxAmount": tax
-                }
-            }, {
-                // debit stripe transit because stripe will return some money in refund.
-                "Id": "1",
-                "Amount": stripeCommissionReturned,
-                "DetailType": "JournalEntryLineDetail",
-                "JournalEntryLineDetail": {
-                    "PostingType": "Debit",
-                    "AccountRef": {
-                        "value": "46",
-                        "name": "Stripe Transit"
-                    }
-                }
-            }, {
-                // credit expenses to lower expenses from recovered stripe commission
-                "Amount": stripeCommissionReturned,
-                "DetailType": "JournalEntryLineDetail",
-                "JournalEntryLineDetail": {
-                    "PostingType": "Credit",
-                    "AccountRef": {
-                        "value": "33",
-                        "name": "Stripe Charges"
-                    }
-                }
-            }],
-            "TxnTaxDetail": {
-                "TaxLine": [
-                    {
-                        "Amount": 0,
-                        "DetailType": "TaxLineDetail",
-                        "TaxLineDetail": {
-                            "TaxRateRef": {
-                                "value": "5"
-                            },
-                            "PercentBased": true,
-                            "TaxPercent": 7,
-                            "NetAmountTaxable": 0
-                        }
-                    }
-                ]
-            }
-        })
+
+        
+
+
+        return QBO.createJournalEntryAsync(
+            stripeRefundJournal(
+                _TRANSACTION,
+                amount,
+                tax,
+                stripeCommissionReturned
+            )
+        )
 
     }).then(function(journalEntry) {
 

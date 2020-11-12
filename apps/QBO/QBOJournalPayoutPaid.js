@@ -1,6 +1,7 @@
+const accountList = require('./accountList.js')
+
 function QBOJournalPayoutPaid(object) {
 
-  
   var QBOJournalObject = {
       "DocNumber": object.id.substring(0,21), // DocNumber max string length is 21.
       "TxnDate": MOMENT.unix(D.get(object, 'data.object.arrival_date')).format('YYYY-MM-DD'),
@@ -16,9 +17,7 @@ function QBOJournalPayoutPaid(object) {
       "DetailType": "JournalEntryLineDetail",
       "JournalEntryLineDetail": {
         "PostingType": "Credit",
-        "AccountRef": {
-          "value": "46",
-          "name": "Stripe Transit"
+        "AccountRef": accountList["Stripe Transit"]
         }
         // ,
         // "TaxCodeRef": {
@@ -35,9 +34,7 @@ function QBOJournalPayoutPaid(object) {
       "DetailType": "JournalEntryLineDetail",
       "JournalEntryLineDetail": {
         "PostingType": "Debit",
-        "AccountRef": {
-          "value": "64",
-          "name": "DBS Current"
+        "AccountRef": accountList["DBS Current"]
         }
         // ,
         // "TaxCodeRef": {
