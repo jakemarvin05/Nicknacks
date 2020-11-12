@@ -140,6 +140,8 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
             throw error
         }
 
+        debug('Transaction found in database.')
+
         _TRANSACTION = transaction
 
         // if somehow there is not customerEmail, which is our minimum requirement,
@@ -160,6 +162,8 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
 
     }).then(function(qboCustomer) {
 
+        debug('Completed the search for existing customer in QBO.')
+
         var promise;
 
         // if valid, `customer` is an array
@@ -168,8 +172,10 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
         if (customer) {
 
             // if there is an existing customer, update the details
-
             customer = customer[0]
+
+            debug('Customer exists:')
+            debug(D.get(customer, 'DisplayName'))
 
             // we save customer id and name into private global
             // because QuickBooks may error the updating of customer
@@ -201,6 +207,7 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
         } else {
 
             // if there is no existing customer, create a new one.
+            debug('Customer don\'t exist. Will create new one.')
             let newCustomer = {}
 
             // the minimum
@@ -218,6 +225,13 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
             promise = QBO.createCustomerAsync(newCustomer).catch(error => {
                 // sometimes updating customer causes error
                 if (D.get(error, 'Fault')) {
+
+                    debug('Error in creating customer:')
+                    try {
+                        debug(JSON.stringify(error))
+                    } catch(err) {
+                        debug('Unable to stringify error.')
+                    }
 
                     // if there are more than one error, throw
                     let errors = error.Fault.Error;
@@ -266,6 +280,8 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
 
     }).then((customer) => {
 
+        debug('Customer created or found.')
+
         // no errors are thrown, proceed.
         _CUSTOMER = {
             Id: customer.Id,
@@ -283,6 +299,8 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
 
         if (paymentMethodIsCreditCard) {
 
+            debug('Payment was via credit card.')
+
             let getStripeCharge = require(__appsDir + '/stripe/getStripeCharge')
 
             return getStripeCharge(_TRANSACTION.salesOrderNumber).then(charge => {
@@ -294,6 +312,7 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
                 let stripeComms = calculateStripeCommissionAmount(charge)
 
                 var expense = require(__appsDir + '/QBO/QBOPurchase')(_TRANSACTION.details, stripeComms)
+                debug('Stripe commission expense:')
                 debug(expense)
 
                 return QBO.createPurchaseAsync(expense)
@@ -306,6 +325,9 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
         }
 
     }).then(expense => {
+
+        debug('Expense created.')
+        //debug(expense)
 
         _CREATED_EXPENSE = expense
 
@@ -321,16 +343,19 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
 
         // once customer is created/updated, create the sales receipt
         let salesReceipt = require(__appsDir + '/QBO/QBOSalesReceipt')(_TRANSACTION, _CUSTOMER)
+        //debug(salesReceipt)
 
         // create single product line
         // to upgrade this portion when magento can send meta data
         let lines = require(__appsDir + '/QBO/QBOSalesReceiptLine')(_TRANSACTION.details)
+        //debug(lines)
 
         salesReceipt.Line = lines
 
         // comments
         if (req.body.comments) salesReceipt.PrivateNote = req.body.comments;
 
+        debug('Sales receipt:')
         debug(salesReceipt)
 
         return QBO.createSalesReceiptAsync(salesReceipt)

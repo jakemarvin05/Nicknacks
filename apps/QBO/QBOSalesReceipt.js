@@ -67,13 +67,11 @@ const QBOSalesReceiptModel = (transaction, customer) => {
         // "PrintStatus": "NotSet",
         // "EmailStatus": "NotSet",
         "Balance": 0,
-        "PaymentMethodRef": otherConfig["Credit Card"]
-        },
+        "PaymentMethodRef": otherConfig["Credit Card"],
         //"PaymentRefNum": "10264",
 
         // default to stripe transit account
         "DepositToAccountRef": accountList["Stripe Transit"]
-        }
     }
 
     // customer

@@ -33,19 +33,16 @@ const QBOPurchase = (transactionDetails, stripeCommission) => {
     description += ', Name:' + transactionDetails.customerName
     description += ', Email: ' + transactionDetails.customerEmail
 
-    defaults.Line = [
-      {
-        // convert totalAmount to 100s and take 3.4%, round off, then convert back to 2 decimals, add 50 cents
+    defaults.Line = [{
         "Amount": stripeCommission,
         "DetailType": "AccountBasedExpenseLineDetail",
         "Description": description,
         "AccountBasedExpenseLineDetail": {
-          "AccountRef": accountList["Stripe Charges"],
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": otherConfig["Stripe GST"]
+            "AccountRef": accountList["Stripe Charges"],
+            "BillableStatus": "NotBillable",
+            "TaxCodeRef": otherConfig["Stripe GST"]
         }
-      }
-    ]
+    }]
 
     return defaults
 

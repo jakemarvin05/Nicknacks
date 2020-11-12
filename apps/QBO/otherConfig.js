@@ -7,8 +7,12 @@ module.exports = {
         "type": "Vendor"
     },
 
+    // "Stripe GST": {
+    //     "value": "12" // 0% OS
+    // },
+
     "Stripe GST": {
-        "value": "12" // 0% OS
+        "value": "11" // Out of Scope
     },
 
     // sales receipt payment method
