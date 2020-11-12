@@ -64,7 +64,7 @@ router.get('/:id', (req, res) => {
         if (err.message === 'Not found') {
             return res.send(err)
         }
-        ERROR_HANDLER(err)
+        API_ERROR_HANDLER(err)
     })
 
 })
