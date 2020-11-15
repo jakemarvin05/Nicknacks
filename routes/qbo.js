@@ -69,14 +69,15 @@ router.get('/callback', function (req, res) {
             global.QBO = PROMISE.promisifyAll(global.QBO)
 
             // run a query to ensure it is working.
-            global.QBO.findAccounts(function (_, accounts) {
-                accounts.QueryResponse.Account.forEach(function (account) {
-                    debug(account.Name);
-                });
+            return global.QBO.findAccountsAsync()
+        }).then(accounts => {
+
+            accounts.QueryResponse.Account.forEach(function (account) {
+                debug(account.Name);
+                console.log(account.Name)
             });
 
             res.send('Successfully obtained token!')
-
             global.QBOIsWorking = true
 
         }).catch(function(e) {

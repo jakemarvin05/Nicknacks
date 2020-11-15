@@ -3,7 +3,7 @@
 const accountList = require('./accountList.js')
 const otherConfig = require('./otherConfig.js')
 
-module.export = (
+module.exports = (
     transaction,
     amount,
     tax,
