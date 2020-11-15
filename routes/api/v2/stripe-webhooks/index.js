@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const debug = require('debug')('nn:api:magento-webhooks')
+const debug = require('debug')('nn:api:stripe-webhooks')
 debug.log = console.log.bind(console)
 const calculateStripeCommissionAmountOnRefund = require(__appsDir + '/stripe/calculateStripeCommissionAmountOnRefund')
 const stripeRefundJournal = require(__appsDir + '/QBO/QBOStripeRefundJournal.js')
@@ -98,17 +98,15 @@ router.post('/refunded', function (req, res, next) {
 
         // create a journal entry to reduce stripe commission
 
-        
-
-
-        return QBO.createJournalEntryAsync(
-            stripeRefundJournal(
-                _TRANSACTION,
-                amount,
-                tax,
-                stripeCommissionReturned
-            )
+        let journal = stripeRefundJournal(
+            _TRANSACTION,
+            amount,
+            tax,
+            stripeCommissionReturned
         )
+        debug(journal)
+
+        return QBO.createJournalEntryAsync(journal)
 
     }).then(function(journalEntry) {
 
@@ -154,6 +152,8 @@ router.post('/payout-paid', function (req, res, next) {
 
         var Entry = require(__appsDir + '/QBO/QBOJournalPayoutPaid')
         var entry = Entry(payoutPaid.data)
+
+        debug(entry)
 
         return QBO.createJournalEntryAsync(entry);
 
