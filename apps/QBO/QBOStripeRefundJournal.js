@@ -10,7 +10,7 @@ module.exports = (
     stripeCommissionReturned    
 ) => {
     return {
-        "DocNumber": transaction.salesOrderNumber + '-STRIPE-REFUND',
+        "DocNumber": transaction.salesOrderNumber + '-STRIPE-R',
         "TxnDate": MOMENT().format('YYYY-MM-DD'),
         "PrivateNote": "Refund for " + transaction.details.salesOrderNumber,
         "Line": [{
