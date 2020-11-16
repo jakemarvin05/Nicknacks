@@ -25,7 +25,7 @@ module.exports = (
     stripeCommissionReturned    
 ) => {
     
-    let amount = salesAmt(amount)
+    var amount = salesAmt(amount)
     
     return {
         "DocNumber": transaction.salesOrderNumber + '-STRIPE-R',
