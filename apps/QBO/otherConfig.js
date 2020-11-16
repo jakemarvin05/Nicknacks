@@ -34,9 +34,10 @@ module.exports = {
 
     "Sales Receipt GST": {
         "value": "6" // 7% SR
-    },
-
-    "Refund Journal Tax Detail GST": {
-        "value": "5" // 7% TX
     }
+//     ,
+//     may not require this anymore as the refund journal tax is explicit on GST control.
+//     "Refund Journal Tax Detail GST": {
+//         "value": "5" // 7% TX
+//     }
 }
