@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = {
+const accountList = {
 
     "Inventory Asset" : {
         "value": "29",
@@ -42,3 +42,5 @@ module.exports = {
         "name": "GST Control"
     }
 }
+
+module.exports = Object.freeze(accountList)
