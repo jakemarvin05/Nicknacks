@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = {
+const otherConfig = {
     "Stripe Vendor": {
         "value": "28",
         "name": "Stripe Commission",
@@ -41,3 +41,4 @@ module.exports = {
 //         "value": "5" // 7% TX
 //     }
 }
+module.exports = Object.freeze(otherConfig)
