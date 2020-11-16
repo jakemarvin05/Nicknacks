@@ -108,24 +108,16 @@ const QBOSalesReceiptModel = (transaction, customer) => {
 
     if (transaction.paymentMethod.toLowerCase().indexOf('bank transfer') === 0) {
 
-        defaults.PaymentMethodRef.value = otherConfig["Bank Transfer"].value
-        defaults.PaymentMethodRef.name = otherConfig["Bank Transfer"].name
-
-        defaults.DepositToAccountRef.value = accountList["Accounts Receivable"].value
-        defaults.DepositToAccountRef.name = accountList["Accounts Receivable"].name
-
+        defaults.PaymentMethodRef = otherConfig["Bank Transfer"]
+        defaults.DepositToAccountRef = accountList["Accounts Receivable"]
         return defaults
     }
 
     // there is mobile payment and mobile payment (mw), conduct loose check and apply same rules to both.
     if (transaction.paymentMethod.toLowerCase().indexOf('mobile payment') === 0) {
 
-        defaults.PaymentMethodRef.value = otherConfig["Bank Transfer"].value
-        defaults.PaymentMethodRef.name = otherConfig["Bank Transfer"].name
-
-        defaults.DepositToAccountRef.value = accountList["DBS Current"].value
-        defaults.DepositToAccountRef.name = accountList["DBS Current"].name
-
+        defaults.PaymentMethodRef = otherConfig["Bank Transfer"]
+        defaults.DepositToAccountRef = accountList["DBS Current"]
         return defaults
     }
 
@@ -140,12 +132,8 @@ const QBOSalesReceiptModel = (transaction, customer) => {
 
     if (transaction.paymentMethod.toLowerCase() === 'no payment information required') {
 
-        defaults.PaymentMethodRef.value = otherConfig["Bank Transfer"].value
-        defaults.PaymentMethodRef.name = otherConfig["Bank Transfer"].name
-
-        defaults.DepositToAccountRef.value = accountList["DBS Current"].value
-        defaults.DepositToAccountRef.name = accountList["DBS Current"].name
-
+        defaults.PaymentMethodRef = otherConfig["Bank Transfer"]
+        defaults.DepositToAccountRef = accountList["DBS Current"]
         return defaults
     }
 
