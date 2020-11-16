@@ -3,12 +3,30 @@
 const accountList = require('./accountList.js')
 const otherConfig = require('./otherConfig.js')
 
+
+function salesAmt(amount, tax = 7) {
+    let inCents = amount * 100
+
+    function round(inCents) {
+        return Math.round(inCents)/100
+    }
+    
+    return {
+        total: amount,
+        totalWithoutGST: round(inCents/(100+tax)*100),
+        GST: round(inCents/(100+tax)*tax)
+    }
+}
+
 module.exports = (
     transaction,
     amount,
     tax,
     stripeCommissionReturned    
 ) => {
+    
+    let amount = salesAmt(amount)
+    
     return {
         "DocNumber": transaction.salesOrderNumber + '-STRIPE-R',
         "TxnDate": MOMENT().format('YYYY-MM-DD'),
@@ -16,26 +34,28 @@ module.exports = (
         "Line": [{
             // credit stripe transit cash for refund
             "Id": "0",
-            "Amount": amount,
+            "Amount": amount.total,
             "DetailType": "JournalEntryLineDetail",
             "JournalEntryLineDetail": {
                 // take out from stripe transit account
                 "PostingType": "Credit",
-                "AccountRef": accountList["Stripe Transit"],
-                "TaxApplicableOn": "Sales",
-                "TaxCodeRef": otherConfig["Sales Receipt GST"],
-                "TaxAmount": tax
+                "AccountRef": accountList["Stripe Transit"]
             }
         }, {
             // debit sales refund
-            "Amount": amount,
+            "Amount": amount.totalWithoutGST,
             "DetailType": "JournalEntryLineDetail",
             "JournalEntryLineDetail": {
                 "PostingType": "Debit",
-                "AccountRef": accountList["Sales Refund"],
-                "TaxApplicableOn": "Sales",
-                "TaxCodeRef": otherConfig["Sales Receipt GST"],
-                "TaxAmount": tax
+                "AccountRef": accountList["Sales Refund"]
+            }
+        }, {
+            // debit GST control
+            "Amount": amount.GST,
+            "DetailType": "JournalEntryLineDetail",
+            "JournalEntryLineDetail": {
+                "PostingType": "Debit",
+                "AccountRef": accountList["GST Control"]
             }
         }, {
             // debit stripe transit because stripe will return some money in refund.
@@ -54,20 +74,6 @@ module.exports = (
                 "PostingType": "Credit",
                 "AccountRef": accountList["Stripe Charges"]
             }
-        }],
-        "TxnTaxDetail": {
-            "TaxLine": [
-                {
-                    "Amount": 0,
-                    "DetailType": "TaxLineDetail",
-                    "TaxLineDetail": {
-                        "TaxRateRef": otherConfig["Refund Journal Tax Detail GST"],
-                        "PercentBased": true,
-                        "TaxPercent": 7,
-                        "NetAmountTaxable": 0
-                    }
-                }
-            ]
-        }
+        }]
     }
 }
