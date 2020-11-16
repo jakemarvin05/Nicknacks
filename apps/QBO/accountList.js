@@ -35,5 +35,10 @@ module.exports = {
     "Sales Refund": {
         "value": "30",
         "name": "Sales Refund"
+    },
+    
+    "GST Control": {
+        "value": "10",
+        "name": "GST Control"
     }
 }
