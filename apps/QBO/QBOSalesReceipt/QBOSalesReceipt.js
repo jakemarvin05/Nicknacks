@@ -132,8 +132,8 @@ const QBOSalesReceiptModel = (transaction, customer) => {
 
     if (transaction.paymentMethod.toLowerCase() === 'no payment information required') {
 
-        defaults.PaymentMethodRef = otherConfig["Bank Transfer"]
-        defaults.DepositToAccountRef = accountList["DBS Current"]
+        delete defaults.PaymentMethodRef
+        defaults.DepositToAccountRef = accountList["Accounts Receivable"]
         return defaults
     }
 
