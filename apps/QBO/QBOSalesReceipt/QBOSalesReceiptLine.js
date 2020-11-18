@@ -1,5 +1,5 @@
-const accountList = require('./accountList.js')
-const otherConfig = require('./otherConfig.js')
+const accountList = require('./../accountList.js')
+const otherConfig = require('./../otherConfig.js')
 
 const QBOSalesReceiptLine = (transactionDetails) => {
 

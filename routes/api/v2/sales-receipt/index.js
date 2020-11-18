@@ -342,15 +342,7 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
         /* SALES RECEIPT */
 
         // once customer is created/updated, create the sales receipt
-        let salesReceipt = require(__appsDir + '/QBO/QBOSalesReceipt')(_TRANSACTION, _CUSTOMER)
-        //debug(salesReceipt)
-
-        // create single product line
-        // to upgrade this portion when magento can send meta data
-        let lines = require(__appsDir + '/QBO/QBOSalesReceiptLine')(_TRANSACTION.details)
-        //debug(lines)
-
-        salesReceipt.Line = lines
+        let salesReceipt = require(__appsDir + '/QBO/QBOSalesReceipt/index.js')(_TRANSACTION, _CUSTOMER)
 
         // comments
         if (req.body.comments) salesReceipt.PrivateNote = req.body.comments;

@@ -32,13 +32,20 @@ const otherConfig = {
         "name": "Custom item"
     },
 
+    // TaxCode
     "Sales Receipt GST": {
         "value": "6" // 7% SR
-    }
-//     ,
+    },
+
 //     may not require this anymore as the refund journal tax is explicit on GST control.
 //     "Refund Journal Tax Detail GST": {
 //         "value": "5" // 7% TX
 //     }
+
+    // somehow there's tax rate and there's tax code.
+    // TaxCode applied to products. Rates applied to calculation.
+    "Sales Receipt TaxRate": {
+        "value": "5" // 7% TX
+    }
 }
 module.exports = Object.freeze(otherConfig)
