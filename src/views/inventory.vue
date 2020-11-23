@@ -18,6 +18,7 @@
             style="width: 100%"
             :data="searchedInventories"
             :row-class-name="tableRowClassName"
+            show-summary
         >
             <el-table-column style="width:10px;" type="expand">
                 <template slot-scope="scope">
