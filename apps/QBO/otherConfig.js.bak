@@ -1,16 +1,18 @@
 'use strict'
 
 const otherConfig = {
-
     "Stripe Vendor": {
-        "value": "2",
+        "value": "28",
         "name": "Stripe Commission",
         "type": "Vendor"
     },
 
-    // TaxCode
+    // "Stripe GST": {
+    //     "value": "12" // 0% OS
+    // },
+
     "Stripe GST": {
-        "value": "21" // Out of Scope
+        "value": "11" // Out of Scope
     },
 
     // sales receipt payment method
@@ -24,23 +26,26 @@ const otherConfig = {
         "name": "Bank Transfer"
     },
 
-    // to change
     // the item for a single-line sales receipt
     "Sales Receipt Item": {
-        "value": "2",
+        "value": "42",
         "name": "Custom item"
     },
 
     // TaxCode
     "Sales Receipt GST": {
-        "value": "8" // 7% SR
+        "value": "6" // 7% SR
     },
+
+//     may not require this anymore as the refund journal tax is explicit on GST control.
+//     "Refund Journal Tax Detail GST": {
+//         "value": "5" // 7% TX
+//     }
 
     // somehow there's tax rate and there's tax code.
     // TaxCode applied to products. Rates applied to calculation.
-    // Title a bit misleanding, but is referring to TaxCode QBO object
     "Sales Receipt TaxRate": {
-        "value": "9" // 7% TX
+        "value": "5" // 7% TX
     }
 }
 module.exports = Object.freeze(otherConfig)

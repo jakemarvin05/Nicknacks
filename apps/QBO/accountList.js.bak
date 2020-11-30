@@ -3,42 +3,42 @@
 const accountList = {
 
     "Inventory Asset" : {
-        "value": "12",
+        "value": "29",
         "name": "Inventory Asset"
     },
 
     "Cost of Sales": {
-        "value": "11",
+        "value": "28",
         "name": "Cost of Sales"
     },
 
     "Stripe Transit": {
-        "value": "42",
+        "value": "46",
         "name": "Stripe Transit"
     },
 
     "DBS Current": {
-        "value": "41",
+        "value": "64",
         "name": "DBS Current"
     },
 
     "Stripe Charges": {
-        "value": "16",
+        "value": "33",
         "name": "Stripe Charges"
     },
 
     "Accounts Receivable": {
-        "value": "17",
+        "value": "77",
         "name": "Accounts Receivable"
     },
 
     "Sales Refund": {
-        "value": "18",
+        "value": "30",
         "name": "Sales Refund"
     },
-
+    
     "GST Control": {
-        "value": "7",
+        "value": "10",
         "name": "GST Control"
     }
 }
