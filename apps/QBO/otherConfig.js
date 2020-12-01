@@ -37,10 +37,9 @@ const otherConfig = {
     },
 
     // somehow there's tax rate and there's tax code.
-    // TaxCode applied to products. Rates applied to calculation.
-    // Title a bit misleanding, but is referring to TaxCode QBO object
+    // TaxRate applied to calculation.
     "Sales Receipt TaxRate": {
-        "value": "9" // 7% TX
+        "value": "6" // 7% SR
     }
 }
 module.exports = Object.freeze(otherConfig)
