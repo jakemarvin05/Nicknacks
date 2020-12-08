@@ -339,7 +339,7 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
         }
 
 
-        /* SALES RECEIPT */
+        /* SALES RECEIPT or INVOICE (Bank Transfer) */
 
         // once customer is created/updated, create the sales receipt
         let salesReceipt = require(__appsDir + '/QBO/QBOSalesReceipt/index.js')(_TRANSACTION, _CUSTOMER)
@@ -347,10 +347,18 @@ router.post('/create-sales-receipt', permit('/create-sales-receipt', 8), (req, r
         // comments
         if (req.body.comments) salesReceipt.PrivateNote = req.body.comments;
 
-        debug('Sales receipt:')
+        debug('Sales receipt/Invoice:')
         debug(salesReceipt)
 
-        return QBO.createSalesReceiptAsync(salesReceipt)
+        // if "DepositToAccountRef" is missing, it indicates that it is invoice
+        var isInvoice = !salesReceipt.DepositToAccountRef
+        if (isInvoice) {
+            debug('Document type is an invoice. Creating invoice...')
+            return QBO.createInvoiceAsync(salesReceipt)
+        } else {
+            debug('Document type is a sales receipt. Creating sales receipt...')
+            return QBO.createSalesReceiptAsync(salesReceipt)
+        }
 
     }).then(salesReceipt => {
 

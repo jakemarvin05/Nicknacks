@@ -108,8 +108,10 @@ const QBOSalesReceiptModel = (transaction, customer) => {
 
     if (transaction.paymentMethod.toLowerCase().indexOf('bank transfer') === 0) {
 
-        defaults.PaymentMethodRef = otherConfig["Bank Transfer"]
-        defaults.DepositToAccountRef = accountList["Accounts Receivable"]
+        delete defaults.PaymentMethodRef
+        delete defaults.DepositToAccountRef
+        delete defaults.Balance
+        
         return defaults
     }
 

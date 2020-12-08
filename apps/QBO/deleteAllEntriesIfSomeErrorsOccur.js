@@ -13,11 +13,21 @@ function deleteAllEntriesIfSomeErrorsOccur(salesReceipt, expense, journalCOGS) {
         // of can be false (if the error was thrown later)
 
         if ([undefined, false].indexOf(salesReceipt) === -1 && !D.get(salesReceipt, "Fault") && salesReceipt.Id) {
-            console.error('INFO: Sales receipt found. Deleting...')
-            var deleteSalesReceipt = QBO.deleteSalesReceiptAsync({
-                "Id": salesReceipt.Id,
-                "SyncToken": salesReceipt.SyncToken
-            });
+            console.error('INFO: Sales receipt/Invoice found. Deleting...')
+            var isInvoice = !salesReceipt.DepositToAccountRef
+            if (isInvoice) {
+                console.error('INFO: Document type is an invoice.')
+                deleteSalesReceipt = QBO.deleteInvoiceAsync({
+                    "Id": salesReceipt.Id,
+                    "SyncToken": salesReceipt.SyncToken
+                })
+            else {
+                console.error('INFO: Document type is a sales receipt.')
+                deleteSalesReceipt = QBO.deleteSalesReceiptAsync({
+                    "Id": salesReceipt.Id,
+                    "SyncToken": salesReceipt.SyncToken
+                })
+            }
         }
 
         if ([undefined, false].indexOf(expense) === -1 && !D.get(expense, "Fault") && expense.Id) {
