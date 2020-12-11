@@ -133,9 +133,9 @@ router.get('/all', permit('/all', 1), (req, res, next) => {
 
         });
 
-        // Loop through the transit inventories to generate the Transit object.
         inventories.forEach(inventory => {
 
+            // Loop through the transit inventories to generate the Transit object.
             let transitStock = { name: 'Transit', quantity: 0 };
 
             inventory.TransitInventories.forEach(transit => {
@@ -148,11 +148,11 @@ router.get('/all', permit('/all', 1), (req, res, next) => {
                 inventory.stock.push(transitStock)
             }
 
-        })
-
-        inventories.forEach(inventory => {
+            // Loop through the to generate net stocks
             inventory.timeline = inventoryTimeLineFilter(inventory)
-            inventory.stockAvailableAtCurrentDate = inventory.timeline.list[inventory.timeline.list.length - 1].stockAvailableAtCurrentDate
+            inventory.stockAvailablePhysical = inventory.timeline.list[inventory.timeline.list.length - 1].stockAvailableAtCurrentDate - transitStock.quantity
+            inventory.stockAvailableWithTransit = inventory.timeline.list[inventory.timeline.list.length - 1].stockAvailableAtCurrentDate
+
         })
 
         res.send({

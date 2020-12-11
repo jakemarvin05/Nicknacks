@@ -76,12 +76,23 @@
 
             <el-table-column
                 min-width="50"
-                label="Net"
-                prop="stockAvailableAtCurrentDate"
+                label="Net+Transit"
+                prop="stockAvailableWithTransit"
                 sortable
             >
                 <template slot-scope="scope">
-                    <span>{{ scope.row.stockAvailableAtCurrentDate || 0 }}</span>
+                    <span>{{ scope.row.stockAvailableWithTransit || 0 }}</span>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                min-width="50"
+                label="Net"
+                prop="stockAvailablePhysical"
+                sortable
+            >
+                <template slot-scope="scope">
+                    <span>{{ scope.row.stockAvailablePhysical || 0 }}</span>
                 </template>
             </el-table-column>
 
