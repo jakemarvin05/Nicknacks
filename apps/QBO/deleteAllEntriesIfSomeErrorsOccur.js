@@ -21,7 +21,7 @@ function deleteAllEntriesIfSomeErrorsOccur(salesReceipt, expense, journalCOGS) {
                     "Id": salesReceipt.Id,
                     "SyncToken": salesReceipt.SyncToken
                 })
-            else {
+            } else {
                 console.error('INFO: Document type is a sales receipt.')
                 deleteSalesReceipt = QBO.deleteSalesReceiptAsync({
                     "Id": salesReceipt.Id,
