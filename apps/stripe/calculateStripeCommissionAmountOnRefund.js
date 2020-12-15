@@ -12,7 +12,7 @@ function calculateStripeCommissionAmountOnRefund(stripeObject) {
 
     if (isNaN(total) || isNaN(amountRefunded)) throw new Error("CRITICAL: calculateStripeCommissionAmountOnRefund: total or amountRefunded is NaN.");
 
-    var stripeCommissionAmount;
+    var stripeCommissionAmountReturned
 
     // get country of credit card origin
     var countryOfOrigin = D.get(stripeObject, 'data.object.source.country');
@@ -22,34 +22,48 @@ function calculateStripeCommissionAmountOnRefund(stripeObject) {
     var cardBrand = D.get(stripeObject, 'data.object.source.brand');
     if (!cardBrand) throw new Error("CRITICAL: calculateStripeCommissionAmountOnRefund: countryOfOrigin is invalid.");
 
-
-
     // calucate the commission which strip will refund us
     if(countryOfOrigin === null) {
         // this is a weird case where credit card country seem to be null
         // stripe seems to default to the lower charge
         // 2.7% of the amount refunded
-        stripeCommissionAmount = Math.round(amountRefunded * stripeChargesDomesticMasterOrVisa)/100;
+        stripeCommissionAmountReturned = calculateCommsReturned(
+            total,
+            amountRefunded,
+            stripeChargesDomesticMasterOrVisa
+        )
 
     } else if (countryOfOrigin !== 'SG' || cardBrand === 'American Express') {
 
         // international charges or AMEX, so 3.2% of the amount refunded
-        stripeCommissionAmount = Math.round(amountRefunded * stripeChargesAMEXOrNonDomestic)/100;
-
+        stripeCommissionAmountReturned = calculateCommsReturned(
+            total,
+            amountRefunded,
+            stripeChargesAMEXOrNonDomestic
+        )
     } else {
 
         // 2.7% of the amount refunded
-        stripeCommissionAmount = Math.round(amountRefunded * stripeChargesDomesticMasterOrVisa)/100;
-
+        stripeCommissionAmountReturned = calculateCommsReturned(
+            total,
+            amountRefunded,
+            stripeChargesDomesticMasterOrVisa
+        )
     }
 
-
-    // if it is a total refund, additional 0.50 refund of stripe fixed charges
-    if (total === amountRefunded) stripeCommissionAmount += 0.50;
-
     // calculate the new stripe commission.
-    return stripeCommissionAmount
+    return stripeCommissionAmountReturned
 
 }
 
+// need to use this method because of rounding error
+// to pre-calculate the commission, and round off.
+// and based comms to be returned on that.
+function calculateCommsReturned (total, amountRefunded, chargeRate) {
+    let stripeCommissionAmountNow = Math.round((total - amountRefunded) * chargeRate)
+    let stripeCommissionAmountReturned = Math.round(total * chargeRate) - stripeCommissionAmountNow
+    // if it is a total refund, additional 0.50 refund of stripe fixed charges
+    if (total === amountRefunded) stripeCommissionAmountReturned += 50;
+    return stripeCommissionAmountReturned /= 100
+}
 module.exports = calculateStripeCommissionAmountOnRefund;
