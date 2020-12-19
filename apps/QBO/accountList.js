@@ -40,6 +40,11 @@ const accountList = {
     "GST Control": {
         "value": "7",
         "name": "GST Control"
+    },
+
+    "Sales Receipts - Free": {
+        "value": "58",
+        "name": "Sales Receipts - Free"
     }
 }
 

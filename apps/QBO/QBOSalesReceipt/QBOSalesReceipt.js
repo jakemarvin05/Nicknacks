@@ -135,7 +135,7 @@ const QBOSalesReceiptModel = (transaction, customer) => {
     if (transaction.paymentMethod.toLowerCase() === 'no payment information required') {
 
         delete defaults.PaymentMethodRef
-        defaults.DepositToAccountRef = accountList["Accounts Receivable"]
+        defaults.DepositToAccountRef = accountList["Sales Receipts - Free"]
         return defaults
     }
 
