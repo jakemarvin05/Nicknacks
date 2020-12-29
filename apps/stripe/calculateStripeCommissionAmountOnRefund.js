@@ -60,8 +60,10 @@ function calculateStripeCommissionAmountOnRefund(stripeObject) {
 // to pre-calculate the commission, and round off.
 // and based comms to be returned on that.
 function calculateCommsReturned (total, amountRefunded, chargeRate) {
-    let stripeCommissionAmountNow = Math.round((total - amountRefunded) * chargeRate)
-    let stripeCommissionAmountReturned = Math.round(total * chargeRate) - stripeCommissionAmountNow
+    let stripeCommissionAmountNow = (total - amountRefunded) * chargeRate
+
+    // must make sure the rounding only happens after computing the net commission using raw values
+    let stripeCommissionAmountReturned = Math.round((total * chargeRate) - stripeCommissionAmountNow)
     // if it is a total refund, additional 0.50 refund of stripe fixed charges
     if (total === amountRefunded) stripeCommissionAmountReturned += 50;
     return stripeCommissionAmountReturned /= 100
