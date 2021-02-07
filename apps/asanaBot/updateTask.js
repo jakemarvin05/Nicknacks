@@ -105,21 +105,21 @@ function updateTask(fromMagento, options) {
                 // hence if there is no time
                 if (!taskUpdatePayload.due_at) {
 
-                    // tag it to no delivery date and time
+                    // tag it as not scheduled
                     let tagging = tagChange(task, config.tags.notScheduled)
                     if (tagging.length > 0) promises.concat(tagging)
 
-                    // shift it to no delivery date and time
+                    // shift it to not scheduled
                     let shift = sectionShift(task, config.projects.main.sections.notScheduled)
                     if (shift) promises.push(shift)
 
                 } else {
 
-                    //Have Date, Not Confirmed
+                    // Scheduled, Not Confirmed
                     let tagging = tagChange(task, config.tags.scheduledButNotConfirmed)
                     if (tagging.length > 0) promises.concat(tagging)
 
-                    // shift it to have date, not confirmed
+                    // shift it to scheduled, not confirmed
                     let shift = sectionShift(task, config.projects.main.sections.scheduledButNotConfirmed)
                     if (shift) promises.push(shift)
 
@@ -138,11 +138,11 @@ function updateTask(fromMagento, options) {
 
                 } else {
 
-                    //tag it to unconfirmed, no delivery date and time
+                    //tag it to not scheduled
                     let tagging = tagChange(task, config.tags.notScheduled)
                     if (tagging.length > 0) promises.concat(tagging)
 
-                    //confirmed section shift
+                    //section shift
                     let shift = sectionShift(task, config.projects.main.sections.notScheduled)
                     if (shift) promises.push(shift)
                 }

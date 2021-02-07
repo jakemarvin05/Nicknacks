@@ -211,7 +211,8 @@ function createTask(fromMagento, options) {
             projects: [config.projects.main.id],
             name: titleShort,
             notes: body,
-            html_notes: markDownToHTML(body)
+            html_notes: markDownToHTML(body),
+            tags: [ config.tags.notScheduled ] // default to not scheduled
         }
 
         // if momentTime is defined, it means there is a delivery date and time arranged.
