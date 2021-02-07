@@ -218,12 +218,12 @@ function createTask(fromMagento, options) {
         // need to use the `due_at` attribute
         if (obj.momentTime) {
             taskObject.due_at = obj.momentTime.format()
-            taskObject.tags = [ config.tags.haveDateButNotConfirmed ]
+            taskObject.tags = [ config.tags.scheduledButNotConfirmed ]
         } else if (obj.deliveryDate) {
             // otherwise maybe just the date is arranged.
             // need to use the `due_on` attribute
             taskObject.due_on = obj.deliveryDate
-            taskObject.tags = [ config.tags.noDeliveryDateAndTime ]
+            taskObject.tags = [ config.tags.notScheduled ]
         }
 
 
@@ -288,7 +288,7 @@ function createTask(fromMagento, options) {
             if (obj.momentTime) {
                 // if there is deliveryDate in sales order
                 let sectionShift = ASANA.sections.addTask(
-                    config.projects.main.sections.haveDateButNotConfirmed, {
+                    config.projects.main.sections.scheduledButNotConfirmed, {
                         task: taskData.gid
                     }
                 )
