@@ -7,11 +7,11 @@ const moment = require('moment')
 const cron = require('cron').CronJob
 
 //properties
-const retryDuration = 300000000000 // 5 minutes
+const retryDuration = 5*60*1000 // 5 minutes in miliseconds
 
 //flags or variables
 let qboRefreshIsRunning = false
-let refreshTokenEveryFiftyMinute = false
+let refreshTokenInterval = false
 
 const Retry = {
     retries: 5,
@@ -68,7 +68,7 @@ const Retry = {
     }
 }
 
-// let refreshTokenEveryFiftyMinute = new cron(
+// let refreshTokenInterval = new cron(
 //     '* */30 * * * *', //using 30 minutes for now due cron bug: https://github.com/kelektiv/node-cron/issues/489#issuecomment-620843432
 //     start,
 //     null,
@@ -139,8 +139,8 @@ function error() {
     global.QBOIsWorking = false
     qboRefreshIsRunning = false
     global.QBONextRetry = moment().add(retryDuration, 'ms')
-    //refreshTokenEveryFiftyMinute.stop()
-    clearTimeout(refreshTokenEveryFiftyMinute)
+    //refreshTokenInterval.stop()
+    clearTimeout(refreshTokenInterval)
 }
 
 function succeeded() {
@@ -148,9 +148,9 @@ function succeeded() {
     global.QBOIsWorking = true
     qboRefreshIsRunning = false
     // set the token refresh cron
-    //if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute.start()
+    //if (process.env.NODE_ENV === 'production') return refreshTokenInterval.start()
     // extremely lousy way of coding, referencing #start. fucking sucks..
-    if (process.env.NODE_ENV === 'production') return refreshTokenEveryFiftyMinute = setTimeout(start, 50*60*1000) // 50 minutes.
+    if (process.env.NODE_ENV === 'production') return refreshTokenInterval = setTimeout(start, 40*60*1000) // 40 minutes.
 }
 
 function fail(error) {
