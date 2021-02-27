@@ -63,7 +63,7 @@ module.exports = {
                     validator (rule, value, callback) {
 
                         // check regex
-                        let regex = /^\d{1,6}(\.\d{1,4})?$/
+                        let regex = /^\d{1,6}(\.\d{1,6})?$/
                         if (!regex.test(value.toString())) return callback( new Error('Please the value in the correct format.') )
 
                         // everything passed

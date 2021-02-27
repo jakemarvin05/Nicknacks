@@ -16,7 +16,7 @@ function Inventory(sequelize, DataTypes) {
             allowNull: false
         },
         cbm: {
-            type: DataTypes.DECIMAL(99,4),
+            type: DataTypes.DECIMAL(99,6),
             allowNull: true,
             default: 0
         },
