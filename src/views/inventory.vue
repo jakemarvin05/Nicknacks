@@ -237,8 +237,8 @@
 
 <script>
 
+import fileSaver from 'file-saver'
 import xlsx from 'xlsx'
-import elTableExport from 'el-table-export'
 
 import D from 'dottie'
 import _ from 'lodash'
