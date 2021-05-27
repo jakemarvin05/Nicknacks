@@ -34,7 +34,7 @@ const passport = global.PASSPORT = require('passport')
 require('./apps/passport/passportConfig.js')(passport) //this has to be before routes
 const pgSession = require('connect-pg-simple')(session)
 
-const runQBO = require(path.join(__appsDir, 'QBO/QBOToken.js'))()
+if (process.env.run_qbo !== 'false') var runQBO = require(path.join(__appsDir, 'QBO/QBOToken.js'))()
 
 // inventory report generator
 if(process.env.NODE_ENV !== "development") {

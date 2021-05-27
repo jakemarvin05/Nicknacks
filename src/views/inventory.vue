@@ -7,6 +7,8 @@
         </Breadcrumb>
 
         <Button style="width:400;" type="primary" @click="addProduct()">+ Add product</Button>
+        <Button style="width:400;" type="success" @click="exportFile()">> Export</Button>
+
         <br />
         <Icon type="ios-search" /> <Input
             style="width: 250px; padding:20px 0px"
@@ -15,6 +17,7 @@
             placeholder="Type to search"
         />
         <el-table
+            id="inventoryTable"
             style="width: 100%"
             :data="searchedInventories"
             :row-class-name="tableRowClassName"
@@ -234,6 +237,9 @@
 
 <script>
 
+import xlsx from 'xlsx'
+import elTableExport from 'el-table-export'
+
 import D from 'dottie'
 import _ from 'lodash'
 import moment from 'moment'
@@ -451,7 +457,27 @@ export default {
                     )
                 )
             )
-        }, 500)
+        }, 500),
+        exportFile() {
+
+            let box = xlsx.utils.table_to_book(document.querySelector('#table-data'))
+            let out = xlsx.write(box, {
+                bookType: 'xlsx',
+                bookSST: true,
+                type: 'array'
+            })
+            try {
+                fileSaver.saveAs(
+                    new Blob([out], {
+                    type: 'application/octet-stream'
+                    }),
+                    'sheet.xlsx'
+                )
+            } catch (e) {
+                //错误处理方式
+            }
+            return out
+        }
     },
     created () {
 
