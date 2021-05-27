@@ -105,7 +105,14 @@
                 prop="cogs"
                 label="COGS"
                 sortable
-            ></el-table-column>
+            >
+                <template slot-scope="scope">
+                    <span v-if="parseFloat(scope.row.cogs) === 0 ">
+                        <span style="color: red;">{{ scope.row.cogs }}</span>
+                    </span>
+                    <span v-else>{{ scope.row.cogs }}</span>
+                </template>
+            </el-table-column>
 
             <el-table-column
                 prop="cbm"
