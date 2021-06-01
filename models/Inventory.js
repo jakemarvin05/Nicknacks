@@ -28,6 +28,14 @@ function Inventory(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
+        supplier: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        suppliersku: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         notActive: {
                 type: DataTypes.BOOLEAN,
                 default: false

@@ -1,49 +1,27 @@
 <template>
-    <div v-if="inventory.timeline">
-        <Tag v-if="inventory.timeline.list[0].stockAvailableAtCurrentDate < 1" color="red">OOS</Tag>
-        <Tag v-else-if="inventory.timeline.list[0].stockAvailableAtCurrentDate < 6" color="orange">Low stock</Tag>
-        <Tag v-else-if="inventory.timeline.list[0].stockAvailableAtCurrentDate < 11" color="lime">Re-order</Tag>
-        <Tag v-else color="green">In stock</Tag>
-
-
-        <div>
-            <Button size="small" @click="showTimeline()" :type="(inventory.timeline.hasShortFall ? 'error' : 'success' )">Timeline</Button>
-        </div>
-
-        <timeline-modal :modalData="timelineModal"></timeline-modal>
+    <div>
+        <inventory-status-stock :inventory="inventory"></inventory-status-stock>
+        <inventory-status-timeline :inventory="inventory"></inventory-status-timeline>
     </div>
 </template>
 <script>
 import D from 'dottie'
 import _ from 'lodash'
-import timelineModal from './timeline.vue'
+import inventoryStatusStock from './inventory-status-stock.vue'
+import inventoryStatusTimeline from './inventory-status-timeline.vue'
 
 module.exports = {
     components: {
-        timelineModal
+        inventoryStatusStock,
+        inventoryStatusTimeline
     },
     data() {
-        return {
-            timelineModal: {
-                show: false,
-                inventory: {}
-            }
-        }
+        return {}
     },
     props: {
-        inventory: {
-            timeline: {
-                hasShortFall: Boolean,
-                list: []
-            }
-        }
+        inventory: {}
     },
     computed: {},
-    methods: {
-        showTimeline() {
-            this.timelineModal.inventory = this.inventory
-            this.timelineModal.show = true
-        }
-    }
+    methods: {}
 }
 </script>

@@ -4,6 +4,7 @@
         <Breadcrumb class="mainBreadCrumb">
             <BreadcrumbItem>Inventory</BreadcrumbItem>
             <BreadcrumbItem>List</BreadcrumbItem>
+            <BreadcrumbItem>Expanded</BreadcrumbItem>
         </Breadcrumb>
 
         <Button style="width:400;" type="primary" @click="addProduct()">+ Add product</Button>
@@ -22,6 +23,7 @@
             :data="searchedInventories"
             :row-class-name="tableRowClassName"
             show-summary
+            border
         >
             <el-table-column style="width:10px;" type="expand">
                 <template slot-scope="scope">
@@ -30,17 +32,42 @@
             </el-table-column>
 
             <el-table-column
-                min-width="135"
+                min-width="120"
                 prop="name"
                 label="Name"
+                sortable
+            >
+                <template slot-scope="scope">
+                    <p><router-link target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }">{{ scope.row.name }}</router-link></p>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                min-width="150"
+                prop="sku"
+                label="SKU"
                 sortable
                 :filters="categoryFilters"
                 :filter-method="categoryFilterHandler"
             >
-                <template slot-scope="scope">
-                    <p><router-link target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }">{{ scope.row.name }}</router-link></p>
-                    <p style="font-size: 10px;"><i>{{ scope.row.sku }}</i></p>
-                </template>
+            </el-table-column>
+
+            <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="100"
+                prop="supplier"
+                label="Supplier"
+                sortable
+            >
+            </el-table-column>
+
+            <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="100"
+                prop="suppliersku"
+                label="Supplier SKU"
+                sortable
+            >
             </el-table-column>
 
             <el-table-column
@@ -51,34 +78,67 @@
                 :filter-method="stockLevelFilterHandler"
             >
                 <template slot-scope="scope">
-                    <inventory-status :inventory="scope.row"></inventory-status>
+                    <inventory-status-stock :inventory="scope.row"></inventory-status-stock>
                 </template>
             </el-table-column>
 
-            <el-table-column min-width="105" label="Stock">
+            <el-table-column
+                min-width="90"
+                label="Timeline"
+                prop="timeline"
+                :filters="timelineFilters"
+                :filter-method="timelineFilterHandler"
+            >
+                <template slot-scope="scope">
+                    <inventory-status-timeline :inventory="scope.row"></inventory-status-timeline>
+                </template>
+            </el-table-column>
+
+            <el-table-column min-width="70" label="Sold">
                 <template slot-scope="scope">
 
-                    <span style="font-size:11px; line-height: 12px;" v-for="location in scope.row.stock">
+                    <span v-for="location in scope.row.stock">
 
                         <span v-if="location.name.toLowerCase() === 'sold' && location.quantity > 0">
-                            <a href="javascript:void(0);" @click="showSoldDetails(scope.row)">
-                                <p>{{ location.name }}: {{ location.quantity }}</p>
-                            </a>
+                            <a href="javascript:void(0);" @click="showSoldDetails(scope.row)">{{ location.quantity }}</a>
                         </span>
-                        <span v-else-if="location.name.toLowerCase() === 'transit' && location.quantity > 0">
-                            <a href="javascript:void(0);" @click="showTransitDetails(scope.row)">
-                                <p>{{ location.name }}: {{ location.quantity }}</p>
-                            </a>
-                        </span>
-                        <span v-else-if="location.quantity < 0 "><p class="stock-negative-text">{{ location.name }}: {{ location.quantity }}</p></span>
-                        <span v-else><p>{{ location.name }}: {{ location.quantity }}</p></span>
 
                     </span>
                 </template>
             </el-table-column>
 
             <el-table-column
-                min-width="50"
+                v-for="storageLocation in storageLocations"
+                min-width="70"
+                :label="storageLocation.name"
+                :key="storageLocation.StorageLocationID"
+            >
+                <template slot-scope="scope">
+                    <span v-for="location in scope.row.stock">
+                        <span v-if="location.name.toLowerCase() === storageLocation.name.toLowerCase()">
+                            <span v-if="location.quantity < 0 ">
+                                <p class="stock-negative-text">{{ location.quantity }}</p>
+                            </span>
+                            <span v-else>
+                                <p>{{ location.quantity }}</p>
+                            </span>
+                        </span>
+                    </span>
+                </template>
+            </el-table-column>
+
+            <el-table-column min-width="70" label="Transit">
+                <template slot-scope="scope">
+                    <span v-for="location in scope.row.stock">
+                        <span v-if="location.name.toLowerCase() === 'transit' && location.quantity > 0">
+                            <a href="javascript:void(0);" @click="showTransitDetails(scope.row)">{{ location.quantity }}</a>
+                        </span>
+                    </span>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                min-width="80"
                 label="Net+Transit"
                 prop="stockAvailableWithTransit"
                 sortable
@@ -101,7 +161,7 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="84"
+                min-width="60"
                 prop="cogs"
                 label="COGS"
                 sortable
@@ -129,7 +189,7 @@
             </el-table-column>
 
             <el-table-column
-                min-width="62"
+                width="200"
                 label="Actions"
             >
                 <template slot-scope="scope">
@@ -145,6 +205,13 @@
                         <Icon type="ios-podium" /><span class="inventoryActionText">Discrepancy</span>
                     </Button>
                 </template>
+            </el-table-column>
+
+            <el-table-column
+                width="200"
+                prop="comments"
+                label="Comment"
+            >
             </el-table-column>
         </el-table>
 
@@ -254,7 +321,8 @@ import transferInventoryModal from './components/inventory/transfer.vue'
 import editInventoryModal from './components/inventory/edit.vue'
 import addInventoryModal from './components/inventory/add.vue'
 import discrepancyModal from './components/inventory/discrepancy.vue'
-import inventoryStatus from './components/inventory/inventory-status.vue'
+import inventoryStatusStock from './components/inventory/inventory-status-stock.vue'
+import inventoryStatusTimeline from './components/inventory/inventory-status-timeline.vue'
 
 const domain = process.env.API_DOMAIN
 
@@ -264,7 +332,8 @@ export default {
         editInventoryModal,
         addInventoryModal,
         discrepancyModal,
-        inventoryStatus
+        inventoryStatusStock,
+        inventoryStatusTimeline
     },
     data () {
 
@@ -338,7 +407,8 @@ export default {
             }, {
                 text: 'OOS',
                 value: "-9999999999,0"
-            }, {
+            }],
+            timelineFilters: [{
                 text: 'Bad timeline',
                 value: 'badTimeline'
             }],
@@ -350,14 +420,17 @@ export default {
     methods: {
         stockLevelFilterHandler (value, row) {
 
+            // the rest
+            var value = value.split(',')
+            return (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) > parseInt(value[0])) && (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) < parseInt(value[1]))
+        },
+        timelineFilterHandler (value, row) {
+
             // bad timeline filter
             if (value === 'badTimeline') {
                 return row.timeline.hasShortFall
             }
 
-            // the rest
-            var value = value.split(',')
-            return (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) > parseInt(value[0])) && (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) < parseInt(value[1]))
         },
         categoryFilterHandler (value, row) {
             return row.sku.toLowerCase().indexOf(value.toLowerCase()) === 0

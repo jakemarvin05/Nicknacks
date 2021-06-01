@@ -44,6 +44,14 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory.vue'], resolve)
         }, {
+            path: 'inventory/expanded',
+            title: 'Inventory (Expanded)',
+            name: 'InventoryExpanded',
+            meta: {
+                title: 'Nicknacks - Inventory (Expanded)'
+            },
+            component: (resolve) => require(['./views/inventory-expanded.vue'], resolve)
+        }, {
             path: 'inventory/deactivated',
             title: 'Inventory (Deactivated)',
             name: 'inventoryDeactivated',

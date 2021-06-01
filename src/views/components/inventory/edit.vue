@@ -13,6 +13,12 @@
             <FormItem label="SKU" prop="sku">
                 <Input v-model="modalData.form.sku"></Input>
             </FormItem>
+            <FormItem label="Supplier" prop="supplier">
+                <Input v-model="modalData.form.supplier"></Input>
+            </FormItem>
+            <FormItem label="Supplier SKU" prop="suppliersku">
+                <Input v-model="modalData.form.suppliersku"></Input>
+            </FormItem>
             <FormItem v-if="$store.state.user.rightsLevel > 9.5" prop="cogs" label="COGS">
                 <Input type="text" number v-model="modalData.form.cogs"></Input>
             </FormItem>
@@ -96,6 +102,8 @@ module.exports = {
             form: {
                 name: '',
                 sku: '',
+                supplier: '',
+                suppliersku: '',
                 cogs: 0,
                 cbm: 0,
                 comments: ''
@@ -111,6 +119,8 @@ module.exports = {
             if (
                 newVal.name === inventory.name
                 && newVal.sku === inventory.sku
+                && newVal.supplier === inventory.supplier
+                && newVal.suppliersku === inventory.suppliersku
                 && newVal.cogs === inventory.cogs
                 && newVal.cbm === inventory.cbm
                 && newVal.comments === inventory.comments
@@ -131,13 +141,9 @@ module.exports = {
                 }
 
                 let payload = {
-                    InventoryID: this.modalData.inventory.InventoryID,
-                    name: this.modalData.form.name,
-                    sku: this.modalData.form.sku,
-                    cogs: this.modalData.form.cogs,
-                    cbm: this.modalData.form.cbm,
-                    comments: this.modalData.form.comments
+                    InventoryID: this.modalData.inventory.InventoryID
                 }
+                Object.assign(payload, this.modalData.form)
 
                 this.AXIOS.post(self.DOMAIN + '/api/v2/inventory/update', payload).then(response => {
 

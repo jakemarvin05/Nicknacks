@@ -8,6 +8,8 @@
 
         <List style="width: 400px; max-width: 100%;" border>
             <ListItem><strong>SKU: </strong> {{inventory.sku}}</ListItem>
+            <ListItem><strong>Supplier: </strong> {{inventory.supplier}}</ListItem>
+            <ListItem><strong>Supplier SKU: </strong> {{inventory.suppliersku}}</ListItem>
             <ListItem v-if="$store.state.user.rightsLevel > 9.5"><strong>COGS:</strong> {{inventory.cogs}}</ListItem>
             <ListItem><strong>CBM: </strong> {{inventory.cbm}}</ListItem>
             <ListItem><strong>Comments: </strong> {{inventory.comments}}</ListItem>

@@ -13,6 +13,12 @@
             <FormItem label="SKU" prop="sku">
                 <Input v-model="modalData.form.sku"></Input>
             </FormItem>
+            <FormItem label="Supplier" prop="supplier">
+                <Input v-model="modalData.form.supplier"></Input>
+            </FormItem>
+            <FormItem label="Supplier SKU" prop="suppliersku">
+                <Input v-model="modalData.form.suppliersku"></Input>
+            </FormItem>
             <FormItem prop="cogs" label="COGS">
                 <Input type="text" number v-model="modalData.form.cogs"></Input>
             </FormItem>
@@ -81,6 +87,8 @@ module.exports = {
             form: {
                 name: '',
                 sku: '',
+                supplier: '',
+                suppliersku: '',
                 cogs: 0,
                 cbm: 0,
                 comments: ''
@@ -100,15 +108,7 @@ module.exports = {
                     this.$Message.error('Check your entry!');
                 }
 
-                let payload = {
-                    name: this.modalData.form.name,
-                    sku: this.modalData.form.sku,
-                    cogs: this.modalData.form.cogs,
-                    cbm: this.modalData.form.cbm,
-                    comments: this.modalData.form.comments
-                }
-
-                this.AXIOS.put(this.DOMAIN + '/api/v2/inventory/add', payload).then(response => {
+                this.AXIOS.put(this.DOMAIN + '/api/v2/inventory/add', this.modalData.form).then(response => {
                     if (!response.data.success) {
                         let error = new Error('API operation not successful.')
                         error.response = response
