@@ -27,7 +27,7 @@
         >
             <el-table-column style="width:10px;" type="expand">
                 <template slot-scope="scope">
-                    <iframe class="inventoryInfoIFrame" style="height:500px; width: 90%; border: 0px;" :src="$router.resolve({ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }).href"></iframe>
+                    <iframe class="inventoryInfoIFrame" style="height:500px; width: 90%; max-width: 950px; border: 0px;" :src="$router.resolve({ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }).href"></iframe>
                 </template>
             </el-table-column>
 
