@@ -108,6 +108,8 @@ module.exports = {
                     this.$Message.error('Check your entry!');
                 }
 
+                if (this.modalData.form.sku) this.modalData.form.sku = this.modalData.form.sku.toUpperCase()
+
                 this.AXIOS.put(this.DOMAIN + '/api/v2/inventory/add', this.modalData.form).then(response => {
                     if (!response.data.success) {
                         let error = new Error('API operation not successful.')

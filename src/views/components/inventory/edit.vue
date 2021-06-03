@@ -143,6 +143,9 @@ module.exports = {
                 let payload = {
                     InventoryID: this.modalData.inventory.InventoryID
                 }
+
+                if (this.modalData.form.sku) this.modalData.form.sku = this.modalData.form.sku.toUpperCase()
+                
                 Object.assign(payload, this.modalData.form)
 
                 this.AXIOS.post(self.DOMAIN + '/api/v2/inventory/update', payload).then(response => {
