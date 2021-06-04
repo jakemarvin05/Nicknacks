@@ -55,9 +55,10 @@
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
                 min-width="100"
-                prop="supplier"
                 label="Supplier"
+                prop="supplier"
                 sortable
+                :sort-method="supplierSort"
             >
             </el-table-column>
 
@@ -563,6 +564,14 @@ export default {
                 //错误处理方式
             }
             return out
+        },
+        supplierSort(a, b) {
+            let compareA = (a.supplier === null) ? "" : a.supplier.toLowerCase()
+            let compareB = (b.supplier === null) ? "" : b.supplier.toLowerCase()
+
+            if (compareA > compareB) return 1
+            if (compareA < compareB) return -1
+            return 0
         }
     },
     created () {
