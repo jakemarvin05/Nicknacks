@@ -66,6 +66,11 @@
                         sortable
                     ></el-table-column>
                     <el-table-column
+                        prop="holdingExcludingSoldValue"
+                        label="Holding W/O Sold"
+                        sortable
+                    ></el-table-column>
+                    <el-table-column
                         prop="transit"
                         label="Transit"
                         sortable
@@ -92,6 +97,12 @@
                     <el-table-column
                         prop="totalHoldingValue"
                         label="Holding Value"
+                        sortable
+                    ></el-table-column>
+
+                    <el-table-column
+                        prop="totalHoldingExcludingSoldValue"
+                        label="Holding W/O Sold Value"
                         sortable
                     ></el-table-column>
 
@@ -226,6 +237,7 @@ export default {
                 let singleInventoryQuantity = 0
                 let singleTransitValue = 0
                 let singleTransitQuantity = 0
+                let soldValue = 0
 
                 for (let i=0; i<stock.length; i++) {
 
@@ -241,6 +253,8 @@ export default {
                             singleTransitValue += parseFloat(inv.cogs) * singleTransitQuantity
                         }
 
+                    } else if (stockByLocation.name.toLowerCase() === 'sold') {
+                        soldValue = parseFloat(cogs) * parseInt(stockByLocation.quantity)
                     }
 
                 }
@@ -248,6 +262,7 @@ export default {
                 inv.holding = singleInventoryQuantity
 
                 inv.holdingValue = Math.round(singleInventoryValue * 100) / 100
+                inv.holdingExcludingSoldValue = Math.round(singleInventoryValue * 100 - soldValue * 100) / 100
                 totalHoldingValue += inv.holdingValue
 
                 inv.transit = singleTransitQuantity
@@ -268,6 +283,7 @@ export default {
                     categoryCOGS.push({
                         categoryName: categoryName,
                         totalHoldingValue: Math.round(singleInventoryValue * 100) / 100,
+                        totalHoldingExcludingSoldValue: Math.round(inv.holdingExcludingSoldValue * 100) / 100,
                         totalTransitValue: Math.round(singleTransitValue * 100) / 100
                     })
                 } else {
@@ -277,14 +293,18 @@ export default {
                     })
 
                     categoryCOGS[index].totalHoldingValue += singleInventoryValue
+                    categoryCOGS[index].totalHoldingExcludingSoldValue += inv.holdingExcludingSoldValue
                     categoryCOGS[index].totalTransitValue += singleTransitValue
 
                     categoryCOGS[index].totalHoldingValue = Math.round(categoryCOGS[index].totalHoldingValue * 100) / 100
+                    categoryCOGS[index].totalHoldingExcludingSoldValue = Math.round(categoryCOGS[index].totalHoldingExcludingSoldValue * 100) / 100
                     categoryCOGS[index].totalTransitValue = Math.round(categoryCOGS[index].totalTransitValue * 100) / 100
 
                 }
 
             }
+
+
             console.log(categoryCOGS)
             this.categoryCOGS = categoryCOGS
 
