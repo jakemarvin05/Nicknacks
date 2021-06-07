@@ -107,7 +107,18 @@
                                                         <Button style="margin-top: 5px;" icon="md-add" type="primary" @click="addInventory(scope.row)" :disabled="!canAddProduct">{{ canAddProduct ? 'Add' : 'Loading..' }}</Button>
                                                     </p>
                                             </Col>
+
+
+
                                         </Row>
+                                    </p>
+                                </Panel>
+                                <Panel name="picking-list">
+                                    Picking List
+                                    <p slot="content">
+                                        <span>
+                                            <picking-list :soldInventories="scope.row.soldInventories"></picking-list>
+                                        </span>
                                     </p>
                                 </Panel>
                             </Collapse>
@@ -220,12 +231,14 @@
 
 import D from 'dottie'
 import inventoryStatus from './components/inventory/inventory-status'
+import pickingList from './components/delivery/picking-list'
 
 const domain = process.env.API_DOMAIN
 
 export default {
     components: {
-        inventoryStatus
+        inventoryStatus,
+        pickingList
     },
     data () {
         return {
