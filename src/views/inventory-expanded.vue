@@ -176,6 +176,25 @@
             </el-table-column>
 
             <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="60"
+                prop="supplierCurrency"
+                label="Supplier Currency"
+                sortable
+            >
+            </el-table-column>
+
+
+            <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="60"
+                prop="supplierPrice"
+                label="Supplier Price"
+                sortable
+            >
+            </el-table-column>
+
+            <el-table-column
                 prop="cbm"
                 label="CBM"
                 sortable

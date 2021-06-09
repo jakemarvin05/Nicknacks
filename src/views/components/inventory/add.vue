@@ -22,6 +22,31 @@
             <FormItem prop="cogs" label="COGS">
                 <Input type="text" number v-model="modalData.form.cogs"></Input>
             </FormItem>
+            <FormItem label="Supplier Price">
+                <Row>
+                    <Col span="16" style="padding-right:10px">
+                        <FormItem prop="supplierCurrency">
+                            <Select placeholder="Select currency" v-model="modalData.form.supplierCurrency" filterable>
+                                <Option v-for="currency in currencies"
+                                :value="currency.abbreviation"
+                                :label="currency.abbreviation"
+                                :key="currency.abbreviation"
+                                >
+
+                                    {{ currency.abbreviation }}
+                                    <span class="currency-mobile-hide" style="float:right; color: #ccc"> {{ currency.full }}</span>
+
+                                </Option>
+                            </Select>
+                        </FormItem>
+                    </Col>
+                    <Col span="8">
+                        <FormItem prop="supplierPrice">
+                            <Input type="text" number v-model="modalData.form.supplierPrice"></Input>
+                        </FormItem>
+                    </Col>
+                </Row>
+            </FormItem>
             <FormItem prop="cbm" label="CBM">
                 <Input type="text" number v-model="modalData.form.cbm"></Input>
             </FormItem>
@@ -77,8 +102,37 @@ module.exports = {
 
                     },
                     trigger: 'blur'
-                }]
-            }
+                }],
+                supplierPrice: [{
+                    validator (rule, value, callback) {
+
+                        // check regex
+                        let regex = /^\d{1,6}(\.\d{1,6})?$/
+                        if (!regex.test(value.toString())) return callback( new Error('Please the value in the correct format.') )
+
+                        // everything passed
+                        return callback()
+
+                    },
+                    trigger: 'blur'
+                }],
+            },
+            currencies: [
+                { abbreviation: 'USD', full: 'United States Dollars' },
+                { abbreviation: 'CNY', full: 'China Yuan Renmimbi' },
+                { abbreviation: 'MYR', full: 'Malaysia Ringgit' },
+                { abbreviation: 'SGD', full: 'Singapore Dollars' },
+                { abbreviation: 'EUR', full: 'Euro' },
+                { abbreviation: 'GBP', full: 'United Kingdom Pounds' },
+                { abbreviation: 'AUD', full: 'Australia Dollars' },
+                { abbreviation: 'HKD', full: 'Hong Kong Dollars' },
+                { abbreviation: 'IDR', full: 'Indonesia Rupiah' },
+                { abbreviation: 'JPY', full: 'Japan Yen' },
+                { abbreviation: 'PHP', full: 'Philippines Pesos' },
+                { abbreviation: 'KRW', full: 'South Korea Won' },
+                { abbreviation: 'TWD', full: 'Taiwan Dollars' },
+                { abbreviation: 'THB', full: 'Thailand Baht' },
+            ],
         }
     },
     props: {
@@ -90,8 +144,10 @@ module.exports = {
                 supplier: '',
                 suppliersku: '',
                 cogs: 0,
+                supplierCurrency: '',
+                supplierPrice: 0,
                 cbm: 0,
-                comments: ''
+                comments: '',
             }
         },
     },
@@ -106,6 +162,7 @@ module.exports = {
                     this.loading = false
                     setTimeout(() => { self.loading = true }, 1)
                     this.$Message.error('Check your entry!');
+                    return false
                 }
 
                 if (this.modalData.form.sku) this.modalData.form.sku = this.modalData.form.sku.toUpperCase()

@@ -287,8 +287,10 @@ export default {
                     supplier: '',
                     suppliersku: '',
                     cogs: 0,
+                    supplierCurrency: '',
+                    supplierPrice: 0,
                     cbm: 0,
-                    comments: ''
+                    comments: '',
                 }
             },
 
@@ -301,8 +303,10 @@ export default {
                     supplier: '',
                     suppliersku: '',
                     cogs: 0,
+                    supplierCurrency: '',
+                    supplierPrice: 0,
                     cbm: 0,
-                    comments: ''
+                    comments: '',
                 }
             },
             transitModal: {
@@ -424,13 +428,15 @@ export default {
         },
         editInventory (inventory) {
 
-            this.editInventoryModal.form.name = inventory.name
-            this.editInventoryModal.form.sku = inventory.sku
-            this.editInventoryModal.form.supplier = inventory.supplier
-            this.editInventoryModal.form.suppliersku = inventory.suppliersku
-            this.editInventoryModal.form.cogs = inventory.cogs
-            this.editInventoryModal.form.cbm = inventory.cbm
-            this.editInventoryModal.form.comments = inventory.comments
+            Object.assign(this.editInventoryModal.form, inventory)
+
+            // this.editInventoryModal.form.name = inventory.name
+            // this.editInventoryModal.form.sku = inventory.sku
+            // this.editInventoryModal.form.supplier = inventory.supplier
+            // this.editInventoryModal.form.suppliersku = inventory.suppliersku
+            // this.editInventoryModal.form.cogs = inventory.cogs
+            // this.editInventoryModal.form.cbm = inventory.cbm
+            // this.editInventoryModal.form.comments = inventory.comments
             this.editInventoryModal.inventory = inventory
             this.editInventoryModal.show = true
 

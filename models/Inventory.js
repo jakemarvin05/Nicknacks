@@ -36,6 +36,14 @@ function Inventory(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
+        supplierCurrency: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        supplierPrice: {
+            type: DataTypes.DECIMAL(99,2),
+            allowNull: true
+        },
         notActive: {
                 type: DataTypes.BOOLEAN,
                 default: false
@@ -70,31 +78,6 @@ function Inventory(sequelize, DataTypes) {
                         });
                     }
                 }
-
-                // // COUNTING FOR SOLD QUANTITIES
-                // var transactions = D.get(self, 'Transactions');
-                // var soldQty = null; // null indicates that something is wrong.
-
-                // if (transactions) {
-
-                //     soldQty = 0; // set quantity to 0 because we found attached model.
-
-                //     for(let i=0; i<transactions.length; i++) {
-                //         var t = transactions[i];
-
-                //         // if SoldInventory cross table is not included
-                //         if (!t.SoldInventory) {
-                //             soldQty = false; // false indicates errors query
-                //             break;
-                //         }
-
-                //         soldQty += parseInt(t.SoldInventory.quantity);
-                //     }
-                // }
-                // stockArray.push({
-                //     name: 'Sold',
-                //     quantity: soldQty
-                // });
 
                 return stockArray.length === 0 ? null : stockArray;
 

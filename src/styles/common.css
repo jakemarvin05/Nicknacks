@@ -1,3 +1,10 @@
+@media all and (min-width: 736px) {
+    #login-user, #main-content {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
 .salesReceiptCard {
      width: 100%;
      max-width:780px;
@@ -15,6 +22,9 @@
 }
 @media all and (max-width: 735px) {
     .inventoryActionText {
+        display: none;
+    }
+    .currency-mobile-hide {
         display: none;
     }
 }

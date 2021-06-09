@@ -59,7 +59,7 @@
 
             </Menu>
 
-            <p><Icon type="ios-contact" /> Logged in as: {{$store.state.user.name}} <a href="javascript:void(0);" @click="logout()">logout</a></p>
+            <p id="login-user"><Icon type="ios-contact" /> Logged in as: {{$store.state.user.name}} <a href="javascript:void(0);" @click="logout()">logout</a></p>
             <router-view></router-view>
         </div>
         <div v-else>
