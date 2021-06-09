@@ -162,7 +162,7 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="60"
+                min-width="80"
                 prop="cogs"
                 label="COGS"
                 sortable
@@ -177,7 +177,7 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="60"
+                min-width="90"
                 prop="supplierCurrency"
                 label="Supplier Currency"
                 sortable
@@ -187,7 +187,7 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="60"
+                min-width="90"
                 prop="supplierPrice"
                 label="Supplier Price"
                 sortable
@@ -575,7 +575,7 @@ export default {
                     new Blob([out], {
                     type: 'application/octet-stream'
                     }),
-                    'sheet.xlsx'
+                    'nicknacks inventory.xlsx'
                 )
             } catch (e) {
                 //错误处理方式

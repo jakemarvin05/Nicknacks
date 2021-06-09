@@ -482,7 +482,7 @@ export default {
                     new Blob([out], {
                     type: 'application/octet-stream'
                     }),
-                    'sheet.xlsx'
+                    'nicknacks inventory.xlsx'
                 )
             } catch (e) {
                 //错误处理方式
