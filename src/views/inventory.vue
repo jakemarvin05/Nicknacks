@@ -429,14 +429,6 @@ export default {
         editInventory (inventory) {
 
             Object.assign(this.editInventoryModal.form, inventory)
-
-            // this.editInventoryModal.form.name = inventory.name
-            // this.editInventoryModal.form.sku = inventory.sku
-            // this.editInventoryModal.form.supplier = inventory.supplier
-            // this.editInventoryModal.form.suppliersku = inventory.suppliersku
-            // this.editInventoryModal.form.cogs = inventory.cogs
-            // this.editInventoryModal.form.cbm = inventory.cbm
-            // this.editInventoryModal.form.comments = inventory.comments
             this.editInventoryModal.inventory = inventory
             this.editInventoryModal.show = true
 
