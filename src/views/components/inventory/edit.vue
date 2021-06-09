@@ -178,7 +178,7 @@ module.exports = {
                 && newVal.sku === inventory.sku
                 && newVal.supplier === inventory.supplier
                 && newVal.suppliersku === inventory.suppliersku
-                && newVal.supplierCurrency === inventory.supplierCurrecy
+                && newVal.supplierCurrency === inventory.supplierCurrency
                 && newVal.supplierPrice === inventory.supplierPrice
                 && newVal.cogs === inventory.cogs
                 && newVal.cbm === inventory.cbm
