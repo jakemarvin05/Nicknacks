@@ -505,7 +505,7 @@ export default {
                 throw error
             }
 
-            console.log(response.data.data)
+            //console.log(response.data.data)
 
             this.inventories = response.data.data
             this.searchedInventories = response.data.data
@@ -537,7 +537,6 @@ export default {
 
             }
             this.categoryFilters = categoryFilters
-            console.log(this.categoryFilters)
 
             console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
 

@@ -386,8 +386,6 @@ export default {
 
                 if (valid) {
 
-                    console.log(salesReceipt)
-
                     let payload = {
                         TransactionID: salesReceipt.TransactionID,
                         COGS: salesReceipt.totalCOGS,
@@ -436,7 +434,7 @@ export default {
                 throw error
             }
 
-            console.log(response.data.data)
+            //console.log(response.data.data)
 
             // compute the totalCOGS and total sales amount
             for(let i=0; i<response.data.data.length; i++) {
@@ -466,7 +464,7 @@ export default {
                 throw error
             }
 
-            console.log(response.data.data)
+            //console.log(response.data.data)
             this.inventories = response.data.data
 
         }).catch(CATCH_ERR_HANDLER).then(() => { this.canAddProduct = true })
