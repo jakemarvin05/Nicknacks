@@ -11,6 +11,7 @@
             <ListItem v-if="$store.state.user.rightsLevel > 9.5"><strong>Supplier: </strong> {{inventory.supplier}}</ListItem>
             <ListItem v-if="$store.state.user.rightsLevel > 9.5"><strong>Supplier SKU: </strong> {{inventory.suppliersku}}</ListItem>
             <ListItem v-if="$store.state.user.rightsLevel > 9.5"><strong>COGS:</strong> {{inventory.cogs}}</ListItem>
+            <ListItem v-if="$store.state.user.rightsLevel > 9.5"><strong>Supplier Price:</strong> {{inventory.supplierCurrency}}{{inventory.supplierPrice}}</ListItem>
             <ListItem><strong>CBM: </strong> {{inventory.cbm}}</ListItem>
             <ListItem><strong>Comments: </strong> {{inventory.comments}}</ListItem>
         </List>
