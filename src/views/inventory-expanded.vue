@@ -19,7 +19,7 @@
         <el-table
             id="inventoryTable"
             style="width: 100%"
-            :data="searchedInventories()"
+            :data="searchInventories()"
             :row-class-name="tableRowClassName"
             show-summary
             border
