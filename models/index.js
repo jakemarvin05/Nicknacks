@@ -29,7 +29,7 @@ require('sequelize-isunique-validator')(Sequelize);
 
 var sequelize = new Sequelize(databaseUrl, {
     logging: logging,
-    databaseVersion: '9.3.24'
+    databaseVersion: process.env.PG_VERSION
 })
 
 // Test and log connection to the database
