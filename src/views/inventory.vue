@@ -12,14 +12,13 @@
         <br />
         <Icon type="ios-search" /> <Input
             style="width: 250px; padding:20px 0px"
-            @on-keyup="searchInventories"
             v-model="search"
             placeholder="Type to search"
         />
         <el-table
             id="inventoryTable"
             style="width: 100%"
-            :data="searchedInventories"
+            :data="searchInventories()"
             :row-class-name="tableRowClassName"
             show-summary
         >
@@ -273,8 +272,6 @@ export default {
             spinShow: true,
             categoryFilters: [],
             inventories: [],
-            searchedInventories: [],
-
             storageLocations: [],
 
             // EDIT Inventory Form
@@ -347,7 +344,8 @@ export default {
                 value: 'badTimeline'
             }],
             search: '',
-            stockErrorModal: false
+            debouncedSearch: '',
+            stockErrorModal: false,
         }
 
     },
@@ -458,17 +456,18 @@ export default {
             }
             return '';
         },
-        searchInventories: _.debounce(function(e) {
-            this.searchedInventories = this.inventories.filter(
-                inventory => !this.search || (
+        searchInventories() {
+            if (this.debouncedSearch.length === 0) return this.inventories
+            return this.inventories.filter(
+                inventory => !this.debouncedSearch || (
                     inventory.name.toLowerCase().includes(
-                        this.search.toLowerCase()
+                        this.debouncedSearch.toLowerCase()
                     ) || inventory.sku.toLowerCase().includes(
-                        this.search.toLowerCase()
+                        this.debouncedSearch.toLowerCase()
                     )
                 )
             )
-        }, 500),
+        },
         exportFile() {
 
             let box = xlsx.utils.table_to_book(document.querySelector('#inventoryTable'))
@@ -504,9 +503,7 @@ export default {
             }
 
             //console.log(response.data.data)
-
             this.inventories = response.data.data
-            this.searchedInventories = response.data.data
 
             let categoryArray = []
 
@@ -550,6 +547,11 @@ export default {
             this.storageLocations = response.data.data
             console.log('completed storage location req')
         }).catch(CATCH_ERR_HANDLER)
-    }
+    },
+    watch: {
+        search :_.debounce(function (e) {
+            this.debouncedSearch = this.search
+        }, 500),
+    },
 }
 </script>

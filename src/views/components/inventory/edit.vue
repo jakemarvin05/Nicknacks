@@ -120,6 +120,8 @@ module.exports = {
                 supplierPrice: [{
                     validator (rule, value, callback) {
 
+                        if(!value) return callback()
+
                         // check regex
                         let regex = /^\d{1,6}(\.\d{1,6})?$/
 
