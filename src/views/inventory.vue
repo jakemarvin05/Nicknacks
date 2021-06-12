@@ -13,7 +13,7 @@
         <Icon type="ios-search" /> <Input
             style="width: 250px; padding:20px 0px"
             v-model="search"
-            placeholder="Type to search"
+            placeholder="Search name/sku"
         />
         <el-table
             id="inventoryTable"
@@ -21,6 +21,7 @@
             :data="searchInventories()"
             :row-class-name="tableRowClassName"
             show-summary
+            size="small"
         >
             <el-table-column style="width:10px;" type="expand">
                 <template slot-scope="scope">
@@ -346,6 +347,7 @@ export default {
             search: '',
             debouncedSearch: '',
             stockErrorModal: false,
+            stockErrorModalShown: false,
         }
 
     },
@@ -445,28 +447,39 @@ export default {
         addProduct() {
             this.addInventoryModal.show = true
         },
-
         tableRowClassName({row, rowIndex}) {
             // loop through each of the stock info to find erroneous negative stock
             for (let i=0; i<row.stock.length; i++) {
                 if (parseInt(row.stock[i].quantity) < 0) {
-                    this.stockErrorModal = true
+                    if (!this.stockErrorModalShown) this.stockErrorModal = true
                     return 'stock-negative-row';
                 }
             }
+            this.stockErrorModalShown = true // prevents modal from popping up every re-render
             return '';
         },
         searchInventories() {
             if (this.debouncedSearch.length === 0) return this.inventories
-            return this.inventories.filter(
-                inventory => !this.debouncedSearch || (
-                    inventory.name.toLowerCase().includes(
-                        this.debouncedSearch.toLowerCase()
-                    ) || inventory.sku.toLowerCase().includes(
-                        this.debouncedSearch.toLowerCase()
-                    )
-                )
-            )
+            return this.inventories.filter(inventory => {
+
+                let searchStr = inventory.searchString.toLowerCase()
+                let term = this.debouncedSearch.toLowerCase()
+
+                let whole = searchStr.includes(term)
+
+                if (whole) return true
+
+                let terms = term.split(' ')
+
+                if (terms.length < 2) return false
+
+                for (let i=0; i < terms.length; i++) {
+                    let notFound = !searchStr.includes(terms[i])
+                    if (notFound) return false
+                }
+
+                return true
+            })
         },
         exportFile() {
 
@@ -508,14 +521,16 @@ export default {
             let categoryArray = []
 
             // split up the skus and get the broad categories
+            // make searchString while we are at it.
             for(let i=0; i<this.inventories.length; i++) {
                 let inv = this.inventories[i]
                 let sku = inv.sku
+
+                inv.searchString = `${inv.name} ${inv.sku}`
+
                 let categoryName = sku.split('-')[0].toLowerCase()
 
-                if (categoryArray.indexOf(categoryName) > -1) continue
-
-                categoryArray.push(categoryName)
+                if (categoryArray.indexOf(categoryName) === -1) categoryArray.push(categoryName)
             }
 
             _.sortBy(categoryArray)
@@ -551,7 +566,7 @@ export default {
     watch: {
         search :_.debounce(function (e) {
             this.debouncedSearch = this.search
-        }, 500),
+        }, 400),
     },
 }
 </script>

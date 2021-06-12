@@ -11,11 +11,21 @@
         <Button style="width:400;" type="success" @click="exportFile()">> Export</Button>
 
         <br />
-        <Icon type="ios-search" /> <Input
-            style="width: 250px; padding:20px 0px"
-            v-model="search"
-            placeholder="Type to search"
-        />
+        <Icon type="ios-search" />
+        <span v-if="$store.state.user.rightsLevel > 9.5">
+            <Input
+                style="width: 250px; padding:20px 0px"
+                v-model="search"
+                placeholder="Search name/sku/supplier"
+            />
+        </span>
+        <span v-else>
+            <Input
+                style="width: 250px; padding:20px 0px"
+                v-model="search"
+                placeholder="Search name/sku"
+            />
+        </span>
         <el-table
             id="inventoryTable"
             style="width: 100%"
@@ -23,6 +33,7 @@
             :row-class-name="tableRowClassName"
             show-summary
             border
+            size="small"
         >
             <el-table-column style="width:10px;" type="expand">
                 <template slot-scope="scope">
@@ -53,17 +64,19 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="100"
+                min-width="110"
                 label="Supplier"
                 prop="supplier"
                 sortable
                 :sort-method="supplierSort"
+                :filters="supplierFilters"
+                :filter-method="supplierFilterHandler"
             >
             </el-table-column>
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="100"
+                min-width="125"
                 prop="suppliersku"
                 label="Supplier SKU"
                 sortable
@@ -109,7 +122,7 @@
 
             <el-table-column
                 v-for="storageLocation in storageLocations"
-                min-width="70"
+                min-width="90"
                 :label="storageLocation.name"
                 :key="storageLocation.StorageLocationID"
             >
@@ -149,7 +162,7 @@
             </el-table-column>
 
             <el-table-column
-                min-width="50"
+                min-width="60"
                 label="Net"
                 prop="stockAvailablePhysical"
                 sortable
@@ -161,7 +174,7 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="80"
+                min-width="85"
                 prop="cogs"
                 label="COGS"
                 sortable
@@ -176,9 +189,9 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="90"
+                min-width="95"
                 prop="supplierCurrency"
-                label="Supplier Currency"
+                label="Curr $/¥"
                 sortable
             >
             </el-table-column>
@@ -186,9 +199,9 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="90"
+                min-width="105"
                 prop="supplierPrice"
-                label="Supplier Price"
+                label="Supplier $"
                 sortable
             >
             </el-table-column>
@@ -208,20 +221,18 @@
             </el-table-column>
 
             <el-table-column
-                width="200"
+                width="270"
                 label="Actions"
             >
                 <template slot-scope="scope">
                     <Button type="primary" size="small" @click="editInventory(scope.row)">
-                        <Icon type="ios-create" /><span class="inventoryActionText">Edit</span>
+                        <Icon type="ios-create" /><span>Edit</span>
                     </Button>
-                    <br>
                     <Button type="warning" size="small" @click="transfer(scope.row)">
-                        <Icon type="md-git-compare" /><span class="inventoryActionText">Transfer</span>
+                        <Icon type="md-git-compare" /><span>Transfer</span>
                     </Button>
-                    <br>
                     <Button type="error" size="small" @click="discrepancy(scope.row)">
-                        <Icon type="ios-podium" /><span class="inventoryActionText">Discrepancy</span>
+                        <Icon type="ios-podium" /><span>Discrepancy</span>
                     </Button>
                 </template>
             </el-table-column>
@@ -325,7 +336,10 @@
         height: 500px;
     }
 }
-
+.el-table__header {
+    /* this is there to prevent header height changes due some visual bugs */
+    height: 45px !important;
+}
 </style>
 
 <script>
@@ -360,6 +374,7 @@ export default {
             stockCache: [],
             spinShow: true,
             categoryFilters: [],
+            supplierFilters: [],
             inventories: [],
             storageLocations: [],
 
@@ -436,6 +451,7 @@ export default {
             search: '',
             debouncedSearch: '',
             stockErrorModal: false,
+            stockErrorModalShown: false,
         }
 
     },
@@ -456,6 +472,12 @@ export default {
         },
         categoryFilterHandler (value, row) {
             return row.sku.toLowerCase().indexOf(value.toLowerCase()) === 0
+        },
+        supplierFilterHandler (value, row) {
+            if (row.supplier && typeof row.supplier === 'string' && row.supplier.length > 0) {
+                return row.supplier.toLowerCase().indexOf(value.toLowerCase()) === 0
+            }
+            return false
         },
         lineAdd(inventory) {
             this.inventories.unshift(inventory)
@@ -538,28 +560,39 @@ export default {
         addProduct() {
             this.addInventoryModal.show = true
         },
-
         tableRowClassName({row, rowIndex}) {
             // loop through each of the stock info to find erroneous negative stock
             for (let i=0; i<row.stock.length; i++) {
                 if (parseInt(row.stock[i].quantity) < 0) {
-                    this.stockErrorModal = true
+                    if (!this.stockErrorModalShown) this.stockErrorModal = true
                     return 'stock-negative-row';
                 }
             }
+            this.stockErrorModalShown = true // prevents modal from popping up every re-render
             return '';
         },
         searchInventories() {
             if (this.debouncedSearch.length === 0) return this.inventories
-            return this.inventories.filter(
-                inventory => !this.debouncedSearch || (
-                    inventory.name.toLowerCase().includes(
-                        this.debouncedSearch.toLowerCase()
-                    ) || inventory.sku.toLowerCase().includes(
-                        this.debouncedSearch.toLowerCase()
-                    )
-                )
-            )
+            return this.inventories.filter(inventory => {
+
+                let searchStr = inventory.searchString.toLowerCase()
+                let term = this.debouncedSearch.toLowerCase()
+
+                let whole = searchStr.includes(term)
+
+                if (whole) return true
+
+                let terms = term.split(' ')
+
+                if (terms.length < 2) return false
+
+                for (let i=0; i < terms.length; i++) {
+                    let notFound = !searchStr.includes(terms[i])
+                    if (notFound) return false
+                }
+
+                return true
+            })
         },
         exportFile() {
 
@@ -607,19 +640,26 @@ export default {
             this.inventories = response.data.data
 
             let categoryArray = []
+            let supplierArray = []
 
             // split up the skus and get the broad categories
+            // make searchString while we are at it.
             for(let i=0; i<this.inventories.length; i++) {
                 let inv = this.inventories[i]
                 let sku = inv.sku
+                let supplier = (inv.supplier && typeof inv.supplier === 'string' && inv.supplier.length > 0) ? inv.supplier.toLowerCase() : null
+
+                inv.searchString = `${inv.name} ${inv.sku} ${ supplier ? supplier : '' }`
+
                 let categoryName = sku.split('-')[0].toLowerCase()
 
-                if (categoryArray.indexOf(categoryName) > -1) continue
-
-                categoryArray.push(categoryName)
+                if (categoryArray.indexOf(categoryName) === -1) categoryArray.push(categoryName)
+                if (supplier && supplierArray.indexOf(supplier) === -1) supplierArray.push(supplier)
             }
 
             _.sortBy(categoryArray)
+            _.sortBy(supplierArray)
+
 
             //make categoryArray into filters
             let categoryFilters = []
@@ -633,6 +673,21 @@ export default {
 
             }
             this.categoryFilters = categoryFilters
+
+            if (this.$store.state.user.rightsLevel > 9.5) {
+                //make supplierArray into filters
+                let supplierFilters = []
+                for(let i=0; i<supplierArray.length; i++) {
+                    let supplier = supplierArray[i]
+
+                    supplierFilters.push({
+                        text: supplier,
+                        value: supplier
+                    })
+
+                }
+                this.supplierFilters = supplierFilters
+            }
 
             console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
 
@@ -652,7 +707,7 @@ export default {
     watch: {
         search :_.debounce(function (e) {
             this.debouncedSearch = this.search
-        }, 500),
+        }, 400),
     },
 }
 </script>
