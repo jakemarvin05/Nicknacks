@@ -512,7 +512,6 @@ export default {
             }
             return out
         },
-        triggerSearch: _.debounce(function(e) { this.debouncedSearch = this.search }, 1),
     },
     created () {
 
@@ -577,12 +576,19 @@ export default {
     },
     updated() {
         // forever stop the search bar spinning whenever re-rendered
-        setTimeout(() => { this.searching = false }, 1000)
+        // double raf technique
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => { this.searching = false })
+        })
     },
     watch: {
         search: _.debounce(function (e) {
-            window.requestAnimationFrame(() => { this.searching = true })
-            this.triggerSearch()
+            requestAnimationFrame(() => {
+                this.searching = true
+                requestAnimationFrame(() => {
+                    this.debouncedSearch = this.search
+                })
+            })
         }, 400),
     },
 }
