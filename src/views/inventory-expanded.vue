@@ -11,11 +11,11 @@
         <Button style="width:400;" type="success" @click="exportFile()">> Export</Button>
 
         <br />
-        <Icon type="ios-search" />
         <span v-if="$store.state.user.rightsLevel > 9.5">
             <Input
                 style="width: 250px; padding:20px 0px"
                 v-model="search"
+                search="true"
                 placeholder="Search name/sku/supplier"
             />
         </span>
@@ -23,6 +23,7 @@
             <Input
                 style="width: 250px; padding:20px 0px"
                 v-model="search"
+                search="true"
                 placeholder="Search name/sku"
             />
         </span>

@@ -10,9 +10,10 @@
         <Button style="width:400;" type="success" @click="exportFile()">> Export</Button>
 
         <br />
-        <Icon type="ios-search" /> <Input
+        <Input
             style="width: 250px; padding:20px 0px"
             v-model="search"
+            search="true"
             placeholder="Search name/sku"
         />
         <el-table
