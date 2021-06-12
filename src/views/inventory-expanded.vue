@@ -15,7 +15,7 @@
             <Input
                 style="width: 250px; padding:20px 0px"
                 v-model="search"
-                search="true"
+                :icon="searchIcon"
                 placeholder="Search name/sku/supplier"
             />
         </span>
@@ -23,7 +23,7 @@
             <Input
                 style="width: 250px; padding:20px 0px"
                 v-model="search"
-                search="true"
+                :icon="searchIcon"
                 placeholder="Search name/sku"
             />
         </span>
@@ -451,10 +451,19 @@ export default {
             }],
             search: '',
             debouncedSearch: '',
+            searchIcon: 'ios-search',
             stockErrorModal: false,
             stockErrorModalShown: false,
         }
 
+    },
+    computed: {
+        searching: {
+            get() { return this.searchIcon },
+            set(value) {
+                this.searchIcon = value ? 'ios-loading ivu-load-loop' : 'ios-search'
+            },
+        },
     },
     methods: {
         stockLevelFilterHandler (value, row) {
@@ -595,6 +604,7 @@ export default {
                 return true
             })
         },
+        triggerSearch: _.debounce(function(e) { this.debouncedSearch = this.search }, 1),
         exportFile() {
 
             let box = xlsx.utils.table_to_book(document.querySelector('#inventoryTable'))
@@ -611,7 +621,7 @@ export default {
                     'nicknacks inventory.xlsx'
                 )
             } catch (e) {
-                //错误处理方式
+                alert(`Export failed. Error: ${e}`)
             }
             return out
         },
@@ -705,9 +715,14 @@ export default {
             console.log('completed storage location req')
         }).catch(CATCH_ERR_HANDLER)
     },
+    updated() {
+        // forever stop the search bar spinning whenever re-rendered
+        setTimeout(() => { this.searching = false }, 1000)
+    },
     watch: {
-        search :_.debounce(function (e) {
-            this.debouncedSearch = this.search
+        search: _.debounce(function (e) {
+            window.requestAnimationFrame(() => { this.searching = true })
+            this.triggerSearch()
         }, 400),
     },
 }
