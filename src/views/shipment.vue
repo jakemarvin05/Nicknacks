@@ -82,7 +82,14 @@
                         <Icon type="ios-cube" />
                         Products (<b v-if="shipment.products">{{ shipment.products.length }}</b><b v-else>0</b>)
                         <p slot="content">
-                            <Table :columns="productColumns" v-if="shipment.products" :data="shipment.products"></Table>
+                            <Button type="primary" size="small" @click="exportData('shipment' + shipment.ShipmentID)"><Icon type="ios-download-outline"></Icon> Export</Button>
+                            <Table
+                                size="small"
+                                :columns="productColumns"
+                                v-if="shipment.products"
+                                :data="shipment.products"
+                                :ref="`shipment${ shipment.ShipmentID }`"
+                            ></Table>
                         </p>
                     </Panel>
                 </Collapse>
@@ -143,7 +150,8 @@ export default {
             productColumns: [{
                 title: 'No.',
                 key: 'ShipmentID',
-                width: 30
+                type: 'index',
+                width: 40
             }, {
                 title: 'Product',
                 key: 'sku',
@@ -153,6 +161,10 @@ export default {
                         h('p', [h('i', params.row.sku)])
                     ]
                 }
+            }, {
+                title: 'Supplier SKU',
+                key: 'suppliersku',
+                width: 120
             }, {
                 title: 'Qty',
                 key: 'quantity',
@@ -284,6 +296,12 @@ export default {
             // needs cloneDeep if not model will be reactive.
             this.inventoriseModal.form = _.cloneDeep(shipment)
             this.inventoriseModal.show = true
+        },
+        exportData(table) {
+            this.$refs[table][0].exportCsv({
+                filename: 'shipment',
+                original: false
+            });
         }
     },
     filters: {},

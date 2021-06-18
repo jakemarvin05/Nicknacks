@@ -68,6 +68,7 @@ function Shipment(sequelize, DataTypes) {
                             InventoryID: inventory.InventoryID,
                             name: inventory.name,
                             sku: inventory.sku,
+                            suppliersku: inventory.suppliersku,
                             quantity: inventory.TransitInventory.quantity
                         })
                     })
