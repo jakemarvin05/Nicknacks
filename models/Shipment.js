@@ -1,3 +1,5 @@
+const readyBy = require('./../apps/publicHolidays/index.js')
+
 function Shipment(sequelize, DataTypes) {
 
     var Shipment = sequelize.define('Shipment', {
@@ -82,6 +84,10 @@ function Shipment(sequelize, DataTypes) {
                 if (this.hasArrived) return 'Inventorised'
                 if (this.actualShipOut) return 'On sail'
                 return 'Not shipped'
+            },
+            readyBy: function() {
+                if (this.actualArrival) return readyBy(this.actualArrival)
+                if (this.expectedArrival) return readyBy(this.expectedArrival)
             }
         },
         classMethods: {

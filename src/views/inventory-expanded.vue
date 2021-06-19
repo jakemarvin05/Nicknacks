@@ -586,6 +586,7 @@ export default {
             return this.inventories.filter(inventory => {
 
                 let searchStr = inventory.searchString.toLowerCase()
+
                 let term = this.debouncedSearch.toLowerCase()
 
                 let whole = searchStr.includes(term)
@@ -647,7 +648,9 @@ export default {
             }
 
             //console.log(response.data.data)
-            this.inventories = response.data.data
+            //this.inventories = response.data.data
+
+            let inventories = response.data.data
 
             let categoryArray = []
             let supplierArray = []
@@ -695,6 +698,8 @@ export default {
                 }
                 this.supplierFilters = supplierFilters
             }
+
+            this.inventories = inventories
 
             console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
 

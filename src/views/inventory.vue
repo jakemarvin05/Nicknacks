@@ -527,7 +527,9 @@ export default {
             }
 
             //console.log(response.data.data)
-            this.inventories = response.data.data
+            //this.inventories = response.data.data
+
+            let inventories = response.data.data
 
             let categoryArray = []
 
@@ -555,6 +557,7 @@ export default {
 
             }
             this.categoryFilters = categoryFilters
+            this.inventories = inventories
 
             console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
 

@@ -7,7 +7,7 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 import Routers from './router'
-import Util from './libs/util'
+import Util from './helpers/util'
 import App from './app.vue'
 import 'view-design/dist/styles/iview.css'
 import locale from 'view-design/dist/locale/en-US'

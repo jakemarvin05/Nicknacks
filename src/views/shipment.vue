@@ -69,11 +69,15 @@
                                     <p v-if="shipment.actualShipOut" class="content"><strong>Actual Ship Out:</strong> {{ shipment.actualShipOut | unixToDate }}</p>
                                     <p v-if="shipment.actualShipOut" class="content"><strong>Details:</strong> {{ shipment.shipOutDetails }}</p>
                                 </TimelineItem>
-                                <TimelineItem color="green">
+                                <TimelineItem color="yellow">
                                     <p class="time">Arrival</p>
                                     <p class="content"><strong>Expected:</strong> {{ shipment.expectedArrival | unixToDate }}</p>
                                     <p v-if="shipment.actualArrival" class="content"><strong>Actual:</strong> {{ shipment.actualArrival | unixToDate }}</p>
                                     <p v-if="shipment.actualArrival" class="content"><strong>Arrival details:</strong> {{ shipment.arrivalDetails }}</p>
+                                </TimelineItem>
+                                <TimelineItem color="green">
+                                    <p class="time">Ready by</p>
+                                    <p class="content"><strong>Expected:</strong> {{ shipment.readyBy | unixToDate }}</p>
                                 </TimelineItem>
                             </Timeline>
                         </p>
@@ -176,6 +180,7 @@ export default {
                 estimatedShipOut: '',
                 actualShipOut: '',
                 expectedArrival: '',
+                readyBy: '',
                 products: []
             }],
 

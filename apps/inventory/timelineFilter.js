@@ -59,11 +59,12 @@ function inventoryTimeLineFilter(inventory) {
             //if already shipped out
             if (shipment.actualShipOut) {
                 shipmentTimeline.isConfirmed = true
-                shipmentTimeline.date = shipment.expectedArrival
+                shipmentTimeline.date = shipment.readyBy
             } else {
                 shipmentTimeline.isConfirmed = false
-                shipmentTimeline.date = shipment.expectedArrival
+                shipmentTimeline.date = shipment.readyBy
             }
+
 
 
             timeline.push(shipmentTimeline)

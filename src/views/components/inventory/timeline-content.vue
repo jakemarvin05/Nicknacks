@@ -33,7 +33,7 @@
                 <span v-else-if="line.date === 9999999999999">
                     <p class="time" style="color: red;">Not scheduled</p>
                     <p class="content">
-                        Change: {{ line.change }},
+                        Change: <Tag :color="(line.change > 0) ? 'success' : 'error'">{{ line.change }}</Tag>,
                         Stock left: {{ line.stockAvailableAtCurrentDate }},
                         Info:
                             <span v-if="line.type==='sales'"><Icon type="ios-cart" /></span>
@@ -51,12 +51,14 @@
                         </Tag>
                     </p>
                     <p class="content">
-                        Change: {{ line.change }},
-                        Stock left: {{ line.stockAvailableAtCurrentDate }},
+                        <span v-if="line.type==='transit'"><Icon type="ios-boat" /></span>
+                        <span v-else-if="line.type==='sales'"><Icon type="ios-cart" /></span>
+                        <Tag :color="(line.change > 0) ? 'success' : 'error'"><span v-if="line.change > 0">+</span>{{ line.change }}</Tag>,
+                        Stock left: <Tag :color="(line.stockAvailableAtCurrentDate > 0) ? 'primary' : 'error'">{{ line.stockAvailableAtCurrentDate }}</Tag>,
                         Info:
-                            <span v-if="line.type==='sales'"><Icon type="ios-cart" /></span>
-                            <span v-else-if="line.type==='transit'"><Icon type="ios-boat" /></span>
-                            {{ line.info.display }}
+                        <span v-if="line.type==='transit'"><Icon type="ios-boat" /></span>
+                        <span v-else-if="line.type==='sales'"><Icon type="ios-cart" /></span>
+                        {{ line.info.display }}
                     </p>
                 </span>
 

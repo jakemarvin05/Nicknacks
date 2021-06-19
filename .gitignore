@@ -45,3 +45,4 @@ src/config/env.js
 /index_prod.html
 views/admin.hbs
 admin_dfho/*
+apps/publicHolidays/data/*
