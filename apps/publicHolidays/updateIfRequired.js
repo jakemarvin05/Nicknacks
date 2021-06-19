@@ -1,5 +1,5 @@
 const axios = require('axios')
-const fs = require('fs')
+const fs = require('fs-extra')
 const path = require('path')
 const readData = require('./readData.js')
 
@@ -8,10 +8,9 @@ const dataFolder = path.join(__dirname, 'data')
 const getHolidays = (year) => {
 
     axios.get( phURL(year) ).then(data => {
-        fs.writeFileSync(
+        fs.outputFileSync(
             path.join(dataFolder, `${year.toString()}.json`),
-            JSON.stringify(data.data),
-            'utf8'
+            JSON.stringify(data.data)
         )
         readData.refresh()
     }).catch(error => {

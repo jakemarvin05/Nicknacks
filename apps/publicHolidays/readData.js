@@ -3,16 +3,6 @@ const fs = require('fs')
 
 const dataFolder = path.join(__dirname, 'data')
 
-function ensureDirectoryExistence(filePath) {
-    var dirname = path.dirname(filePath);
-    if (fs.existsSync(dirname)) {
-        return true;
-    }
-    ensureDirectoryExistence(dirname);
-    fs.mkdirSync(dirname);
-}
-ensureDirectoryExistence(dataFolder)
-
 ph = {}
 
 ph.data = {}
