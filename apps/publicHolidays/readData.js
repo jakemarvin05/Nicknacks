@@ -10,9 +10,7 @@ ph.data = {}
 ph.refresh = function() {
     const data = {}
     const currentYear = (new Date()).getFullYear()
-    // console.log(dataFolder)
-    // console.log(1111)
-    //
+
     fs.ensureDirSync(dataFolder)
 
     let files = fs.readdirSync(dataFolder).filter(function (file) {
