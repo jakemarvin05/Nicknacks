@@ -37,7 +37,7 @@
     "express-session": "^1.15.6",
     "file-saver": "^2.0.5",
     "fs": "0.0.1-security",
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^9.1.0",
     "hbs": "^4.1.1",
     "html-to-text": "^3.3.0",
     "intuit-oauth": "^3.0.2",
