@@ -11,6 +11,8 @@ ph.refresh = function() {
     const data = {}
     const currentYear = (new Date()).getFullYear()
 
+    fs.ensureDirSync(dataFolder)
+
     let files = fs.readdirSync(dataFolder).filter(function (file) {
         return (file.indexOf('.') !== 0) && (file.indexOf('.') !== -1) && (file.indexOf('bak') === -1)
     })
