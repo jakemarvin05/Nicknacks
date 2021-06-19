@@ -532,12 +532,9 @@ export default {
             let categoryArray = []
 
             // split up the skus and get the broad categories
-            // make searchString while we are at it.
-            for(let i=0; i<this.inventories.length; i++) {
-                let inv = this.inventories[i]
+            for(let i=0; i<inventories.length; i++) {
+                let inv = inventories[i]
                 let sku = inv.sku
-
-                inv.searchString = `${inv.name} ${inv.sku}`
 
                 let categoryName = sku.split('-')[0].toLowerCase()
 

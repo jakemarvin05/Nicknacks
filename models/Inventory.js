@@ -59,7 +59,11 @@ function Inventory(sequelize, DataTypes) {
         instanceMethods: {},
         getterMethods: {
             searchString: function() {
-                if (this.name && this.sku) return this.name + ' ' + this.sku;
+                if (this.name && this.sku) {
+                    let str = this.name + ' ' + this.sku
+                    if (this.supplier) str += ' ' + this.supplier
+                    return str
+                }
             },
             stock: function() {
                 var self = this;
