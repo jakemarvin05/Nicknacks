@@ -128,7 +128,7 @@
                 :key="storageLocation.StorageLocationID"
             >
                 <template slot-scope="scope">
-                    <span v-for="location in scope.row.stock">
+                    <span v-for="location in scope.row.stock" style="text-align: center;">
                         <span v-if="location.name.toLowerCase() === storageLocation.name.toLowerCase()">
                             <span v-if="location.quantity < 0 ">
                                 <p class="stock-negative-text">{{ location.quantity }}</p>
@@ -138,6 +138,7 @@
                             </span>
                         </span>
                     </span>
+                    <span v-if="!exporting" class="storageBGText">{{storageLocation.name}} <br> <i>{{ scope.row.name }}</i></span>
                 </template>
             </el-table-column>
 
@@ -341,6 +342,17 @@
     /* this is there to prevent header height changes due some visual bugs */
     height: 45px !important;
 }
+.storageBGText {
+    position: absolute;
+    font-size: 8.5px;
+    color: #aaa;
+    display: block;
+    line-height: 10px;
+    top: 0px;
+}
+.storageBGText i {
+    color: #ccc
+}
 </style>
 
 <script>
@@ -454,6 +466,7 @@ export default {
             searchIcon: 'ios-search',
             stockErrorModal: false,
             stockErrorModalShown: false,
+            exporting: false,
         }
 
     },
@@ -467,18 +480,15 @@ export default {
     },
     methods: {
         stockLevelFilterHandler (value, row) {
-
             // the rest
             var value = value.split(',')
             return (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) > parseInt(value[0])) && (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) < parseInt(value[1]))
         },
         timelineFilterHandler (value, row) {
-
             // bad timeline filter
             if (value === 'badTimeline') {
                 return row.timeline.hasShortFall
             }
-
         },
         categoryFilterHandler (value, row) {
             return row.sku.toLowerCase().indexOf(value.toLowerCase()) === 0
@@ -606,24 +616,28 @@ export default {
             })
         },
         exportFile() {
-
-            let box = xlsx.utils.table_to_book(document.querySelector('#inventoryTable'))
-            let out = xlsx.write(box, {
-                bookType: 'xlsx',
-                bookSST: true,
-                type: 'array'
-            })
-            try {
-                fileSaver.saveAs(
-                    new Blob([out], {
-                    type: 'application/octet-stream'
-                    }),
-                    'nicknacks inventory.xlsx'
-                )
-            } catch (e) {
-                alert(`Export failed. Error: ${e}`)
-            }
-            return out
+            this.exporting = true
+            setTimeout(() => {
+                let box = xlsx.utils.table_to_book(document.querySelector('#inventoryTable'))
+                let out = xlsx.write(box, {
+                    bookType: 'xlsx',
+                    bookSST: true,
+                    type: 'array'
+                })
+                try {
+                    fileSaver.saveAs(
+                        new Blob([out], {
+                        type: 'application/octet-stream'
+                        }),
+                        'nicknacks inventory.xlsx'
+                    )
+                } catch (e) {
+                    this.exporting = false
+                    alert(`Export failed. Error: ${e}`)
+                }
+                this.exporting = false
+                return out
+            }, 0)
         },
         supplierSort(a, b) {
             let compareA = (a.supplier === null) ? "" : a.supplier.toLowerCase()
