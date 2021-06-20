@@ -458,14 +458,18 @@ export default {
             this.addInventoryModal.show = true
         },
         tableRowClassName({row, rowIndex}) {
+            console.log()
             // loop through each of the stock info to find erroneous negative stock
             for (let i=0; i<row.stock.length; i++) {
                 if (parseInt(row.stock[i].quantity) < 0) {
-                    if (!this.stockErrorModalShown) this.stockErrorModal = true
+                    if (!this.stockErrorModalShown) {
+                        this.stockErrorModalShown = true // prevents modal from popping up every re-render
+                        this.stockErrorModal = true
+                    }
                     return 'stock-negative-row';
                 }
             }
-            this.stockErrorModalShown = true // prevents modal from popping up every re-render
+
             return '';
         },
         searchInventories() {
