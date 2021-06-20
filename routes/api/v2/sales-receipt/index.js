@@ -504,9 +504,7 @@ router.post('/deliver', permit('/deliver', 8), (req, res, next) => {
     }).spread((recordMovement) => {
 
         //TODO: create a webhook styled approach to separate/decouple auxilary operations cleanly
-        if (!req.body.dontCompleteAsanaTask) {
-            return completeAsanaTask(recordMovement)
-        }
+        return completeAsanaTask(recordMovement, req.body.dontCompleteAsanaTask)
 
     }).then(() => {
 

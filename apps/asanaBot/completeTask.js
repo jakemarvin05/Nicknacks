@@ -5,7 +5,7 @@ debug.log = console.log.bind(console)
 
 const config = require('./config.js')
 
-function completeTask(data) {
+function completeTask(data, dontComplete) {
 
     let salesOrderID = data.sourceData.details.salesOrderNumber
     let soldInventories = data.sourceData.soldInventories
@@ -62,10 +62,12 @@ function completeTask(data) {
         })
         promises.push(taskComment)
 
-        let completeTask = ASANA.tasks.update(task.gid, {
-            completed: true
-        })
-        promises.push(completeTask)
+        if (!dontComplete) {
+            let completeTask = ASANA.tasks.update(task.gid, {
+                completed: true
+            })
+            promises.push(completeTask)
+        }
 
         return promises
     })
