@@ -24,10 +24,13 @@
                     <span v-else>Loading...</span>
                 </Button>
 
+                <asana-button :salesOrderNumber="salesReceipt.salesOrderNumber"></asana-button>
+
                 <Collapse style="max-width: 100%;" value="info">
                     <Panel name="info">
                         Info
                         <p slot="content">
+
                             <Icon type="ios-person" /> {{ salesReceipt.details.customerName }}<br>
                             <Icon type="ios-mail" /> {{ salesReceipt.details.customerEmail }}<br>
                             <Icon type="ios-phone-portrait" /> {{ salesReceipt.details.customerPhone }}<br>
@@ -163,10 +166,12 @@ import D from 'dottie'
 const domain = process.env.API_DOMAIN
 import M from 'moment'
 import inventoryStatus from './components/inventory/inventory-status'
+import asanaButton from './components/asana-button'
 
 export default {
     components: {
-        inventoryStatus
+        inventoryStatus,
+        asanaButton,
     },
     data () {
         return {

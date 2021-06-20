@@ -27,6 +27,8 @@
                                 {{ scope.row.salesOrderNumber }}
                             </p>
 
+                            <asana-button :salesOrderNumber="scope.row.salesOrderNumber"></asana-button>
+
                             <Button
                                 type="primary"
                                 slot="extra"
@@ -245,13 +247,15 @@
 import D from 'dottie'
 import inventoryStatus from './components/inventory/inventory-status'
 import pickingList from './components/delivery/picking-list'
+import asanaButton from './components/asana-button'
 
 const domain = process.env.API_DOMAIN
 
 export default {
     components: {
         inventoryStatus,
-        pickingList
+        pickingList,
+        asanaButton,
     },
     data () {
         return {
