@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const permit = require(__appsDir + '/passport/permit')('/api/v2/sales-receipt')
 const debug = require('debug')('nn:api:sales-receipt')
+const completeAsanaTask = require(__appsDir + '/asanaBot/completeTask.js')
 debug.log = console.log.bind(console)
 
 router.get('/pending/all', permit('/pending/all', 1), (req, res, next) => {
@@ -468,6 +469,13 @@ router.post('/deliver', permit('/deliver', 8), (req, res, next) => {
 
                 let promises = []
 
+                //record inventory movement
+                let createInventoryRecord = require(__appsDir + '/inventory/createInventoryRecord')
+
+                // same for DB calls "required" from outside, it will be outside of this CLS scoping, need to manually pass `t`
+                let recordMovement = createInventoryRecord(t, 'delivery', transaction, req.user)
+                promises.push(recordMovement)
+
                 transaction.status = 'delivered';
                 promises.push(transaction.save())
 
@@ -485,13 +493,6 @@ router.post('/deliver', permit('/deliver', 8), (req, res, next) => {
 
                 })
 
-                //record inventory movement
-                let createInventoryRecord = require(__appsDir + '/inventory/createInventoryRecord')
-
-                // same for DB calls "required" from outside, it will be outside of this CLS scoping, need to manually pass `t`
-                let recordMovement = createInventoryRecord(t, 'delivery', transaction, req.user)
-                promises.push(recordMovement)
-
                 // this is important for transaction to work, if not you need to call spread
                 // otherwise commit will be called when the first DB action completes without error.
                 return PROMISE.all(promises)
@@ -500,11 +501,18 @@ router.post('/deliver', permit('/deliver', 8), (req, res, next) => {
 
         })
 
-    }).spread(() => {
+    }).spread((recordMovement) => {
+
+        //TODO: create a webhook styled approach to separate/decouple auxilary operations cleanly
+        if (!req.body.dontCompleteAsanaTask) {
+            return completeAsanaTask(recordMovement)
+        }
+
+    }).then(() => {
 
         return res.send({
             success: true
-        });
+        })
 
     }).catch(error => { API_ERROR_HANDLER(error, req, res, next) })
 

@@ -27,10 +27,23 @@
                                 {{ scope.row.salesOrderNumber }}
                             </p>
 
-                            <Button type="primary" slot="extra" :loading="scope.row.submitLoading" :disable="scope.row.submitLoading" @click='deliverSalesReceipt(scope.row)'>
+                            <Button
+                                type="primary"
+                                slot="extra"
+                                :loading="scope.row.submitLoading"
+                                :disable="scope.row.submitLoading"
+                                @click='deliverSalesReceipt(scope.row)'
+                                style="vertical-align:middle;"
+                            >
                                 <span v-if="!scope.row.submitLoading">Deliver</span>
                                 <span v-else>Loading...</span>
                             </Button>
+                            <Checkbox
+                                style="vertical-align:middle;"
+                                slot="extra"
+                                v-model="scope.row.completeAsanaTask"
+                                border
+                            >Complete Asana Task</Checkbox>
 
                             <Collapse style="max-width: 100%;" value="info">
                                 <Panel name="info">
@@ -265,7 +278,8 @@ export default {
                     items: []
                 },
                 // view properties
-                submitLoading: false
+                submitLoading: false,
+                completeAsanaTask: true,
             }],
 
             //view properties
@@ -429,7 +443,8 @@ export default {
                 loading: true,
                 onOk: () => {
                     let payload = {
-                        TransactionID: salesReceipt.TransactionID
+                        TransactionID: salesReceipt.TransactionID,
+                        dontCompleteAsanaTask: !salesReceipt.completeAsanaTask,
                     }
 
                     this.AXIOS.post(domain + '/api/v2/sales-receipt/deliver', payload).then(response => {
@@ -502,7 +517,7 @@ export default {
                 //compute the
                 this.totalSalesAmountOnView += parseInt(salesReceipt.details.totalAmount)
 
-                //salesReceipt.submitLoading = false
+                salesReceipt.completeAsanaTask = true
             }
 
             this.salesReceipts = response.data.data
