@@ -78,7 +78,7 @@ export default {
             this.form.transferToStorageLocationID = 0
             this.form.sku = ''
             this.$refs['transferInventory'].resetFields()
-            this.$ref['transferInventorySelect'].reset()
+            this.$refs['transferInventorySelect'].reset()
         },
         transferOK() {
 
