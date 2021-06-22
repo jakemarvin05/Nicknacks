@@ -49,7 +49,7 @@ function completeTask(data, user, dontComplete) {
         // it exists on DB and on task programme, create the comment.
         debug(salesOrderID + ': Creating comment and completing task')
 
-        let comment = `Staff: ${D.get(user, 'name') || 'Anonymous'}\nDelivered:\n`
+        let comment = `Staff: ${D.get(user, 'name') || 'Anonymous'}\n\nDelivered:\n`
 
         soldInventories.forEach(inventory => {
             comment += "\n"
