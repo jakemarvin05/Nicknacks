@@ -5,7 +5,7 @@ debug.log = console.log.bind(console)
 
 const config = require('./config.js')
 
-function completeTask(data, dontComplete) {
+function completeTask(data, user, dontComplete) {
 
     let salesOrderID = data.sourceData.details.salesOrderNumber
     let soldInventories = data.sourceData.soldInventories
@@ -46,7 +46,7 @@ function completeTask(data, dontComplete) {
         // it exists on DB and on task programme, create the comment.
         debug(salesOrderID + ': Creating comment and completing task')
 
-        let comment = "Delivered:\n"
+        let comment = `Staff: ${D.get(user, 'name') || 'Anonymous'}\nDelivered:\n`
 
         soldInventories.forEach(inventory => {
             comment += "\n"
