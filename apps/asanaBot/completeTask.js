@@ -4,6 +4,9 @@ const debug = require('debug')('nn:apps:asanaBot:completeTask')
 debug.log = console.log.bind(console)
 
 const config = require('./config.js')
+const completedField = {
+    "1200506036637301": "1200506036637302" // Prevent auto-revival : Confirmed
+}
 
 function completeTask(data, user, dontComplete) {
 
@@ -64,8 +67,9 @@ function completeTask(data, user, dontComplete) {
 
         if (!dontComplete) {
             let completeTask = ASANA.tasks.update(task.gid, {
-                completed: true
-            })
+                completed: true,
+                custom_fields: completedField //apply confirmation to prevent n8n autorevival
+            }).catch(error => { console.log(JSON.stringify(error.value.errors)) })
             promises.push(completeTask)
         }
 
