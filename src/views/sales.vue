@@ -61,8 +61,8 @@ import D from 'dottie'
 const domain = process.env.API_DOMAIN
 import M from 'moment'
 import inventoryStatus from './components/inventory/inventory-status'
-import asanaButton from './components/asana-button'
-import salesPanel from './components/sales-panel'
+import asanaButton from './components/sales/asana-button'
+import salesPanel from './components/sales/sales-panel'
 
 export default {
     components: {

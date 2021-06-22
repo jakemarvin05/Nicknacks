@@ -50,10 +50,12 @@
                             <sales-panel
                                 :salesReceipt="scope.row"
                                 :inventories="inventories"
+                                :storageLocations="storageLocations"
                                 :canAddProduct="canAddProduct"
                                 :isDeliveryView="true"
                                 @inventory-added="addSoldInventory"
                                 @soldInventoryRemoved="removeSoldInventory"
+                                @transferred="updateSalesReceipt"
                             ></sales-panel>
 
                         </Card>
@@ -122,8 +124,8 @@
 
 import D from 'dottie'
 import inventoryStatus from './components/inventory/inventory-status'
-import asanaButton from './components/asana-button'
-import salesPanel from './components/sales-panel'
+import asanaButton from './components/sales/asana-button'
+import salesPanel from './components/sales/sales-panel'
 
 const domain = process.env.API_DOMAIN
 
@@ -163,6 +165,7 @@ export default {
             }],
 
             inventories: [],
+            storageLocations: [],
 
         }
 
@@ -259,6 +262,17 @@ export default {
             console.log(a,b)
             console.log(parseFloat(a) > parseFloat(b))
             return parseFloat(a) > parseFloat(b)
+        },
+        updateSalesReceipt(salesReceipts) {
+            console.log(salesReceipts)
+
+            // this.$set(this.salesReceipts, this.salesReceipts.indexOf(salesReceipts.old), salesReceipts.new)
+            //
+            //
+            this.$set(salesReceipts.old, 'Inventory_Storages', salesReceipts.new.Inventory_Storages)
+            this.$set(salesReceipts.old, 'soldInventories', salesReceipts.new.soldInventories)
+            // salesReceipts.old.Inventory_Storages = salesReceipts.new.Inventory_Storages
+            // salesReceipts.old.soldInventories = salesReceipts.old.soldInventories
         }
     },
 
@@ -287,9 +301,21 @@ export default {
 
         this.AXIOS.get(domain + '/api/v2/inventory/all').then(response => {
             if (!response.data.success) return alert(response.data.message)
-            console.log(response.data.data)
+            //console.log(response.data.data)
             this.inventories = response.data.data
         }).catch(CATCH_ERR_HANDLER).then(() => { this.canAddProduct = true })
+
+        // get all storage location info
+        this.AXIOS.get(domain + '/api/v2/storage-location/all').then(response => {
+            if (!response.data.success) {
+                let error = new Error('API operation not successful.')
+                error.response = response
+                throw error
+            }
+            //console.log(response.data.data)
+            this.storageLocations = response.data.data
+            console.log('completed storage location req')
+        }).catch(CATCH_ERR_HANDLER)
     },
 
     computed: {

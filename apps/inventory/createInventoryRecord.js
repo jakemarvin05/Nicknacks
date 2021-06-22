@@ -20,6 +20,10 @@ function createInventoryRecord(t, source, sourceData, user) {
 
         involvedProductIDs = [ sourceData.inventory.InventoryID ]
 
+    } else if (source === 'quickInventoryTransfer') {
+
+        involvedProductIDs = [ sourceData.inventory.InventoryID ]
+
     } else if (source === 'discrepancy') {
 
         involvedProductIDs = [ sourceData.adjustments[0].InventoryID ]

@@ -988,4 +988,5 @@ router.delete('/delete-empty-locations', permit('/delete-empty-locations', 7), f
 
 })
 
+
 module.exports = router;

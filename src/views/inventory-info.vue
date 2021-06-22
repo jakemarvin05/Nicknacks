@@ -103,6 +103,9 @@
                     <div v-else-if="scope.row.source === 'inventoryTransfer'">
                         {{ scope.row.sourceData.transferReason }}
                     </div>
+                    <div v-else-if="scope.row.source === 'quickInventoryTransfer'">
+
+                    </div>
                     <div v-else-if="scope.row.source === 'discrepancy'">
                         {{ scope.row.sourceData.discrepancyReason }}
                     </div>
@@ -124,7 +127,7 @@
                             </p>
                         </div>
                     </div>
-                    <div v-else-if="scope.row.source === 'inventoryTransfer'">
+                    <div v-else-if="scope.row.source === 'inventoryTransfer' || scope.row.source === 'quickInventoryTransfer'">
                         <span v-for="transfer in scope.row.sourceData.transfer" v-if="parseInt(transfer.transfer) !== 0">
                             {{transfer.name}}
                             <span v-if="parseInt(transfer.transfer) > 0">

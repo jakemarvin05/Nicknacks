@@ -86,6 +86,21 @@
                                     <Button size="small" @click="removeSoldInventoryOK(soldInventory, salesReceipt)" type="error">
                                         <Icon type="ios-trash" /> Del
                                     </Button>
+                                    <Collapse style="padding-top: 5px;" simple>
+                                        <Panel>
+                                            Advanced
+                                            <div slot="content">
+                                                <transfer-sold-inventory
+                                                    v-if="isDeliveryView"
+                                                    :salesReceipt="salesReceipt"
+                                                    :soldInventory="soldInventory"
+                                                    :storageLocations="storageLocations"
+                                                    @transferred="transferred"
+                                                ></transfer-sold-inventory>
+                                            </div>
+                                        </Panel>
+                                    </Collapse>
+
 
                                 </Card>
 
@@ -114,62 +129,32 @@
 </template>
 <script>
 const domain = process.env.API_DOMAIN
-import inventoryStatus from './inventory/inventory-status'
+import inventoryStatus from './../inventory/inventory-status'
 import addInventoryModal from './add-inventory-modal.vue'
-import pickingList from './delivery/picking-list'
+import pickingList from './../delivery/picking-list'
+import transferSoldInventory from './transfer-sold-inventory'
 
 export default {
     components: {
         inventoryStatus,
         addInventoryModal,
-        pickingList
+        pickingList,
+        transferSoldInventory,
     },
     data() {
         return {
             // ADD Inventory Form
             showAddInventoryModal: false,
-            addInventoryModal: {
-                show: false,
-                loading: true,
-                salesReceipt: '',
-                form: {
-                    inventoryIndex: '',
-                    StorageLocationID: '',
-                    quantity: 1
-                },
-                formRules: {
-                    inventoryIndex: [
-                        { type: 'number', min: 0, message: 'Please select inventory', trigger: 'blur' }
-                    ],
-                    storageLocationID: [
-                        { required: true, message: 'Please select a storage location.', trigger: 'blur' }
-                    ],
-                    quantity: [
-                        { type: 'number', min: 1, message: 'Quantity cannot be less than 1', trigger: 'blur' }
-                    ]
-                },
-
-                selectedInventory: {
-                    stock: []
-                }
-            }
         }
     },
     props: {
         salesReceipt: Object,
         inventories: Array,
+        storageLocations: Array,
         canAddProduct: Boolean,
         isDeliveryView: Boolean,
     },
     methods: {
-        triggerStorageSelection() {
-            // set the selectedInventory to point to the inventory object within the inventories array
-            let i = this.addInventoryModal.form.inventoryIndex
-            if (this.inventories[i]) {
-                this.addInventoryModal.selectedInventory = this.inventories[i]
-                this.$refs['addInventoryFormStorage'].reset()
-            }
-        },
         inventoryAdded (result) {
 
             this.$emit('inventory-added', {
@@ -189,8 +174,6 @@ export default {
                 quantity: 1
             }
             this.addInventoryModal.selectedInventory = { stock: [] }
-            // this.$refs['addInventoryForm'].resetFields()
-            // this.$refs['addInventoryFormStorage'].reset()
             this.addInventoryModal.inventories = this.inventories
 
         },
@@ -225,6 +208,9 @@ export default {
                 }
             })
         },
+        transferred(salesReceipts) {
+            this.$emit('transferred', salesReceipts)
+        }
     }
 }
 </script>
