@@ -86,12 +86,11 @@
                                     <Button size="small" @click="removeSoldInventoryOK(soldInventory, salesReceipt)" type="error">
                                         <Icon type="ios-trash" /> Del
                                     </Button>
-                                    <Collapse style="padding-top: 5px;" simple>
+                                    <Collapse v-if="isDeliveryView" style="padding-top: 5px;" simple>
                                         <Panel>
                                             Advanced
                                             <div slot="content">
                                                 <transfer-sold-inventory
-                                                    v-if="isDeliveryView"
                                                     :salesReceipt="salesReceipt"
                                                     :soldInventory="soldInventory"
                                                     :storageLocations="storageLocations"
