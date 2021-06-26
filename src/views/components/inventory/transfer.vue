@@ -4,6 +4,7 @@
         title="Transfer voucher"
         @on-ok="transferOK()"
         :loading="loading"
+        @on-visible-change="copyValues"
     >
 
         <h1>{{ modalData.inventory.name }}</h1>
@@ -12,7 +13,7 @@
         <Form ref="transferForm" v-model="stock" :rules="formRules">
 
             <el-table
-                :data="stock"
+                :data="stockCopied"
                 style="width: 100%"
             >
                 <el-table-column
@@ -152,6 +153,7 @@ module.exports = {
             loading: true,
             remaining: 0,
             transferReason: '',
+            stockCopied: [],
             formRules: {
                 transferredGrand: [{
                     trigger: 'blur',
@@ -177,11 +179,11 @@ module.exports = {
     computed: {
         currentGrand: function() {
             let self = this
-            return _.sumBy(self.stock, o => { return parseInt(o.quantity) })
+            return _.sumBy(self.stockCopied, o => { return parseInt(o.quantity) })
         },
         transferredGrand: function() {
             let self = this
-            return _.sumBy(self.stock, o => { return parseInt(o.final) })
+            return _.sumBy(self.stockCopied, o => { return parseInt(o.final) })
         },
         summaryRow: function() {
             let self = this
@@ -216,7 +218,7 @@ module.exports = {
                 }
 
                 // cannot find any transfer that is not zero
-                if( !(_.find(self.stock, o => { return parseInt(o.transfer) !== 0 })) ) {
+                if( !(_.find(self.stockCopied, o => { return parseInt(o.transfer) !== 0 })) ) {
                     this.$Message.error('There are no transfers made.')
                     this.loading = false
                     setTimeout(() => { self.loading = true }, 1)
@@ -226,7 +228,7 @@ module.exports = {
 
                 let payload = {
                     InventoryID: this.modalData.inventory.InventoryID,
-                    stock: this.stock,
+                    stock: this.stockCopied,
                     transferReason: this.transferReason
                 }
 
@@ -254,7 +256,10 @@ module.exports = {
                     setTimeout(() => { self.loading = true }, 1)
                 })
             })
-        }
+        },
+        copyValues(shown) {
+            if (shown) this.stockCopied = _.cloneDeep(this.stock)
+        },
     }
 }
 </script>

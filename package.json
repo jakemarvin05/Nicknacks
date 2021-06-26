@@ -60,7 +60,7 @@
     "showdown": "^1.9.1",
     "ssacl-attribute-roles": "0.0.4",
     "string": "^3.3.3",
-    "view-design": "^4.3.1",
+    "view-design": "^4.6.1",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.5.2",
     "vue-json-pretty": "^1.4.1",

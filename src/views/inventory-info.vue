@@ -101,7 +101,7 @@
                         {{ scope.row.sourceData.name }}
                     </div>
                     <div v-else-if="scope.row.source === 'inventoryTransfer'">
-                        {{ scope.row.sourceData.transferReason }}
+                        {{ scope.row.sourceData.reason }}
                     </div>
                     <div v-else-if="scope.row.source === 'quickInventoryTransfer'">
 

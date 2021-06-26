@@ -3,30 +3,32 @@
         v-model="modalData.show"
         title="Edit product"
         :loading="loading"
-        @on-ok="OK(modalData.inventory)">
+        @on-ok="OK(modalData.inventory)"
+        @on-visible-change="copyValues"
+    >
 
-        <Form label-position="right" :label-width="80" ref="editInventoryForm" :model="modalData.form" :rules="formRules">
+        <Form label-position="right" :label-width="80" ref="editInventoryForm" :model="form" :rules="formRules">
 
             <FormItem label="Name" prop="name">
-                <Input v-model="modalData.form.name"></Input>
+                <Input v-model="form.name"></Input>
             </FormItem>
             <FormItem label="SKU" prop="sku">
-                <Input v-model="modalData.form.sku"></Input>
+                <Input v-model="form.sku"></Input>
             </FormItem>
             <FormItem label="Supplier" prop="supplier">
-                <Input v-model="modalData.form.supplier"></Input>
+                <Input v-model="form.supplier"></Input>
             </FormItem>
             <FormItem label="Supplier SKU" prop="suppliersku">
-                <Input v-model="modalData.form.suppliersku"></Input>
+                <Input v-model="form.suppliersku"></Input>
             </FormItem>
             <FormItem v-if="$store.state.user.rightsLevel > 9.5" prop="cogs" label="COGS">
-                <Input type="text" number v-model="modalData.form.cogs"></Input>
+                <Input type="text" number v-model="form.cogs"></Input>
             </FormItem>
             <FormItem v-if="$store.state.user.rightsLevel > 9.5" label="Supplier Price">
                 <Row>
                     <Col span="16" style="padding-right:10px">
                         <FormItem prop="supplierCurrency">
-                            <Select placeholder="Select currency" v-model="modalData.form.supplierCurrency" filterable>
+                            <Select placeholder="Select currency" v-model="form.supplierCurrency" filterable>
                                 <Option v-for="currency in currencies"
                                 :value="currency.abbreviation"
                                 :label="currency.abbreviation"
@@ -42,16 +44,16 @@
                     </Col>
                     <Col span="8">
                         <FormItem prop="supplierPrice">
-                            <Input type="text" number v-model="modalData.form.supplierPrice"></Input>
+                            <Input type="text" number v-model="form.supplierPrice"></Input>
                         </FormItem>
                     </Col>
                 </Row>
             </FormItem>
             <FormItem prop="cbm" label="CBM">
-                <Input type="text" number v-model="modalData.form.cbm"></Input>
+                <Input type="text" number v-model="form.cbm"></Input>
             </FormItem>
             <FormItem label="Comments" prop="comments">
-                <Input v-model="modalData.form.comments"></Input>
+                <Input v-model="form.comments"></Input>
             </FormItem>
 
         </Form>
@@ -80,6 +82,17 @@ module.exports = {
 
         return {
             loading: true,
+            form: {
+                name: '',
+                sku: '',
+                supplier: '',
+                suppliersku: '',
+                cogs: 0,
+                supplierCurrency: '',
+                supplierPrice: 0,
+                cbm: 0,
+                comments: '',
+            },
             deactivateInvSKU: '',
             deleteInvSKU: '',
             formRules: {
@@ -170,11 +183,16 @@ module.exports = {
         },
     },
     methods: {
+        copyValues(shown) {
+            if (shown) {
+                Object.assign(this.form, this.modalData.form)
+            }
+        },
         OK(inventory) {
 
             let self = this
 
-            let newVal = this.modalData.form
+            let newVal = this.form
             if (
                 newVal.name === inventory.name
                 && newVal.sku === inventory.sku
@@ -206,9 +224,12 @@ module.exports = {
                     InventoryID: this.modalData.inventory.InventoryID
                 }
 
-                if (this.modalData.form.sku) this.modalData.form.sku = this.modalData.form.sku.toUpperCase()
+                if (this.form.sku) this.form.sku = this.form.sku.toUpperCase()
 
-                Object.assign(payload, this.modalData.form)
+                Object.assign(payload, this.form)
+
+                // supplierprice error when not entered
+                if (typeof payload.supplierPrice === 'string' &&  payload.supplierPrice.length === 0) payload.supplierPrice = 0
 
                 this.AXIOS.post(self.DOMAIN + '/api/v2/inventory/update', payload).then(response => {
 
