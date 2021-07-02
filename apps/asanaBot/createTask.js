@@ -207,8 +207,8 @@ function createTask(fromMagento, options) {
         body += '\nWith tax: ' + obj.totals.shipping_incl_tax
 
         body += '\n\n## Discount'
-        body += '\nCode: ' + (obj.all_data.coupon_code ? obj.all_data.coupon_code : 'Nil')
-        body += '\nAmount: ' + obj.all_data.base_discount_amount
+        body += '\nCode: ' + (fromMagento.all_data.coupon_code ? fromMagento.all_data.coupon_code : 'Nil')
+        body += '\nAmount: ' + fromMagento.all_data.base_discount_amount
 
         body += '\n\n## Grand totals'
         body += '\nWithout tax: ' + obj.totals.grand_total
