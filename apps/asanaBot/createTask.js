@@ -226,7 +226,7 @@ function createTask(fromMagento, options) {
         }
 
         // sale amount custom field
-        taskObject[cusomFieldSaleAmt] = obj.totals.grand_total_incl_tax
+        taskObject.custom_fields[cusomFieldSaleAmt] = obj.totals.grand_total_incl_tax
 
 
         // if momentTime is defined, it means there is a delivery date and time arranged.
