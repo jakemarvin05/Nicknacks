@@ -11,6 +11,9 @@ const postalCodeSplit = require('../postalCodeSplit/index.js')
 const markDownToHTML = require('./markDownToHTML.js')
 const addContact = require('../addContact/index.js')
 
+// custom fields
+const cusomFieldSaleAmt = "1200552799528029"
+
 function createTask(fromMagento, options) {
 
     var TASK_DATA, DELIVERY_TICKET
@@ -198,9 +201,15 @@ function createTask(fromMagento, options) {
         body += '\n\n## Subtotals'
         body += '\nWithout tax: ' + obj.totals.subtotal
         body += '\nWith tax: ' + obj.totals.subtotal_incl_tax
+
         body += '\n\n## Shipment'
         body += '\nWithout tax: ' + obj.totals.shipping_amount
         body += '\nWith tax: ' + obj.totals.shipping_incl_tax
+
+        body += '\n\n## Discount'
+        body += '\nCode: ' + (obj.all_data.coupon_code ? obj.all_data.coupon_code : 'Nil')
+        body += '\nAmount: ' + obj.all_data.base_discount_amount
+
         body += '\n\n## Grand totals'
         body += '\nWithout tax: ' + obj.totals.grand_total
         body += '\nWith tax: ' +  obj.totals.grand_total_incl_tax
@@ -212,8 +221,13 @@ function createTask(fromMagento, options) {
             name: titleShort,
             notes: body,
             html_notes: markDownToHTML(body),
-            tags: [ config.tags.notScheduled ] // default to not scheduled
+            tags: [ config.tags.notScheduled ], // default to not scheduled
+            custom_fields: {}
         }
+
+        // sale amount custom field
+        taskObject[cusomFieldSaleAmt] = obj.totals.grand_total_incl_tax
+
 
         // if momentTime is defined, it means there is a delivery date and time arranged.
         // need to use the `due_at` attribute
