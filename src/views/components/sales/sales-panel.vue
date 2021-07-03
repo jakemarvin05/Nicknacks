@@ -1,3 +1,9 @@
+<style>
+.ivu-tag {
+    height: auto !important;
+}
+</style>
+
 <template>
     <Collapse style="max-width: 100%;" value="info">
         <Panel name="info">
