@@ -37,7 +37,7 @@
                                 <p><u>{{ cartItem.name }}</u></p>
 
                                 <p><b>SKU:</b> <Tag color="cyan"><b>{{ cartItem.sku }}</b></Tag></p>
-                                <p><b>Qty:</b> <Tag color="green"><b>{{ parseFloat(cartItem["Ordered Qty"]).toFixed(1) }}</b></Tag></p>
+                                <p><b>Qty:</b> <Tag :color="getQtyTagColours(cartItem['Ordered Qty'])"><b>{{ parseFloat(cartItem["Ordered Qty"]).toFixed(1) }}</b></Tag></p>
                                 <p><b>Price:</b> {{ parseFloat(cartItem.Price).toFixed(2) }} </p>
 
                                 <span v-if="cartItem.Options" v-for="(option, label) in cartItem.Options">
@@ -81,7 +81,7 @@
                                     ></inventory-status>
 
                                     <p style="padding-top: 10px;"><b>SKU:</b> <Tag color="cyan"><b>{{ soldInventory.sku }}</b></Tag></p>
-                                    <p><b>Qty:</b> <Tag color="green"><b>{{ soldInventory.quantity }}</b></Tag></p>
+                                    <p><b>Qty:</b> <Tag :color="getQtyTagColours(soldInventory.quantity)"><b>{{ soldInventory.quantity }}</b></Tag></p>
                                     <p><b>From:</b> <Tag color="orange"><b>{{ soldInventory.StorageLocationName }}</b></Tag></p>
                                     <p v-if="$store.state.user.rightsLevel > 9.5">
                                         <b>COGS:</b> {{ soldInventory.perItemCOGS }}x{{ soldInventory.quantity }} = {{ soldInventory.totalCOGS }}
@@ -147,6 +147,7 @@ export default {
         return {
             // ADD Inventory Form
             showAddInventoryModal: false,
+
         }
     },
     props: {
@@ -157,6 +158,24 @@ export default {
         isDeliveryView: Boolean,
     },
     methods: {
+        getQtyTagColours(qty) {
+            let tagColours = [
+                'gold',
+                'magenta',
+                'blue',
+                'geekblue',
+                'purple',
+                '#AFB83B',
+                '#6ACCBC',
+                '#158FAD',
+                '#884DFF',
+                '#AF38EB',
+            ]
+            let int = parseInt(qty)
+            if (isNaN(int)) return tagColours[0]
+            if (tagColours[int-1]) return tagColours[int-1]
+            return tagColours[tagColours.length - 1]
+        },
         inventoryAdded (result) {
 
             this.$emit('inventory-added', {
