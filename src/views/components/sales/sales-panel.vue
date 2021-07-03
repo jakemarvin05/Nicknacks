@@ -35,8 +35,9 @@
                             >
                                 <p><b>{{ index+1 }}</b></p>
                                 <p><u>{{ cartItem.name }}</u></p>
-                                <p><b>SKU:</b> {{ cartItem.sku }}</p>
-                                <p><b>Qty:</b> {{ parseFloat(cartItem["Ordered Qty"]).toFixed(1) }}</p>
+
+                                <p><b>SKU:</b> <Tag color="cyan"><b>{{ cartItem.sku }}</b></Tag></p>
+                                <p><b>Qty:</b> <Tag color="green"><b>{{ parseFloat(cartItem["Ordered Qty"]).toFixed(1) }}</b></Tag></p>
                                 <p><b>Price:</b> {{ parseFloat(cartItem.Price).toFixed(2) }} </p>
 
                                 <span v-if="cartItem.Options" v-for="(option, label) in cartItem.Options">
@@ -45,6 +46,7 @@
                                     </p>
                                 </span>
                             </Card>
+
                         </p>
                     </Col>
                     <Col span="1" style="font-size=1px;">&nbsp;</Col>
@@ -78,12 +80,13 @@
                                         :key="'inventory_status_for_' + soldInventory.InventoryID"
                                     ></inventory-status>
 
-                                    <p><b>SKU:</b> {{ soldInventory.sku }}</p>
-                                    <p><b>Qty:</b> {{ soldInventory.quantity }} (from <b>{{ soldInventory.StorageLocationName }}</b>)</p>
+                                    <p style="padding-top: 10px;"><b>SKU:</b> <Tag color="cyan"><b>{{ soldInventory.sku }}</b></Tag></p>
+                                    <p><b>Qty:</b> <Tag color="green"><b>{{ soldInventory.quantity }}</b></Tag></p>
+                                    <p><b>From:</b> <Tag color="orange"><b>{{ soldInventory.StorageLocationName }}</b></Tag></p>
                                     <p v-if="$store.state.user.rightsLevel > 9.5">
                                         <b>COGS:</b> {{ soldInventory.perItemCOGS }}x{{ soldInventory.quantity }} = {{ soldInventory.totalCOGS }}
                                     </p>
-                                    <Button size="small" @click="removeSoldInventoryOK(soldInventory, salesReceipt)" type="error">
+                                    <Button style="margin-top: 10px;" size="small" @click="removeSoldInventoryOK(soldInventory, salesReceipt)" type="error" ghost>
                                         <Icon type="ios-trash" /> Del
                                     </Button>
                                     <Collapse v-if="isDeliveryView" style="padding-top: 5px;" simple>
