@@ -9,6 +9,7 @@
 
         <Button style="width:400;" type="primary" @click="addProduct()">+ Add product</Button>
         <Button style="width:400;" type="success" @click="exportFile()">> Export</Button>
+        <get-turnover :inventories="inventories" v-on:inventory:turnover="addTurnoverColumns"></get-turnover>
 
         <br />
         <span v-if="$store.state.user.rightsLevel > 9.5">
@@ -27,10 +28,21 @@
                 placeholder="Search name/sku"
             />
         </span>
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="setPage"
+          :current-page.sync="currentPage"
+          :page-sizes="[100, 200, 400, 1000, 2000]"
+          :page-size="pageSize"
+          layout="sizes, prev, pager, next"
+          :total="totalSize">
+        </el-pagination>
+        <Alert style="margin-top: 10px;" type="warning" show-icon>Filters and sorting does not work with pagination at the moment, unless all data are in 1 page.</Alert>
         <el-table
             id="inventoryTable"
+            ref="inventoryTable"
             style="width: 100%"
-            :data="searchInventories()"
+            :data="searchInventories"
             :row-class-name="tableRowClassName"
             show-summary
             border
@@ -107,6 +119,22 @@
                     <inventory-status-timeline :inventory="scope.row"></inventory-status-timeline>
                 </template>
             </el-table-column>
+
+            <el-table-column
+                min-width="70"
+                label="30D MA"
+                prop="turnover.ma30d"
+                v-if="showTurnover"
+            >
+            </el-table-column>
+            <el-table-column
+                min-width="70"
+                label="60D MA"
+                prop="turnover.ma60d"
+                v-if="showTurnover"
+            >
+            </el-table-column>
+
 
             <el-table-column min-width="70" label="Sold">
                 <template slot-scope="scope">
@@ -369,6 +397,7 @@ import addInventoryModal from './components/inventory/add.vue'
 import discrepancyModal from './components/inventory/discrepancy.vue'
 import inventoryStatusStock from './components/inventory/inventory-status-stock.vue'
 import inventoryStatusTimeline from './components/inventory/inventory-status-timeline.vue'
+import getTurnover from './components/inventory/get-turnover.vue'
 
 const domain = process.env.API_DOMAIN
 
@@ -379,7 +408,8 @@ export default {
         addInventoryModal,
         discrepancyModal,
         inventoryStatusStock,
-        inventoryStatusTimeline
+        inventoryStatusTimeline,
+        getTurnover,
     },
     data () {
 
@@ -467,6 +497,11 @@ export default {
             stockErrorModal: false,
             stockErrorModalShown: false,
             exporting: false,
+            showTurnover: false,
+
+            currentPage: 1,
+            pageSize: 100,
+            totalSize: 0,
         }
 
     },
@@ -476,6 +511,43 @@ export default {
             set(value) {
                 this.searchIcon = value ? 'ios-loading ivu-load-loop' : 'ios-search'
             },
+        },
+        searchInventories() {
+
+            let self = this
+            function paginate(data) {
+                return data.slice(self.pageSize * self.currentPage - self.pageSize, self.pageSize * self.currentPage)
+            }
+
+            if (this.debouncedSearch.length === 0) {
+                this.totalSize = this.inventories.length
+                return paginate(this.inventories)
+            }
+
+            let filtered = this.inventories.filter(inventory => {
+
+                let searchStr = inventory.searchString.toLowerCase()
+
+                let term = this.debouncedSearch.toLowerCase()
+
+                let whole = searchStr.includes(term)
+
+                if (whole) return true
+
+                let terms = term.split(' ')
+
+                if (terms.length < 2) return false
+
+                for (let i=0; i < terms.length; i++) {
+                    let notFound = !searchStr.includes(terms[i])
+                    if (notFound) return false
+                }
+
+                return true
+            })
+
+            this.totalSize = filtered.length
+            return paginate(filtered)
         },
     },
     methods: {
@@ -591,30 +663,6 @@ export default {
             this.stockErrorModalShown = true // prevents modal from popping up every re-render
             return '';
         },
-        searchInventories() {
-            if (this.debouncedSearch.length === 0) return this.inventories
-            return this.inventories.filter(inventory => {
-
-                let searchStr = inventory.searchString.toLowerCase()
-
-                let term = this.debouncedSearch.toLowerCase()
-
-                let whole = searchStr.includes(term)
-
-                if (whole) return true
-
-                let terms = term.split(' ')
-
-                if (terms.length < 2) return false
-
-                for (let i=0; i < terms.length; i++) {
-                    let notFound = !searchStr.includes(terms[i])
-                    if (notFound) return false
-                }
-
-                return true
-            })
-        },
         exportFile() {
             this.exporting = true
             setTimeout(() => {
@@ -646,25 +694,54 @@ export default {
             if (compareA > compareB) return 1
             if (compareA < compareB) return -1
             return 0
-        }
+        },
+        addTurnoverColumns(data) {
+            data.ma30d.forEach(el => {
+                let found = this.inventories.find(inventory => parseInt(inventory.InventoryID) === parseInt(el.InventoryID))
+                if (found) D.set(found, 'turnover.ma30d', el.quantity)
+            })
+            data.ma60d.forEach(el => {
+                let found = this.inventories.find(inventory => parseInt(inventory.InventoryID) === parseInt(el.InventoryID))
+                if (found) D.set(found, 'turnover.ma60d', el.quantity)
+            })
+            this.showTurnover = true
+            this.$Message.success('Success!');
+        },
+        handleSizeChange (val) {
+            this.pageSize = val
+        },
+        setPage (val) {
+          this.currentPage = val
+        },
     },
     created () {
 
         window.V = this
 
         let timeThen = new Date().getTime()
-        this.AXIOS.get(domain + '/api/v2/inventory/all').then(response => {
 
-            if (!response.data.success) {
-                let error = new Error('API operation not successful.')
-                error.response = response
-                throw error
+        Promise.all(
+            [
+                this.AXIOS.get(domain + '/api/v2/inventory/all').then(response => {
+                    console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
+                    return response
+                }),
+                this.AXIOS.get(domain + '/api/v2/storage-location/all').then(response => {
+                    console.log('completed storage location req')
+                    return response
+                })
+            ]
+        ).then(responses => {
+            for (let i=0; i<responses.length; i++) {
+                if (!responses[i].data.success) {
+                    let error = new Error('API operation not successful.')
+                    error.response = responses[i]
+                    throw error
+                }
+                //console.log(responses[i].data)
             }
 
-            //console.log(response.data.data)
-            //this.inventories = response.data.data
-
-            let inventories = response.data.data
+            let inventories = responses[0].data.data
 
             let categoryArray = []
             let supplierArray = []
@@ -684,7 +761,6 @@ export default {
             _.sortBy(categoryArray)
             _.sortBy(supplierArray)
 
-
             //make categoryArray into filters
             let categoryFilters = []
             for(let i=0; i<categoryArray.length; i++) {
@@ -696,11 +772,11 @@ export default {
                 })
 
             }
-            this.categoryFilters = categoryFilters
 
+            let supplierFilters = []
             if (this.$store.state.user.rightsLevel > 9.5) {
                 //make supplierArray into filters
-                let supplierFilters = []
+
                 for(let i=0; i<supplierArray.length; i++) {
                     let supplier = supplierArray[i]
 
@@ -713,25 +789,21 @@ export default {
                 this.supplierFilters = supplierFilters
             }
 
-            this.inventories = inventories
+            let storageLocations = responses[1].data.data
 
-            console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
+            Object.assign(this, {
+                storageLocations,
+                categoryFilters,
+                supplierFilters,
+                inventories,
+            })
 
-        }).catch(CATCH_ERR_HANDLER).then(() => { console.log('Spin stop ' + (new Date().getTime() - timeThen)); this.spinShow = false })
-
-        // get all storage location info
-        this.AXIOS.get(domain + '/api/v2/storage-location/all').then(response => {
-            if (!response.data.success) {
-                let error = new Error('API operation not successful.')
-                error.response = response
-                throw error
-            }
-            this.storageLocations = response.data.data
-            console.log('completed storage location req')
-        }).catch(CATCH_ERR_HANDLER)
+        }).catch(CATCH_ERR_HANDLER).then(() => {
+            console.log('Spin stop ' + (new Date().getTime() - timeThen))
+            this.spinShow = false
+        })
     },
     updated() {
-        // forever stop the search bar spinning whenever re-rendered
         // forever stop the search bar spinning whenever re-rendered
         // double raf technique
         requestAnimationFrame(() => {

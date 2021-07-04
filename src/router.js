@@ -52,6 +52,14 @@ const routers = [
             },
             component: (resolve) => require(['./views/inventory-expanded.vue'], resolve)
         }, {
+            path: 'inventory/expanded/mto',
+            title: 'Inventory (Expanded - MTO)',
+            name: 'InventoryExpandedMTO',
+            meta: {
+                title: 'Nicknacks - Inventory (Expanded - MTO)'
+            },
+            component: (resolve) => require(['./views/inventory-expanded-mto.vue'], resolve)
+        }, {
             path: 'inventory/deactivated',
             title: 'Inventory (Deactivated)',
             name: 'inventoryDeactivated',

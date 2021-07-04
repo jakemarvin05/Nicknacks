@@ -42,7 +42,8 @@
                         Inventory
                     </template>
                     <MenuItem name="Inventory" :to="{ name: 'Inventory' }">List (Mobile)</MenuItem>
-                    <MenuItem name="Inventory" :to="{ name: 'InventoryExpanded' }">List (Expanded)</MenuItem>
+                    <MenuItem name="InventoryExpanded" :to="{ name: 'InventoryExpanded' }">List (Expanded)</MenuItem>
+                    <MenuItem name="InventoryExpandedMTO" :to="{ name: 'InventoryExpandedMTO' }">List (Expanded - MTO)</MenuItem>
                     <MenuItem name="inventoryDeactivated" :to="{ name: 'inventoryDeactivated' }">List (Deactivated)</MenuItem>
                     <MenuItem name="InventoryLog" :to="{ name: 'InventoryLog' }">Log</MenuItem>
                     <MenuItem name="InventoryCOGS" v-if="$store.state.user.rightsLevel > 9.5" :to="{ name: 'InventoryCOGS' }">COGS</MenuItem>

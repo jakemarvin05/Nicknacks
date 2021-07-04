@@ -60,13 +60,23 @@ let inventoryStorageIncludes = [{
 
 router.get('/all', permit('/all', 1), (req, res, next) => {
 
+    let where = { notActive: { $not: true} }
+
+    if (req.query.mto === 'true') {
+        where.sku = {
+            $like: '%-MTO'
+        }
+    } else {
+        where.sku = {
+            $notLike: '%-MTO'
+        }
+    }
+
     PROMISE.resolve().then(() => {
 
         return [
             DB.Inventory.findAll({
-                where: {
-                    notActive: { $not: true}
-                },
+                where,
                 order: [ ['sku', 'ASC'], ['name', 'ASC'] ],
                 include: inventoryIncludes
             }),

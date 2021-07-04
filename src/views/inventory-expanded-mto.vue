@@ -4,18 +4,31 @@
         <Breadcrumb class="mainBreadCrumb">
             <BreadcrumbItem>Inventory</BreadcrumbItem>
             <BreadcrumbItem>List</BreadcrumbItem>
+            <BreadcrumbItem>Expanded</BreadcrumbItem>
+            <BreadcrumbItem>MTO</BreadcrumbItem>
         </Breadcrumb>
 
         <Button style="width:400;" type="primary" @click="addProduct()">+ Add product</Button>
         <Button style="width:400;" type="success" @click="exportFile()">> Export</Button>
+        <get-turnover :inventories="inventories" mto="true" v-on:inventory:turnover="addTurnoverColumns"></get-turnover>
 
         <br />
-        <Input
-            style="width: 250px; padding:20px 0px"
-            v-model="search"
-            :icon="searchIcon"
-            placeholder="Search name/sku"
-        />
+        <span v-if="$store.state.user.rightsLevel > 9.5">
+            <Input
+                style="width: 250px; padding:20px 0px"
+                v-model="search"
+                :icon="searchIcon"
+                placeholder="Search name/sku/supplier"
+            />
+        </span>
+        <span v-else>
+            <Input
+                style="width: 250px; padding:20px 0px"
+                v-model="search"
+                :icon="searchIcon"
+                placeholder="Search name/sku"
+            />
+        </span>
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="setPage"
@@ -25,9 +38,7 @@
           layout="sizes, prev, pager, next"
           :total="totalSize">
         </el-pagination>
-
         <Alert style="margin-top: 10px;" type="warning" show-icon>Filters and sorting does not work with pagination at the moment, unless all data are in 1 page.</Alert>
-
         <el-table
             id="inventoryTable"
             ref="inventoryTable"
@@ -35,26 +46,51 @@
             :data="searchInventories"
             :row-class-name="tableRowClassName"
             show-summary
+            border
             size="small"
+            @filter-change="onFilterChange"
         >
-            <el-table-column style="width:10px;" type="expand">
+
+            <el-table-column
+                min-width="120"
+                prop="name"
+                label="Name"
+                sortable
+            >
                 <template slot-scope="scope">
-                    <iframe class="inventoryInfoIFrame" style="height:500px; width: 90%; border: 0px;" :src="$router.resolve({ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }).href"></iframe>
+                    <p><router-link target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }">{{ scope.row.name }}</router-link></p>
                 </template>
             </el-table-column>
 
             <el-table-column
-                min-width="135"
-                prop="name"
-                label="Name"
+                min-width="150"
+                prop="sku"
+                label="SKU"
                 sortable
                 :filters="categoryFilters"
                 :filter-method="categoryFilterHandler"
             >
-                <template slot-scope="scope">
-                    <p><router-link target="_blank" :to="{ name: 'InventoryInfo', params: { 'inventoryID': scope.row.InventoryID } }">{{ scope.row.name }}</router-link></p>
-                    <p style="font-size: 10px;"><i>{{ scope.row.sku }}</i></p>
-                </template>
+            </el-table-column>
+
+            <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="110"
+                label="Supplier"
+                prop="supplier"
+                sortable
+                :sort-method="supplierSort"
+                :filters="supplierFilters"
+                :filter-method="supplierFilterHandler"
+            >
+            </el-table-column>
+
+            <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="125"
+                prop="suppliersku"
+                label="Supplier SKU"
+                sortable
+            >
             </el-table-column>
 
             <el-table-column
@@ -65,34 +101,84 @@
                 :filter-method="stockLevelFilterHandler"
             >
                 <template slot-scope="scope">
-                    <inventory-status :inventory="scope.row"></inventory-status>
+                    <inventory-status-stock :inventory="scope.row"></inventory-status-stock>
                 </template>
             </el-table-column>
 
-            <el-table-column min-width="105" label="Stock">
+            <el-table-column
+                min-width="90"
+                label="Timeline"
+                prop="timeline"
+                :filters="timelineFilters"
+                :filter-method="timelineFilterHandler"
+            >
+                <template slot-scope="scope">
+                    <inventory-status-timeline :inventory="scope.row"></inventory-status-timeline>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                min-width="70"
+                label="30D MA"
+                prop="turnover.ma30d"
+                v-if="showTurnover"
+            >
+            </el-table-column>
+            <el-table-column
+                min-width="70"
+                label="60D MA"
+                prop="turnover.ma60d"
+                v-if="showTurnover"
+            >
+            </el-table-column>
+
+
+            <el-table-column min-width="70" label="Sold">
                 <template slot-scope="scope">
 
-                    <span style="font-size:11px; line-height: 12px;" v-for="location in scope.row.stock">
+                    <span v-for="location in scope.row.stock">
 
                         <span v-if="location.name.toLowerCase() === 'sold' && location.quantity > 0">
-                            <a href="javascript:void(0);" @click="showSoldDetails(scope.row)">
-                                <p>{{ location.name }}: {{ location.quantity }}</p>
-                            </a>
+                            <a href="javascript:void(0);" @click="showSoldDetails(scope.row)">{{ location.quantity }}</a>
                         </span>
-                        <span v-else-if="location.name.toLowerCase() === 'transit' && location.quantity > 0">
-                            <a href="javascript:void(0);" @click="showTransitDetails(scope.row)">
-                                <p>{{ location.name }}: {{ location.quantity }}</p>
-                            </a>
-                        </span>
-                        <span v-else-if="location.quantity < 0 "><p class="stock-negative-text">{{ location.name }}: {{ location.quantity }}</p></span>
-                        <span v-else><p>{{ location.name }}: {{ location.quantity }}</p></span>
 
                     </span>
                 </template>
             </el-table-column>
 
             <el-table-column
-                min-width="50"
+                v-for="storageLocation in storageLocations"
+                min-width="90"
+                :label="storageLocation.name"
+                :key="storageLocation.StorageLocationID"
+            >
+                <template slot-scope="scope">
+                    <span v-for="location in scope.row.stock" style="text-align: center;">
+                        <span v-if="location.name.toLowerCase() === storageLocation.name.toLowerCase()">
+                            <span v-if="location.quantity < 0 ">
+                                <p class="stock-negative-text">{{ location.quantity }}</p>
+                            </span>
+                            <span v-else>
+                                <p>{{ location.quantity }}</p>
+                            </span>
+                        </span>
+                    </span>
+                    <span v-if="!exporting" class="storageBGText">{{storageLocation.name}} <br> <i>{{ scope.row.name }}</i></span>
+                </template>
+            </el-table-column>
+
+            <el-table-column min-width="70" label="Transit">
+                <template slot-scope="scope">
+                    <span v-for="location in scope.row.stock">
+                        <span v-if="location.name.toLowerCase() === 'transit' && location.quantity > 0">
+                            <a href="javascript:void(0);" @click="showTransitDetails(scope.row)">{{ location.quantity }}</a>
+                        </span>
+                    </span>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                min-width="80"
                 label="Net+Transit"
                 prop="stockAvailableWithTransit"
                 sortable
@@ -103,7 +189,7 @@
             </el-table-column>
 
             <el-table-column
-                min-width="50"
+                min-width="60"
                 label="Net"
                 prop="stockAvailablePhysical"
                 sortable
@@ -115,7 +201,7 @@
 
             <el-table-column
                 v-if="$store.state.user.rightsLevel > 9.5"
-                min-width="84"
+                min-width="85"
                 prop="cogs"
                 label="COGS"
                 sortable
@@ -126,6 +212,25 @@
                     </span>
                     <span v-else>{{ scope.row.cogs }}</span>
                 </template>
+            </el-table-column>
+
+            <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="95"
+                prop="supplierCurrency"
+                label="Curr $/¥"
+                sortable
+            >
+            </el-table-column>
+
+
+            <el-table-column
+                v-if="$store.state.user.rightsLevel > 9.5"
+                min-width="105"
+                prop="supplierPrice"
+                label="Supplier $"
+                sortable
+            >
             </el-table-column>
 
             <el-table-column
@@ -143,22 +248,27 @@
             </el-table-column>
 
             <el-table-column
-                min-width="62"
+                width="270"
                 label="Actions"
             >
                 <template slot-scope="scope">
                     <Button type="primary" size="small" @click="editInventory(scope.row)">
-                        <Icon type="ios-create" /><span class="inventoryActionText">Edit</span>
+                        <Icon type="ios-create" /><span>Edit</span>
                     </Button>
-                    <br>
                     <Button type="warning" size="small" @click="transfer(scope.row)">
-                        <Icon type="md-git-compare" /><span class="inventoryActionText">Transfer</span>
+                        <Icon type="md-git-compare" /><span>Transfer</span>
                     </Button>
-                    <br>
                     <Button type="error" size="small" @click="discrepancy(scope.row)">
-                        <Icon type="ios-podium" /><span class="inventoryActionText">Discrepancy</span>
+                        <Icon type="ios-podium" /><span>Discrepancy</span>
                     </Button>
                 </template>
+            </el-table-column>
+
+            <el-table-column
+                width="200"
+                prop="comments"
+                label="Comment"
+            >
             </el-table-column>
         </el-table>
 
@@ -253,7 +363,21 @@
         height: 500px;
     }
 }
-
+.el-table__header {
+    /* this is there to prevent header height changes due some visual bugs */
+    height: 45px !important;
+}
+.storageBGText {
+    position: absolute;
+    font-size: 8.5px;
+    color: #aaa;
+    display: block;
+    line-height: 10px;
+    top: 0px;
+}
+.storageBGText i {
+    color: #ccc
+}
 </style>
 
 <script>
@@ -268,7 +392,9 @@ import transferInventoryModal from './components/inventory/transfer.vue'
 import editInventoryModal from './components/inventory/edit.vue'
 import addInventoryModal from './components/inventory/add.vue'
 import discrepancyModal from './components/inventory/discrepancy.vue'
-import inventoryStatus from './components/inventory/inventory-status.vue'
+import inventoryStatusStock from './components/inventory/inventory-status-stock.vue'
+import inventoryStatusTimeline from './components/inventory/inventory-status-timeline.vue'
+import getTurnover from './components/inventory/get-turnover.vue'
 
 const domain = process.env.API_DOMAIN
 
@@ -278,7 +404,9 @@ export default {
         editInventoryModal,
         addInventoryModal,
         discrepancyModal,
-        inventoryStatus
+        inventoryStatusStock,
+        inventoryStatusTimeline,
+        getTurnover,
     },
     data () {
 
@@ -286,6 +414,7 @@ export default {
             stockCache: [],
             spinShow: true,
             categoryFilters: [],
+            supplierFilters: [],
             inventories: [],
             storageLocations: [],
 
@@ -354,7 +483,8 @@ export default {
             }, {
                 text: 'OOS',
                 value: "-9999999999,0"
-            }, {
+            }],
+            timelineFilters: [{
                 text: 'Bad timeline',
                 value: 'badTimeline'
             }],
@@ -363,10 +493,13 @@ export default {
             searchIcon: 'ios-search',
             stockErrorModal: false,
             stockErrorModalShown: false,
+            exporting: false,
+            showTurnover: false,
 
             currentPage: 1,
             pageSize: 100,
             totalSize: 0,
+
         }
 
     },
@@ -417,18 +550,24 @@ export default {
     },
     methods: {
         stockLevelFilterHandler (value, row) {
-
-            // bad timeline filter
-            if (value === 'badTimeline') {
-                return row.timeline.hasShortFall
-            }
-
             // the rest
             var value = value.split(',')
             return (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) > parseInt(value[0])) && (parseInt(row.timeline.list[0].stockAvailableAtCurrentDate) < parseInt(value[1]))
         },
+        timelineFilterHandler (value, row) {
+            // bad timeline filter
+            if (value === 'badTimeline') {
+                return row.timeline.hasShortFall
+            }
+        },
         categoryFilterHandler (value, row) {
             return row.sku.toLowerCase().indexOf(value.toLowerCase()) === 0
+        },
+        supplierFilterHandler (value, row) {
+            if (row.supplier && typeof row.supplier === 'string' && row.supplier.length > 0) {
+                return row.supplier.toLowerCase().indexOf(value.toLowerCase()) === 0
+            }
+            return false
         },
         lineAdd(inventory) {
             this.inventories.unshift(inventory)
@@ -485,9 +624,7 @@ export default {
             }
 
             inventory.discrepancyReason = ''
-
             this.discrepancyModal.inventory = inventory
-
             this.discrepancyModal.show = true
         },
         editInventory (inventory) {
@@ -512,39 +649,59 @@ export default {
             this.addInventoryModal.show = true
         },
         tableRowClassName({row, rowIndex}) {
-            console.log()
             // loop through each of the stock info to find erroneous negative stock
             for (let i=0; i<row.stock.length; i++) {
                 if (parseInt(row.stock[i].quantity) < 0) {
-                    if (!this.stockErrorModalShown) {
-                        this.stockErrorModalShown = true // prevents modal from popping up every re-render
-                        this.stockErrorModal = true
-                    }
+                    if (!this.stockErrorModalShown) this.stockErrorModal = true
                     return 'stock-negative-row';
                 }
             }
-
+            this.stockErrorModalShown = true // prevents modal from popping up every re-render
             return '';
         },
         exportFile() {
+            this.exporting = true
+            setTimeout(() => {
+                let box = xlsx.utils.table_to_book(document.querySelector('#inventoryTable'))
+                let out = xlsx.write(box, {
+                    bookType: 'xlsx',
+                    bookSST: true,
+                    type: 'array'
+                })
+                try {
+                    fileSaver.saveAs(
+                        new Blob([out], {
+                        type: 'application/octet-stream'
+                        }),
+                        'nicknacks inventory.xlsx'
+                    )
+                } catch (e) {
+                    this.exporting = false
+                    alert(`Export failed. Error: ${e}`)
+                }
+                this.exporting = false
+                return out
+            }, 0)
+        },
+        supplierSort(a, b) {
+            let compareA = (a.supplier === null) ? "" : a.supplier.toLowerCase()
+            let compareB = (b.supplier === null) ? "" : b.supplier.toLowerCase()
 
-            let box = xlsx.utils.table_to_book(document.querySelector('#inventoryTable'))
-            let out = xlsx.write(box, {
-                bookType: 'xlsx',
-                bookSST: true,
-                type: 'array'
+            if (compareA > compareB) return 1
+            if (compareA < compareB) return -1
+            return 0
+        },
+        addTurnoverColumns(data) {
+            data.ma30d.forEach(el => {
+                let found = this.inventories.find(inventory => parseInt(inventory.InventoryID) === parseInt(el.InventoryID))
+                if (found) D.set(found, 'turnover.ma30d', el.quantity)
             })
-            try {
-                fileSaver.saveAs(
-                    new Blob([out], {
-                    type: 'application/octet-stream'
-                    }),
-                    'nicknacks inventory.xlsx'
-                )
-            } catch (e) {
-                alert(`Export failed. Error: ${e}`)
-            }
-            return out
+            data.ma60d.forEach(el => {
+                let found = this.inventories.find(inventory => parseInt(inventory.InventoryID) === parseInt(el.InventoryID))
+                if (found) D.set(found, 'turnover.ma60d', el.quantity)
+            })
+            this.showTurnover = true
+            this.$Message.success('Success!');
         },
         handleSizeChange (val) {
             this.pageSize = val
@@ -552,16 +709,19 @@ export default {
         setPage (val) {
           this.currentPage = val
         },
+        onFilterChange(filters) {
+            // rewrite filters
+            console.log(filters)
+        }
     },
     created () {
 
         window.V = this
 
         let timeThen = new Date().getTime()
-
         Promise.all(
             [
-                this.AXIOS.get(domain + '/api/v2/inventory/all').then(response => {
+                this.AXIOS.get(domain + '/api/v2/inventory/all', { params: { mto: true }}).then(response => {
                     console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
                     return response
                 }),
@@ -583,18 +743,22 @@ export default {
             let inventories = responses[0].data.data
 
             let categoryArray = []
+            let supplierArray = []
 
             // split up the skus and get the broad categories
+            // get the supplierCategories
             for(let i=0; i<inventories.length; i++) {
                 let inv = inventories[i]
                 let sku = inv.sku
-
+                let supplier = (inv.supplier && typeof inv.supplier === 'string' && inv.supplier.length > 0) ? inv.supplier.toLowerCase() : null
                 let categoryName = sku.split('-')[0].toLowerCase()
 
                 if (categoryArray.indexOf(categoryName) === -1) categoryArray.push(categoryName)
+                if (supplier && supplierArray.indexOf(supplier) === -1) supplierArray.push(supplier)
             }
 
             _.sortBy(categoryArray)
+            _.sortBy(supplierArray)
 
             //make categoryArray into filters
             let categoryFilters = []
@@ -608,18 +772,36 @@ export default {
 
             }
 
+            let supplierFilters = []
+            if (this.$store.state.user.rightsLevel > 9.5) {
+                //make supplierArray into filters
+
+                for(let i=0; i<supplierArray.length; i++) {
+                    let supplier = supplierArray[i]
+
+                    supplierFilters.push({
+                        text: supplier,
+                        value: supplier
+                    })
+
+                }
+                this.supplierFilters = supplierFilters
+            }
+
             let storageLocations = responses[1].data.data
 
             Object.assign(this, {
                 storageLocations,
                 categoryFilters,
-                inventories
+                supplierFilters,
+                inventories,
             })
 
         }).catch(CATCH_ERR_HANDLER).then(() => {
             console.log('Spin stop ' + (new Date().getTime() - timeThen))
             this.spinShow = false
         })
+
     },
     updated() {
         // forever stop the search bar spinning whenever re-rendered
