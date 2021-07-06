@@ -26,7 +26,7 @@
           :total="totalSize">
         </el-pagination>
 
-        <Alert style="margin-top: 10px;" type="warning" show-icon>Filters and sorting does not work with pagination at the moment, unless all data are in 1 page.</Alert>
+        <Alert style="margin-top: 10px;" type="warning" show-icon>Filters and sorting will not work with pagination at the moment, unless all data are in 1 page.</Alert>
 
         <el-table
             id="inventoryTable"
