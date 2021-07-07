@@ -175,13 +175,24 @@ router.get('/all', permit('/all', 1), (req, res, next) => {
 })
 router.get('/all/deactivated', permit('/all/deactivated', 1), (req, res, next) => {
 
+    let where = { notActive: true }
+
+    // to decide later whether to split
+    // if (req.query.mto === 'true') {
+    //     where.sku = {
+    //         $like: '%-MTO'
+    //     }
+    // } else {
+    //     where.sku = {
+    //         $notLike: '%-MTO'
+    //     }
+    // }
+
     PROMISE.resolve().then(() => {
 
         return [
             DB.Inventory.findAll({
-                where: {
-                    notActive: true
-                },
+                where,
                 order: [ ['sku', 'ASC'], ['name', 'ASC'] ],
                 include: inventoryIncludes
             }),

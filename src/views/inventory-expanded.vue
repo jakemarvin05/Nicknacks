@@ -149,27 +149,6 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                v-for="storageLocation in storageLocations"
-                min-width="90"
-                :label="storageLocation.name"
-                :key="storageLocation.StorageLocationID"
-            >
-                <template slot-scope="scope">
-                    <span v-for="location in scope.row.stock" style="text-align: center;">
-                        <span v-if="location.name.toLowerCase() === storageLocation.name.toLowerCase()">
-                            <span v-if="location.quantity < 0 ">
-                                <p class="stock-negative-text">{{ location.quantity }}</p>
-                            </span>
-                            <span v-else>
-                                <p>{{ location.quantity }}</p>
-                            </span>
-                        </span>
-                    </span>
-                    <span v-if="!exporting" class="storageBGText">{{storageLocation.name}} <br> <i>{{ scope.row.name }}</i></span>
-                </template>
-            </el-table-column>
-
             <el-table-column min-width="70" label="Transit">
                 <template slot-scope="scope">
                     <span v-for="location in scope.row.stock">
@@ -199,6 +178,27 @@
             >
                 <template slot-scope="scope">
                     <span>{{ scope.row.stockAvailablePhysical || 0 }}</span>
+                </template>
+            </el-table-column>
+
+            <el-table-column
+                v-for="storageLocation in storageLocations"
+                min-width="90"
+                :label="storageLocation.name"
+                :key="storageLocation.StorageLocationID"
+            >
+                <template slot-scope="scope">
+                    <span v-for="location in scope.row.stock" style="text-align: center;">
+                        <span v-if="location.name.toLowerCase() === storageLocation.name.toLowerCase()">
+                            <span v-if="location.quantity < 0 ">
+                                <p class="stock-negative-text">{{ location.quantity }}</p>
+                            </span>
+                            <span v-else>
+                                <p>{{ location.quantity }}</p>
+                            </span>
+                        </span>
+                    </span>
+                    <span v-if="!exporting" class="storageBGText">{{storageLocation.name}} <br> <i>{{ scope.row.name }}</i></span>
                 </template>
             </el-table-column>
 
