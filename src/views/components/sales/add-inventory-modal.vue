@@ -13,7 +13,7 @@
 
         <Modal
             v-model="show"
-            title="Add Inventory"
+            title="Tag Inventory Sold"
             :loading="loading"
             @on-ok="addInventoryOK('addInventoryForm')"
             @on-visible-change="resetFields()"

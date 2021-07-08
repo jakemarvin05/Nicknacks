@@ -561,7 +561,7 @@ export default {
 
         Promise.all(
             [
-                this.AXIOS.get(domain + '/api/v2/inventory/all').then(response => {
+                this.AXIOS.get(domain + '/api/v2/inventory/all', { params: { mto: false }}).then(response => {
                     console.log('GET `inventory/all` completed in ' + (new Date().getTime() - timeThen))
                     return response
                 }),
