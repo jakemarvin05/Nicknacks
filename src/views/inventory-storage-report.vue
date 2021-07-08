@@ -7,11 +7,12 @@
             <BreadcrumbItem>Report History</BreadcrumbItem>
         </Breadcrumb>
 
-        <Button type="primary" @click="renfordModeToggle()">{{ renfordMode ? 'Full Mode' : 'Renford Mode' }}</Button>
-        <Cascader style="max-width: 300px" v-model="reportIndex" :data="reportSelectionData" filterable @on-change="toggleData" clearable placeholder="Select report"></Cascader>
+        <Button type="primary" @click="renfordModeToggle()">{{ renfordMode ? 'Full Mode' : 'Renford Only' }}</Button>
+        <Button style="width:400;" type="success" @click="exportFile()">> Export</Button>
+        <Cascader style="max-width: 300px; padding-top:10px;" v-model="reportIndex" :data="reportSelectionData" filterable @on-change="toggleData" clearable placeholder="Select report"></Cascader>
 
         <span v-show="!renfordMode">
-            <el-table :data="inventories" show-summary>
+            <el-table :data="inventories" show-summary id="full">
                 <el-table-column
                     fixed
                     min-width="135"
@@ -77,7 +78,7 @@
             </el-table>
         </span>
         <span v-show="renfordMode">
-            <el-table :data="renfordInventories" show-summary>
+            <el-table :data="renfordInventories" show-summary id="renford">
                 <el-table-column
                     fixed
                     min-width="135"
@@ -97,15 +98,14 @@
                 <el-table-column min-width="50" label="Qty">
                     <template slot-scope="scope">
                         <span v-for="location in scope.row.stock">
-                            <span v-if="location.name.toLowerCase() === 'renford'">{{ location.quantity }}</span>
+                            <span v-if="location.name.toLowerCase().indexOf('renford') > -1">{{ location.quantity }}</span>
                         </span>
                     </template>
                 </el-table-column>
 
-
                 <el-table-column
                     prop="cbm"
-                    label="CBM"
+                    label="Per Unit CBM"
                     sortable
                 >
                     <template slot-scope="scope">
@@ -114,18 +114,15 @@
                         </span>
                         <span v-else>{{ scope.row.cbm }}</span>
                     </template>
-
                 </el-table-column>
 
                 <el-table-column
                     v-for="columnLocation in storageLocations"
-                    v-if="columnLocation.name === 'Renford'"
+                    v-if="columnLocation.name.toLowerCase().indexOf('renford') > -1"
                     label="Renford Total"
                     :key="columnLocation.StorageLocationID"
                     :prop="('stockCBM-' + columnLocation.name)"
-                >
-
-                </el-table-column>
+                ></el-table-column>
             </el-table>
         </span>
 
@@ -165,6 +162,8 @@
     </div>
 </template>
 <script>
+import fileSaver from 'file-saver'
+import xlsx from 'xlsx'
 
 import D from 'dottie'
 import _ from 'lodash'
@@ -286,7 +285,7 @@ export default {
                     // create renford inventory
                     for (let i=0; i<inv.stock.length; i++) {
                         let stock = inv.stock[i]
-                        if (stock.name.toLowerCase() === 'renford' && parseFloat(stock.quantity) > 0) vueThis.renfordInventories.push(inv)
+                        if (stock.name.toLowerCase().indexOf('renford') > -1 && parseFloat(stock.quantity) > 0) vueThis.renfordInventories.push(inv)
                     }
 
                     // make stockCBM
@@ -321,7 +320,32 @@ export default {
                 }
                 vueThis.categoryFilters = categoryFilters
             }
-        }
+        },
+        exportFile() {
+            this.exporting = true
+            setTimeout(() => {
+                let id = this.renfordMode ? '#renford' : '#full'
+                let box = xlsx.utils.table_to_book(document.querySelector(id))
+                let out = xlsx.write(box, {
+                    bookType: 'xlsx',
+                    bookSST: true,
+                    type: 'array'
+                })
+                try {
+                    fileSaver.saveAs(
+                        new Blob([out], {
+                        type: 'application/octet-stream'
+                        }),
+                        'nicknacks inventory.xlsx'
+                    )
+                } catch (e) {
+                    this.exporting = false
+                    alert(`Export failed. Error: ${e}`)
+                }
+                this.exporting = false
+                return out
+            }, 0)
+        },
     },
     created () {
 
