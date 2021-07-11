@@ -206,7 +206,7 @@ export default {
 
                         // remove the inventory from view
                         let index = _.findIndex(this.inventories, ['InventoryID', inventory.InventoryID])
-                        this.inventories.splice(index, 1)
+                        self.inventories.splice(index, 1)
 
                         self.$Message.success(inventory.name + ' has been activated!')
                         self.$Modal.remove()
