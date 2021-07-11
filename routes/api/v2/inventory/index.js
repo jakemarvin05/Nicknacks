@@ -66,7 +66,7 @@ router.get('/all', permit('/all', 1), (req, res, next) => {
         where.sku = {
             $like: '%-MTO'
         }
-    } else if (req.query.mto === 'false ') {
+    } else if (req.query.mto === 'false') {
         where.sku = {
             $notLike: '%-MTO'
         }
