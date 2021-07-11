@@ -272,6 +272,15 @@
             </el-table-column>
         </el-table>
 
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="setPage"
+          :current-page.sync="currentPage"
+          :page-sizes="[100, 200, 400, 1000, 2000]"
+          :page-size="pageSize"
+          layout="sizes, prev, pager, next"
+          :total="totalSize">
+        </el-pagination>
 
         <add-inventory-modal
             v-on:inventory:added="lineAdd"
