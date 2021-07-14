@@ -1,7 +1,11 @@
 <template>
     <div v-if="inventory.timeline">
         <div>
-            <Button size="small" @click="showTimeline()" :type="(inventory.timeline.hasShortFall ? 'error' : 'success' )">Timeline</Button>
+            <Button size="small" style="font-size:10.5px;" @click="showTimeline()" :type="(inventory.timeline.hasShortFall ? 'error' : 'success' )">
+                <span v-if="inventory.timeline.hasShortFall">⚠️</span>
+                <span v-else>👍</span>
+                Timeline
+            </Button>
         </div>
         <timeline-modal :modalData="timelineModal"></timeline-modal>
     </div>
