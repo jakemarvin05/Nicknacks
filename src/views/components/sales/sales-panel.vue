@@ -190,6 +190,13 @@ export default {
                 inventory: result.inventory
             })
 
+            if (result.inventory.timeline.hasShortFall) {
+                this.$Modal.error({
+                    title: `Unable to fulfill ${result.inventory.name}!`,
+                    content: 'Please check timeline!'
+                })
+            }
+
         },
         addInventory(salesReceipt) {
             this.showAddInventoryModal = true
